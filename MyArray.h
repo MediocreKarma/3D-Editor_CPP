@@ -15,7 +15,7 @@ class MyArray
             }
         }
 
-        MyArray<T, m_size>& operator=(const MyArray<T, m_size>& rhs) {
+        MyArray<T, m_size>& operator = (const MyArray<T, m_size>& rhs) {
             if (this == &rhs) {
                     return *this; // handle self assignment
             }
