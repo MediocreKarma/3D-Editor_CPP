@@ -2,6 +2,7 @@
 #define MYARRAY_H
 
 #include <cstddef>
+#include <initializer_list>
 
 template<class T, size_t m_size>
 class MyArray
@@ -11,7 +12,20 @@ class MyArray
 
         MyArray(const MyArray<T, m_size>& other) {
             for (size_t i = 0; i < other.size(); ++i) {
-                this->m_data[i] = other[i];
+                m_data[i] = other[i];
+            }
+        }
+
+        MyArray(const std::initializer_list<T>& rhs) {
+            if (rhs.size() > size()) {
+                throw std::invalid_argument("Too many initializers");
+            }
+            const T* ptr = rhs.begin();
+            for (size_t i = 0; i < rhs.size(); ++i) {
+                m_data[i] = *(ptr++);
+            }
+            for (size_t i = rhs.size(); i < size(); ++i) {
+                m_data[i] = T();
             }
         }
 
@@ -20,7 +34,7 @@ class MyArray
                     return *this; // handle self assignment
             }
             for (size_t i = 0; i < rhs.size(); ++i) {
-                this->m_data[i] = rhs[i];
+                m_data[i] = rhs[i];
             }
             return *this;
         }
@@ -31,16 +45,30 @@ class MyArray
 
         void fill(const T& fillValue) {
             for (size_t i = 0; i < m_size; ++i) {
-                this->m_data[i] = fillValue;
+                m_data[i] = fillValue;
             }
         }
 
+        MyArray<T, m_size>& operator = (const std::initializer_list<T>& listInit) {
+            if (listInit.size() > size()) {
+                throw std::invalid_argument("Too many initializers");
+            }
+            const T* ptr = listInit.begin();
+            for (size_t i = 0; i < listInit.size(); ++i) {
+                m_data[i] = *(ptr++);
+            }
+            for (size_t i = listInit.size(); i < size(); ++i) {
+                m_data[i] = T();
+            }
+            return *this;
+        }
+
         T& operator [] (const size_t& index) {
-            return this->m_data[index];
+            return m_data[index];
         }
 
         const T& operator [] (const size_t& index) const {
-            return this->m_data[index];
+            return m_data[index];
         }
 
     private:
