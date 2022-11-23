@@ -39,7 +39,7 @@ class MyArray
             return this->m_data[index];
         }
 
-        const T& operator[] (const size_t& index) const {
+        const T& operator [] (const size_t& index) const {
             return this->m_data[index];
         }
 
