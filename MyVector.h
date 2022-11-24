@@ -1,128 +1,115 @@
 #ifndef MYVECTOR_H
 #define MYVECTOR_H
-
 #include <stdlib.h>
 #include <cstddef>
-using namespace std;
+#include<iostream>
+#include<initializer_list>
 
 template<class T>
 class MyVector
 {
 public:
     MyVector() {
-        v_size = 0;
-        capacity = 0;
-        begin_index = 0;
-        end_index = 0; //defapt e cu 1 mai mult. decat sa lucrez in int, las in size_t
+        m_vec = (T*)malloc(2 * sizeof(T));
+        m_size = 0;
+        m_capacity = 2;
     }
 
     void reserve(const size_t& reqSize) {
-        if (v_size == 0) {
-            T* vecNou = (T*) malloc(v_size * sizeof(T));
-            if (vecNou != NULL) {
-                this->vec = vecNou;
-            }
-            else {
-                //teoretic aici ar putea fi o eroare? daca gen nu merge malloc parca
-                //si gen returneaza null parca
-                //dar deocamdata vom pretinde ca n are cum
-            }
-        }
-        else if (capacity < reqSize) {
+        //nu mai face mereu reserve, doar cand e efectiv nevoie. 
+        if (m_capacity < reqSize) {
             T* vecNou;
-            vecNou = (T*)realloc(this->vec, v_size * sizeof(T));
+            vecNou = (T*)realloc(m_vec, m_size * sizeof(T));
             if (vecNou != NULL) {
-                this->vec = vecNou;
+                this->m_vec = vecNou;
             }
             else {
-                //si aici ar putea fi o eroare
+                throw std::bad_alloc();
             }
-            capacity = reqSize;
+            m_capacity = reqSize;
         }
-    }
-    
-    size_t size() const {
-        return v_size;
     }
 
-    void resize(const size_t& size) {
-        T* vecNou;
-        if (size > v_size) {
-            vecNou = (T*)realloc(this->vec, 2 * v_size * sizeof(T));
-            capacity = 2 * v_size;
-        }
-        else {
-            vecNou = (T*)realloc(this->vec, v_size * sizeof(T));
-            capacity = size;
-        }
-        if (vecNou != NULL) {
-            this->vec = vecNou;
-        }
-        else {
-            //sfanta eroare
-        }
+    size_t size() const {
+        return m_size;
     }
 
     void push_back(const T& element) {
-        this->v_size ++;
-        
-        reserve(v_size);
-        *(this->vec + this->end_index) = element;
-        end_index++;
+        m_size++;
+        if (m_size > m_capacity) {
+            reserve(m_size * sizeof(T));
+        }
+        *(m_vec + m_size - 1) = element;
     }
-
     void pop_back() {
-        if (v_size > 0) {
-            this->v_size--;
-            end_index--;
-            resize(v_size);
+        if (m_size > 0) {
+            m_size--;
+            this->m_vec[m_size] = T();
+        }
+        else {
+            //eroare
         }
     }
 
     T& operator [] (const size_t& index) {
-        return this->vec[index];
-    }
-
-    const T& operator [] (const size_t& index) const {
-        return this->vec[index];
-    }
-
-    T& front() {
-        return this->vec[begin_index];
-    }
-    T& back() {
-        
-        if (end_index > 0) {
-            return this->vec[end_index - 1];
+        if (index < m_size) {
+            return this->m_vec[index];
         }
         else {
-            //nush ce returnez daca i invalid apelu
-            //vedem
+            throw std::invalid_argument("received bad value");
         }
     }
+    const T& operator [] (const size_t& index) const {
+        return this->m_vec[index];
+    }
+    T& front() {
+        return this->m_vec[0];
+    }
+    T& back() {
 
-    //initializare cu alt vector
+        if (m_size > 0) {
+            return this->m_vec[m_size - 1];
+        }
+        else {
+            throw std::invalid_argument("received bad value");
+        }
+    }
+    //initializare cu alt vector; constructor overload
     MyVector(const MyVector<T>& other) {
         for (size_t i = 0; i < other.size(); ++i) {
-            this->push_back(other[i]);
+            this->push_back(other[i]); //e mai eficient, vezi reserve
         }
     }
-
-    //initializare egal
+    //initializare prin override egal
     MyVector<T>& operator = (const MyVector<T>& other) {
         if (this == &other) {
             return *this;
         }
         for (size_t i = 0; i < other.size(); ++i) {
-            this->push_back(other[i]);
+            if (i > m_capacity) {
+
+            }
+            else {
+                this->m_vec[i] = other[i];
+            }
         }
         return *this;
     }
+    //init acolade
+    MyVector<T>& operator = (const std::initializer_list<T>& acol) {
+        reserve(acol.size());
+        const T* el = acol.begin();
+        for (size_t i = 0; i < acol.size(); i++) {
+            this->m_vec[i] = *(el++);
+        }
+        for (size_t i = acol.size(); i < size(); i++) {
+            this->m_vec[i] = T();
+        }
+    }
 
 private:
-    T* vec;
-    size_t v_size, capacity;
-    size_t begin_index, end_index;
+    T* m_vec;
+    size_t m_size, m_capacity;
 };
 
 #endif // MYVECTOR_H
