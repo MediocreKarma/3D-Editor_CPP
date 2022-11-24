@@ -77,7 +77,7 @@ public:
     //initializare cu alt vector; constructor overload
     MyVector(const MyVector<T>& other) {
         for (size_t i = 0; i < other.size(); ++i) {
-            this->push_back(other[i]); //e mai eficient, vezi reserve
+            this->push_back(other[i]); //nu e cel mai eficient dar merge, vezi reserve
         }
     }
     //initializare prin override egal
