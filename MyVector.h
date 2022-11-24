@@ -1,7 +1,9 @@
 #ifndef MYVECTOR_H
 #define MYVECTOR_H
 
+#include <cstddef>
 #include <initializer_list>
+#include <stdexcept>
 
 template<class T>
 class MyVector
