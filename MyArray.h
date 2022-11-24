@@ -3,6 +3,7 @@
 
 #include <cstddef>
 #include <initializer_list>
+#include <stdexcept>
 
 template<class T, size_t m_size>
 class MyArray
@@ -73,6 +74,64 @@ class MyArray
 
     private:
         T m_data[m_size];
+};
+
+template<size_t m_size>
+class MyArray<char, m_size> {
+    public:
+        MyArray() = default;
+
+        MyArray(const MyArray<char, m_size>& other) {
+            for (size_t i = 0; i < other.size(); ++i) {
+                m_data[i] = other[i];
+            }
+        }
+
+        MyArray(const char* p) {
+            size_t i = 0;
+            for (i = 0; p[i]; ++i) {
+                m_data[i] = p[i];
+            }
+            m_data[i] = 0;
+        }
+
+        MyArray<char, m_size>& operator = (const MyArray<char, m_size>& rhs) {
+            if (this == &rhs) {
+                    return *this; // handle self assignment
+            }
+            for (size_t i = 0; i < rhs.size(); ++i) {
+                m_data[i] = rhs[i];
+            }
+            return *this;
+        }
+
+        size_t size() const {
+            return m_size;
+        }
+
+        char* data() {
+            return m_data;
+        }
+
+        MyArray<char, m_size>& operator = (const char* p) {
+            size_t i = 0;
+            for (i = 0; p[i]; ++i) {
+                m_data[i] = p[i];
+            }
+            m_data[i] = 0;
+            return *this;
+        }
+
+        char& operator [] (const size_t& index) {
+            return m_data[index];
+        }
+
+        const char& operator [] (const size_t& index) const {
+            return m_data[index];
+        }
+
+    private:
+        char m_data[m_size];
 };
 
 #endif // MYARRAY_H
