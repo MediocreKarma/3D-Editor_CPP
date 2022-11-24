@@ -1,165 +1,137 @@
 #ifndef MYVECTOR_H
 #define MYVECTOR_H
 
-#include <stdlib.h>
-#include <cstddef>
-#include<stdexcept>
-using namespace std;
+#include <initializer_list>
 
 template<class T>
 class MyVector
 {
-public:
-    MyVector() {
+    public:
+        MyVector() : m_vec(nullptr), m_size(0), m_capacity(2) {
+            setCapacity(m_capacity);
+        }
 
-        m_vec = (T*)malloc(m_size * sizeof(T));
-        m_size = 0;
-        m_capacity = 2;
-    }
-
-    void reserve(const size_t& reqSize) {
-        if (m_capacity < reqSize) {
-            T* vecNou;
-
-            if (m_capacity * 2 >= reqSize) {
-                vecNou = (T*)realloc(m_vec, 2 * m_capacity * sizeof(T));
-
-                m_capacity *= 2;
+        MyVector(const MyVector<T>& other) : m_vec(nullptr), m_size(0), m_capacity(2) {
+            resize(other.size());
+            m_size = other.size();
+            for (size_t i = 0; i < other.size(); ++i) {
+                m_vec[i] = other[i];
             }
-            else {
-                vecNou = (T*)realloc(m_vec, reqSize * sizeof(T));
+        }
 
-                m_capacity = reqSize;
+        MyVector(const std::initializer_list<T>& initList) : m_vec(nullptr), m_size(0), m_capacity(2) {
+            resize(initList.size());
+            const T* el = initList.begin();
+            for (size_t i = 0; i < initList.size(); i++) {
+                m_vec[i] = *(el++);
             }
+        }
 
-            if (vecNou != NULL) {
-                m_vec = vecNou;
+        ~MyVector() {
+            free(m_vec);
+        }
+
+        MyVector<T>& operator = (const MyVector<T>& other) {
+            if (this == &other) {
+                return *this;
             }
-            else {
-                throw std::bad_alloc();
+            resize(other.size());
+            m_size = other.size();
+            for (size_t i = 0; i < other.size(); ++i) {
+                m_vec[i] = other[i];
             }
-
-        }
-    }
-
-    size_t size() const {
-        return m_size;
-    }
-    size_t capacity() const {
-        return m_capacity;
-    }
-
-    void resize(const size_t& size) {
-        T* vecNou;
-        if (size > m_capacity) {
-            vecNou = (T*)realloc(m_vec, size * sizeof(T));
-            for (size_t i = m_size; i < size; i++) {
-                m_vec[i] = T();
-            }
-           
-        }
-        else {
-            vecNou = (T*)realloc(m_vec, size * sizeof(T));
-        }
-        m_capacity = size;
-        if (vecNou != NULL) {
-            this->m_vec = vecNou;
-        }
-        else {
-            throw std::bad_alloc();
-        }
-    }
-
-    void push_back(const T& element) {
-        this->m_size++;
-        int k = 2;
-        while (m_size > m_capacity) {
-            reserve(k * m_size);
-            k *= 2;
-        }
-        *(m_vec + m_size-1) = element;
-        
-    }
-
-    void pop_back() {
-        if (m_size > 0) {
-            m_vec[m_size-1] = T();
-            m_size--;
-        }
-    }
-
-    T& operator [] (const size_t& index) {
-        if (index >= 0 && index < m_size) {
-            return this->m_vec[index];
-        }
-        else {
-            throw std::invalid_argument("out of bounds");
-        }
-    }
-
-    const T& operator [] (const size_t& index) const {
-        if (index >= 0 && index < m_size) {
-            return this->m_vec[index];
-        }
-        else {
-            throw std::invalid_argument("out of bounds");
-        }
-    }
-
-    T& front() {
-        return this->m_vec[0];
-    }
-    T& back() {
-
-        if (m_size > 0) {
-            return this->vec[m_size - 1];
-        }
-        else {
-            throw std::invalid_argument("out of bounds");
-        }
-    }
-
-    //initializare cu alt vector
-    MyVector(const MyVector<T>& other) {
-        for (size_t i = 0; i < other.size(); ++i) {
-            this->push_back(other[i]);
-        }
-    }
-
-    //initializare egal
-    MyVector<T>& operator = (const MyVector<T>& other) {
-        if (this == &other) {
             return *this;
         }
-        for (size_t i = 0; i < other.size(); ++i) {
-            this->push_back(other[i]);
+
+        MyVector<T>& operator = (const std::initializer_list<T>& initList) {
+            resize(initList.size());
+            const T* el = initList.begin();
+            for (size_t i = 0; i < initList.size(); i++) {
+                m_vec[i] = *(el++);
+            }
         }
-        return *this;
-    }
 
-    MyVector(const std::initializer_list<T>& init) {
-        reserve(init.size());
-        const T* ptr = init.begin();
-        for (size_t i = 0; i < init.size(); i++){
-            this->push_back(*(ptr));
-            ptr++;
+        void reserve(const size_t& reservedCapacity) {
+            if (reservedCapacity < m_capacity) {
+                return;
+            }
+            int mult = 2;
+            while (reservedCapacity >= m_capacity * mult) {
+                mult *= 2;
+            }
+            setCapacity(m_capacity * mult);
         }
-    }
 
-    MyVector<T>& operator = (const std::initializer_list<T>& init) {
-        reserve(init.size());
-        const T* ptr = init.begin();
-        for (size_t i = 0; i < init.size(); i++) {
-            this->push_back(*(ptr));
-            ptr++;
+        void resize(const size_t& newSize) {
+            if (newSize > size()) {
+                reserve(newSize);
+            }
+            else {
+                setCapacity(newSize);
+            }
+            m_size = newSize;
         }
-    }
 
+        size_t size() const {
+            return m_size;
+        }
 
-private:
-    T* m_vec;
-    size_t m_size, m_capacity;
+        bool empty() const {
+            return !m_size;
+        }
+
+        void push_back(const T& element) {
+            if (m_size == m_capacity) {
+                setCapacity(m_capacity * 2);
+            }
+
+            m_vec[m_size++] = element;
+        }
+
+        void pop_back() {
+            if (!m_size)
+                return;
+            --m_size;
+            if (m_capacity / 2 == m_size) {
+                setCapacity(m_capacity / 2);
+            }
+        }
+
+        T& front() {
+            return m_vec[0];
+        }
+
+        T& back() {
+            return m_vec[size() - 1];
+        }
+
+        T& operator [] (const size_t& index) {
+            return m_vec[index];
+        }
+
+        const T& operator [] (const size_t& index) const {
+            return m_vec[index];
+        }
+
+    private:
+        T* m_vec;
+        size_t m_size, m_capacity;
+
+        void setCapacity(const size_t& newCapacity) {
+            if (newCapacity == 0) {
+                free(m_vec);
+                m_vec = nullptr;
+                m_capacity = newCapacity;
+            }
+            T* newVec = (T*)realloc(m_vec, newCapacity * sizeof(T));
+            if (newVec) {
+                m_vec = newVec;
+                m_capacity = newCapacity;
+            }
+            else {
+                throw std::invalid_argument("bad malloc");
+            }
+        }
 };
 
 #endif // MYVECTOR_H
-
