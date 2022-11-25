@@ -1,9 +1,9 @@
 #ifndef APPTOOLS_H
 #define APPTOOLS_H
 
-#include <MyArray.h>
-#include <graphics.h>
-#include <winbgim.h>
+#include "../include/MyArray.h"
+#include "graphics.h"
+#include "winbgim.h"
 
 class Label {
     public:
@@ -19,6 +19,15 @@ class Label {
         int yLen;
         int fillColor;
 };
+class TextLabel : public Label {
+public:
+    TextLabel();
+    TextLabel(const int& xCenter, const int& yCenter, const int& xLen, const int& yLen, const int& fillColor, const char*& text);
+    void drawTextLabel(const int& txtFont, const int& txtSize);
+private:
+    MyArray<char, 128> m_text;
+    void drawText(const int& txtFont, const int& txtSize);
+};
 
 class Button : public Label {
     public:
@@ -26,7 +35,15 @@ class Button : public Label {
         Button(const int& xCenter, const int& yCenter, const int& xLen, const int& yLen, const int& fillColor);
         bool hitCollision(const int& x, const int& y);
 };
+class ImageButton : public Button {
+public:
+    ImageButton();
+    ImageButton(const int& xCenter, const int& yCenter, const int& xLen, const int& yLen, const int& fC, const char*& filename);
 
+    void drawImageButton();
+private:
+    MyArray<char, 128> filename;
+};
 class TextButton : public Button {
     public:
         TextButton();
@@ -78,7 +95,7 @@ class DropdownButton : public TextButton {
         }
 
         bool listHitCollision(const int& x, const int& y) {
-            return xCenter - xLen / 2
+            return xCenter - xLen / 2;
         }
 
     private:
