@@ -11,7 +11,6 @@ void SettingsMenuInterface::drawScreen() {
 
 void SettingsMenuInterface::setTextSettings() {
     settextstyle(FONT, 0, FONT_SIZE);
-
 }
 
 MyArray<TextLabel, LABEL_SIZE> SettingsMenuInterface::initLabels() {
@@ -128,22 +127,15 @@ bool SettingsMenuInterface::settingsMenu(MyArray<TextButton, TEXTBUTTON_SIZE>& t
             ddButton.toggleVisibillity(BACKGROUND_COLOR, FONT, FONT_SIZE);
         }
         if (ddButton.isListVisible()) {
-            //for (size_t i = 0; i < DROPDOWN_SIZE; ++i) {
-                // handle resolution picked
-                // change button display text
-            //
-            //eu sugerez ceva fara for; calculam prin impartiri indexul direct in hitCollision
-            //nu mai schimbam vreo culoare a butoanelor din lista, ci doar textul din interiorul dropwdownului;
-            //consider ca e suficient pentru ca userul sa si dea seama, gen, care i treaba
-            //ca el a schimbat intr adevar resolutionul
+            //ddCollide e indexul elementului selectat
             const int ddCollide = ddButton.listHitCollision(x,y);
-            if(ddCollide >= 0){
-                //ddCollide e indexul elementului selectat
+            if(ddCollide >= 0) {
                 ddButton.changeMain(ddCollide, FONT, FONT_SIZE);
                 changeResolution(ddButton.getText());
                 ddButton.border(RED);
+                // la dropdown nu as face border-urile RED, mai degraba schimbam
+                // doar selectia pe butonul principal
                 ddButton.toggleVisibillity(BACKGROUND_COLOR,FONT,FONT_SIZE);
-
             }
         }
     }
