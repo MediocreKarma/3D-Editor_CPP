@@ -21,7 +21,7 @@ namespace SettingsMenuInterface
     static const int FONT = 3;
     static const int FONT_SIZE = 1;
     static int resolutionX = 1280;
-    static int resolutionY = 729;
+    static int resolutionY = 720;
     static int theme = BLACK;
     static int language = 0;
 
