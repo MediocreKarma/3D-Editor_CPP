@@ -16,8 +16,9 @@ void SettingsMenuInterface::setTextSettings() {
 
 MyArray<TextLabel, LABEL_SIZE> SettingsMenuInterface::initLabels() {
     MyArray<TextLabel, LABEL_SIZE> labels = {
-        TextLabel(100, 50, 140, 50, LABEL_COLOR, "Tema / Theme"),
-        TextLabel(100, 250, 140, 50, LABEL_COLOR, "Limba / Language")
+        TextLabel(100, 50, 160, 50, LABEL_COLOR, "Tema / Theme"),
+        TextLabel(100,110,160,50,LABEL_COLOR,"Rezolutie/Resolution"),
+        TextLabel(100, 290, 160, 50, LABEL_COLOR, "Limba / Language")
     };
     return labels;
 }
@@ -32,14 +33,14 @@ MyArray<TextButton, TEXTBUTTON_SIZE> SettingsMenuInterface::initThemeButtons() {
 
 MyArray<ImageButton, FLAG_SIZE> SettingsMenuInterface::initImageButtons() {
     MyArray<ImageButton, FLAG_SIZE> flagButtons = {
-        ImageButton(350, 250, 140, 50, 0, "./media/RO.jpg"),
-        ImageButton(500, 250, 140, 50, 0, "./media/EN.jpg")
+        ImageButton(350, 290, 140, 50, 0, "./media/RO.jpg"),
+        ImageButton(500, 290, 140, 50, 0, "./media/EN.jpg")
     };
     return flagButtons;
 }
 
 DropdownButton<DROPDOWN_SIZE> SettingsMenuInterface::buildDropdownButton() {
-    DropdownButton<DROPDOWN_SIZE> ddButton(300, 100, 100, 50, LIGHTGRAY, "1280x720", 200);
+    DropdownButton<DROPDOWN_SIZE> ddButton(425, 110, 140, 50, LIGHTGRAY, "1280x720", 120);
     ddButton.addOption("1920x1080", WHITE);
     ddButton.addOption("1600x900", WHITE);
     ddButton.addOption("1280x720", WHITE);
@@ -66,6 +67,10 @@ void SettingsMenuInterface::drawFlagButtons(MyArray<ImageButton, FLAG_SIZE>& fla
     }
 }
 
+void SettingsMenuInterface::changeResolution(const char* resSelect){
+    //un pic de text processing aci si se rezolva si asta
+}
+
 void SettingsMenuInterface::run() {
     int height = getmaxheight(), width = getmaxwidth();
     initwindow(SETTINGS_WIDTH, SETTINGS_HEIGHT, "Settings", width / 2 - SETTINGS_WIDTH / 2, height / 2 - SETTINGS_HEIGHT / 2);
@@ -74,7 +79,7 @@ void SettingsMenuInterface::run() {
     MyArray<TextLabel, LABEL_SIZE> labels(initLabels());
     MyArray<TextButton, TEXTBUTTON_SIZE> themeButtons(initThemeButtons());
     MyArray<ImageButton, FLAG_SIZE> flagButtons(initImageButtons());
-    TextButton startButton(300, 350, 140, 50, RGB(180, 180, 180), "Start");
+    TextButton startButton(300, 350, 100, 50, RGB(180, 180, 180), "Start");
     DropdownButton<DROPDOWN_SIZE> ddButton(buildDropdownButton());
     drawLabels(labels);
     settingsMenu(themeButtons, flagButtons, startButton, ddButton);
@@ -123,9 +128,22 @@ bool SettingsMenuInterface::settingsMenu(MyArray<TextButton, TEXTBUTTON_SIZE>& t
             ddButton.toggleVisibillity(BACKGROUND_COLOR, FONT, FONT_SIZE);
         }
         if (ddButton.isListVisible()) {
-            for (size_t i = 0; i < DROPDOWN_SIZE; ++i) {
+            //for (size_t i = 0; i < DROPDOWN_SIZE; ++i) {
                 // handle resolution picked
                 // change button display text
+            //
+            //eu sugerez ceva fara for; calculam prin impartiri indexul direct in hitCollision
+            //nu mai schimbam vreo culoare a butoanelor din lista, ci doar textul din interiorul dropwdownului;
+            //consider ca e suficient pentru ca userul sa si dea seama, gen, care i treaba
+            //ca el a schimbat intr adevar resolutionul
+            const int ddCollide = ddButton.listHitCollision(x,y);
+            if(ddCollide >= 0){
+                //ddCollide e indexul elementului selectat
+                ddButton.changeMain(ddCollide, FONT, FONT_SIZE);
+                changeResolution(ddButton.getText());
+                ddButton.border(RED);
+                ddButton.toggleVisibillity(BACKGROUND_COLOR,FONT,FONT_SIZE);
+
             }
         }
     }

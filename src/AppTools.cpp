@@ -62,7 +62,7 @@ ImageButton::ImageButton(const int& xCenter_, const int& yCenter_, const int& xL
 
 void ImageButton::drawImageButton() {
     drawLabel();
-    readimagefile(filename.data(), xCenter - xLen / 2, yCenter - yLen / 2, xCenter + xLen / 2 - 1, yCenter + yLen / 2 - 1);
+    readimagefile(filename.data(), xCenter - xLen / 2 + 1, yCenter - yLen / 2 + 1 , xCenter + xLen / 2 - 1, yCenter + yLen / 2 - 1);
 }
 
 TextButton::TextButton() :
@@ -81,4 +81,8 @@ void TextButton::drawText(const int& txtFont, const int& txtSize) {
 void TextButton::drawTextButton(const int& txtFont, const int& txtSize) {
     drawLabel();
     drawText(txtFont, txtSize);
+}
+
+const char* TextButton::getText() {
+    return m_text.data();
 }
