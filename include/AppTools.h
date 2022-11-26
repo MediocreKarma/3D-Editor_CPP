@@ -97,7 +97,7 @@ class DropdownButton : public TextButton {
             }
             setfillstyle(SOLID_FILL, barColor);
             bar(xCenter - xLen / 2 - 1, yCenter + yLen / 2 + 1,
-            xCenter + xLen / 2 + 1, yCenter + yLen / 2 + m_listHeight + 1);
+                xCenter + xLen / 2 + 1, yCenter + yLen / 2 + m_listHeight + 1);
             m_listVisibility = 0;
         }
 
@@ -114,18 +114,14 @@ class DropdownButton : public TextButton {
             return m_listVisibility;
         }
 
-        void changeMain(const int& index, const int& font, const int& fontSize){
-            const char*p = m_list[index].getText();
+        void changeMain(const int& index, const int& font, const int& fontSize) {
+            const char* p = m_list[index].getText();
             changeText(p);
             drawTextButton(font,fontSize);
 
         }
         int listHitCollision(const int& x, const int& y) {
-            if (xCenter - xLen / 2 <= x && x <= xCenter + xLen / 2 && y >= yCenter + yLen / 2 && yCenter + yLen / 2 + m_listHeight){
-                //return indexul direct ca sa nu mai stai sa faci for. chit ca s text buttons si poti sa verif clicku pt fiecare
-                //eu zic ca i mai ok
-                //daca vrei sa adaugi ceva pentru hover mai tarziu, tot poti sa folosesti listHitCollisionul asta, si sa schimbi
-                //doar butonul corespunzator indexului. si tot e mai eficient
+            if (xCenter - xLen / 2 <= x && x <= xCenter + xLen / 2 && yCenter + yLen / 2 <= y && y <= yCenter + yLen / 2 + m_listHeight) {
                 return ((y - (yCenter + yLen/2)) / (m_listHeight / m_index));
             }
             return -1;
