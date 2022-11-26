@@ -124,7 +124,8 @@ bool SettingsMenuInterface::settingsMenu(MyArray<TextButton, TEXTBUTTON_SIZE>& t
         }
         if (ddButton.isListVisible()) {
             for (size_t i = 0; i < DROPDOWN_SIZE; ++i) {
-
+                // handle resolution picked
+                // change button display text
             }
         }
     }
