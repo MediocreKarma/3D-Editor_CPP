@@ -7,6 +7,9 @@ class Point3D {
     public:
         Point3D();
         Point3D(const int& x_, const int& y_, const int& z_);
+        const int& getX() const;
+        const int& getY() const;
+        const int& getZ() const;
 
     private:
         int x;
@@ -28,6 +31,8 @@ class Line3D {
     public:
         Line3D();
         Line3D(const Point3D& P_, const Point3D& Q_);
+        const Point3D& getP();
+        const Point3D& getQ();
 
     private:
         Point3D P;
@@ -38,6 +43,8 @@ class Point2D {
     public:
         Point2D();
         Point2D(const int& x_, const int& y_);
+        const int& getX() const;
+        const int& getY() const;
 
     private:
         int x;
@@ -48,6 +55,8 @@ class Line2D {
     public:
         Line2D();
         Line2D(const Point2D& P_, const Point2D& Q_);
+        const Point2D& getP();
+        const Point2D& getQ();
 
     private:
         Point2D P;
@@ -57,10 +66,18 @@ class Line2D {
 class Section {
     public:
         Section();
+        Section(const int& Z);
         void addLine(const Line2D& line);
 
     private:
         MyVector<Line2D> m_lines;
+};
+
+class Mesh {
+    public:
+
+    private:
+        MyVector<Line3D> m_edges;
 };
 
 #endif // SHAPEDATA_H
