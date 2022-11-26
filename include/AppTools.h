@@ -6,6 +6,7 @@
 #include "winbgim.h"
 #include <iostream>
 
+
 class Label {
     public:
         Label();
@@ -54,6 +55,7 @@ class TextButton : public Button {
         TextButton();
         TextButton(const int& xCenter, const int& yCenter, const int& xLen, const int& yLen, const int& fillColor, const char* p);
         void drawTextButton(const int& txtFont, const int& txtSize);
+        const char* getText();
 
     protected:
         MyArray<char, 32> m_text;
@@ -94,7 +96,7 @@ class DropdownButton : public TextButton {
                 return;
             }
             setfillstyle(SOLID_FILL, barColor);
-            bar(xCenter - xLen / 2, yCenter + yLen / 2 + 1,
+            bar(xCenter - xLen / 2 - 1, yCenter + yLen / 2 + 1,
             xCenter + xLen / 2 + 1, yCenter + yLen / 2 + m_listHeight + 1);
             m_listVisibility = 0;
         }
@@ -104,7 +106,6 @@ class DropdownButton : public TextButton {
                 showList(font, fontSize);
             }
             else {
-                std::cout << "here";
                 hideList(barColor);
             }
         }
@@ -113,9 +114,21 @@ class DropdownButton : public TextButton {
             return m_listVisibility;
         }
 
-        bool listHitCollision(const int& x, const int& y) const {
-            return xCenter - xLen / 2 <= x && x <= xCenter + xLen / 2 &&
-                    yCenter + yLen / 2 <= y && yCenter + yLen / 2 + m_listHeight;
+        void changeMain(const int& index, const int& font, const int& fontSize){
+            const char*p = m_list[index].getText();
+            changeText(p);
+            drawTextButton(font,fontSize);
+
+        }
+        int listHitCollision(const int& x, const int& y) {
+            if (xCenter - xLen / 2 <= x && x <= xCenter + xLen / 2 && y >= yCenter + yLen / 2 && yCenter + yLen / 2 + m_listHeight){
+                //return indexul direct ca sa nu mai stai sa faci for. chit ca s text buttons si poti sa verif clicku pt fiecare
+                //eu zic ca i mai ok
+                //daca vrei sa adaugi ceva pentru hover mai tarziu, tot poti sa folosesti listHitCollisionul asta, si sa schimbi
+                //doar butonul corespunzator indexului. si tot e mai eficient
+                return ((y - (yCenter + yLen/2)) / (m_listHeight / m_index));
+            }
+            return -1;
         }
 
         TextButton& operator [] (const size_t& index) {

@@ -14,14 +14,14 @@ namespace SettingsMenuInterface
     static const int BACKGROUND_COLOR = RGB(200, 200, 200);
     static const int LABEL_COLOR = RGB(160, 160, 160);
     static const int BUTTON_COLOR = RGB(160, 60, 160);
-    static const size_t LABEL_SIZE = 2;
+    static const size_t LABEL_SIZE = 3;
     static const size_t TEXTBUTTON_SIZE = 3;
     static const size_t FLAG_SIZE = 2;
     static const size_t DROPDOWN_SIZE = 5;
     static const int FONT = 3;
     static const int FONT_SIZE = 1;
-    static int resolutionX = 800;
-    static int resolutionY = 800;
+    static int resolutionX = 1280;
+    static int resolutionY = 729;
     static int theme = BLACK;
     static int language = 0;
 
@@ -29,6 +29,7 @@ namespace SettingsMenuInterface
     void drawScreen();
     void createButtons();
     void setTextSettings();
+    void changeResolution(const char* resSelect);
     void checkClick();
     MyArray<TextButton, TEXTBUTTON_SIZE> initThemeButtons();
     MyArray<TextLabel, LABEL_SIZE> initLabels();
