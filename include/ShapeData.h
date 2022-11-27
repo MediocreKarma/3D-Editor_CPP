@@ -7,9 +7,17 @@ class Point3D {
     public:
         Point3D();
         Point3D(const int& x_, const int& y_, const int& z_);
+        Point3D(const Point3D& pct);
         const int& getX() const;
         const int& getY() const;
         const int& getZ() const;
+        void setX(const int& x_);
+        void setY(const int& y_);
+        void setZ(const int& z_);
+        void setPoint(const Point3D& pct);
+        void rotateOX(double& alpha);
+        void rotateOY(double& alpha);
+        void rotateOZ(double& alpha);
 
     private:
         int x;
@@ -33,6 +41,8 @@ class Line3D {
         Line3D(const Point3D& P_, const Point3D& Q_);
         const Point3D& getP();
         const Point3D& getQ();
+        void setP(const Point3D& P_);
+        void setQ(const Point3D& Q_);
 
     private:
         Point3D P;
@@ -43,8 +53,11 @@ class Point2D {
     public:
         Point2D();
         Point2D(const int& x_, const int& y_);
+        Point2D(const Point2D& pct);
         const int& getX() const;
         const int& getY() const;
+        void setX(const int& x_);
+        void setY(const int& y_);
 
     private:
         int x;

@@ -6,6 +6,7 @@
 #include <AppTools.h>
 #include "graphics.h"
 #include "winbgim.h"
+#include"MenuInterface.h"
 
 namespace SettingsMenuInterface
 {
@@ -20,8 +21,8 @@ namespace SettingsMenuInterface
     static const size_t DROPDOWN_SIZE = 5;
     static const int FONT = 3;
     static const int FONT_SIZE = 1;
-    static int resolutionX = 1280;
-    static int resolutionY = 720;
+    static int resolutionX = 600;
+    static int resolutionY = 600;
     static int theme = BLACK;
     static int language = 0;
 
@@ -30,7 +31,6 @@ namespace SettingsMenuInterface
     void createButtons();
     void setTextSettings();
     void changeResolution(const char* resSelect);
-    void checkClick();
     MyArray<TextButton, TEXTBUTTON_SIZE> initThemeButtons();
     MyArray<TextLabel, LABEL_SIZE> initLabels();
     MyArray<ImageButton, FLAG_SIZE> initImageButtons();
