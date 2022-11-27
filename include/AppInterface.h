@@ -16,7 +16,7 @@ class AppInterface {
         double maxRadius() const;
 
     private:
-        static constexpr double m_maxRadius = 20000;
+        static constexpr double m_maxRadius = 2000;
         static constexpr double FOV = 3.1415926 / 2;
         int m_appWidth;
         int m_appHeight;

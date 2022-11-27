@@ -24,7 +24,7 @@ class Space3D
         void rotateOY(Mesh& lines, const double& alpha);
         void rotateOZ(Mesh& lines, const double& alpha);
 
-        Point2D projectPunct(const Point3D& pct, const int& xMij, const int& yMij, const int& xLung, const int& yLung) const;
+        Point2D projectPoint(const Point3D& pct, const int& xMij, const int& yMij, const int& xLung, const int& yLung) const;
         MyVector<Line2D> project3D(const int& xMij, const int& yMij, const int& xLung, const int& yLung); //linie3d => linie2d
 };
 

@@ -14,19 +14,20 @@ namespace SettingsMenuInterface
     static const int SETTINGS_HEIGHT = 400;
     static const int BACKGROUND_COLOR = RGB(200, 200, 200);
     static const int LABEL_COLOR = RGB(160, 160, 160);
-    static const int BUTTON_COLOR = RGB(160, 60, 160);
+    static const int BUTTON_COLOR = RGB(160, 160, 160);
+    static const int DROPLIST_COLOR = RGB(235, 235, 235);
     static const size_t LABEL_SIZE = 3;
     static const size_t TEXTBUTTON_SIZE = 3;
     static const size_t FLAG_SIZE = 2;
     static const size_t DROPDOWN_SIZE = 5;
-    static const MyArray<MyArray<int, 2>, 5> resOptions = {
+    static const MyArray<int, FLAG_SIZE> themeFillColors = {
+        RGB(200, 200, 200), RGB(125, 125, 125)
+    };
+    static const MyArray<MyArray<int, 2>, DROPDOWN_SIZE> resOptions = {
         {1920, 1080}, {1600, 900}, {1280, 720}, {1000, 750}, {800, 600}
     };
     static const int FONT = 3;
     static const int FONT_SIZE = 1;
-    static int resolution = 2;
-    static int theme = 0;
-    static int language = 0;
 
     void run();
     void drawScreen();
@@ -39,7 +40,7 @@ namespace SettingsMenuInterface
     void drawThemeButtons(MyArray<TextButton, TEXTBUTTON_SIZE>& txtButtons);
     void drawLabels(MyArray<TextLabel, LABEL_SIZE>& labels);
     void drawFlagButtons(MyArray<ImageButton, FLAG_SIZE>& flagButtons);
-    bool settingsMenu(MyArray<TextButton, TEXTBUTTON_SIZE>& txtButtons, MyArray<ImageButton, FLAG_SIZE>& flagButtons,
+    void settingsMenu(MyArray<TextButton, TEXTBUTTON_SIZE>& txtButtons, MyArray<ImageButton, FLAG_SIZE>& flagButtons,
                       TextButton& startButton, DropdownButton<DROPDOWN_SIZE>& ddButton);
 }
 

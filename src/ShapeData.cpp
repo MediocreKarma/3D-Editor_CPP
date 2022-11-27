@@ -72,28 +72,34 @@ Point2D::Point2D(const int& x_, const int& y_) :
 Point2D::Point2D(const Point2D& pct) :
     x(pct.getX()), y(pct.getY()) {}
 
-const int& Point2D::getX() const {
+int Point2D::getX() const {
     return x;
 }
 
-const int& Point2D::getY() const{
+int Point2D::getY() const{
     return y;
 }
 
-const Point2D& Line2D::getP() {
+Point2D Line2D::getP() {
     return P;
 }
 
-const Point2D& Line2D::getQ() {
+Point2D Line2D::getQ() {
     return Q;
 }
 
-const Point3D& Line3D::getP(){
+Point3D Line3D::getP(){
     return P;
 }
 
-const Point3D& Line3D::getQ(){
+Point3D Line3D::getQ(){
     return Q;
+}
+
+void Point3D::translate(const int& xTranslate, const int& yTranslate, const int& zTranslate) {
+    x += xTranslate;
+    y += yTranslate;
+    z += zTranslate;
 }
 
 Line2D::Line2D() :
@@ -125,14 +131,19 @@ void Line3D::setQ(const Point3D& Q_){
     Q.setPoint(Q_);
 }
 
+void Line3D::translate(const int& xTranslate, const int& yTranslate, const int& zTranslate) {
+    P.translate(xTranslate, yTranslate, zTranslate);
+    Q.translate(xTranslate, yTranslate, zTranslate);
+}
+
 Mesh::Mesh() :
-    m_edges() {}
+    m_edges(), m_active(false) {}
 
 Mesh::Mesh(const MyVector<Line3D>& edges) :
-    m_edges(edges) {}
+    m_edges(edges), m_active(false) {}
 
 Mesh::Mesh(const Mesh& other) :
-    m_edges(other.m_edges) {}
+    m_edges(other.m_edges), m_active(false) {}
 
 size_t Mesh::size() const {
     return m_edges.size();
@@ -149,4 +160,10 @@ Mesh& Mesh::operator = (const Mesh& other) {
 
 void Mesh::addEdge(const Line3D& edge) {
     m_edges.push_back(edge);
+}
+
+void Mesh::translate(const int& xTranslate, const int& yTranslate, const int& zTranslate) {
+    for (size_t i = 0; i < size(); ++i) {
+        m_edges[i].translate(xTranslate, yTranslate, zTranslate);
+    }
 }

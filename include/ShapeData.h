@@ -19,6 +19,7 @@ class Point3D {
         void rotateOX(const double& alpha);
         void rotateOY(const double& alpha);
         void rotateOZ(const double& alpha);
+        void translate(const int& xTranslate, const int& yTranslate, const int& zTranslate);
 
     private:
         int x;
@@ -42,8 +43,9 @@ class Line3D {
         Line3D(const Point3D& P_, const Point3D& Q_);
         Line3D(const Line3D& other);
         Line3D& operator = (const Line3D& other);
-        const Point3D& getP();
-        const Point3D& getQ();
+        void translate(const int& xTranslate, const int& yTranslate, const int& zTranslate);
+        Point3D getP();
+        Point3D getQ();
         void setP(const Point3D& P_);
         void setQ(const Point3D& Q_);
 
@@ -57,8 +59,8 @@ class Point2D {
         Point2D();
         Point2D(const int& x_, const int& y_);
         Point2D(const Point2D& pct);
-        const int& getX() const;
-        const int& getY() const;
+        int getX() const;
+        int getY() const;
         void setX(const int& x_);
         void setY(const int& y_);
 
@@ -71,8 +73,8 @@ class Line2D {
     public:
         Line2D();
         Line2D(const Point2D& P_, const Point2D& Q_);
-        const Point2D& getP();
-        const Point2D& getQ();
+        Point2D getP();
+        Point2D getQ();
 
     private:
         Point2D P;
@@ -99,9 +101,11 @@ class Mesh {
         void addEdge(const Line3D& edge);
         Line3D& operator [] (const size_t& index);
         Mesh& operator = (const Mesh& other);
+        void translate(const int& xTranslate, const int& yTranslate, const int& zTranslate);
 
     private:
         MyVector<Line3D> m_edges;
+        bool m_active;
 };
 
 #endif // SHAPEDATA_H

@@ -89,7 +89,12 @@ class MyVector
 
         void push_back(const T& element) {
             if (m_size == m_capacity) {
-                setCapacity(m_capacity * 2);
+                if (!m_capacity) {
+                    setCapacity(1);
+                }
+                else {
+                    setCapacity(m_capacity * 2);
+                }
             }
             m_vec[m_size++] = element;
         }
@@ -132,8 +137,10 @@ class MyVector
             }
             T* newVec = new T[newCapacity];
             if (m_vec) {
-                int toCopy = newCapacity > m_capacity ? m_capacity : newCapacity;
-                memcpy(newVec, m_vec, toCopy * sizeof(T));
+                size_t toCopy = newCapacity > m_capacity ? m_capacity : newCapacity;
+                for (size_t i = 0; i < toCopy; ++i) {
+                    newVec[i] = m_vec[i];
+                }
             }
             delete[] m_vec;
             m_capacity = newCapacity;

@@ -1,7 +1,5 @@
 #include "AppInterface.h"
 
-//deocamdata e ceva mega basic, doar deseneaza full screen un cub, ca sa avem macar ceva de prezentat
-
 AppInterface::AppInterface(const int& appWidth, const int& appHeight, const int& theme, const int& languagePackage) :
     m_appWidth(appWidth), m_appHeight(appHeight), m_theme(theme), m_languagePackage(languagePackage) {}
 
@@ -19,7 +17,6 @@ void AppInterface::run(){
     MyVector<Mesh> meshes;
 
     mesh.addEdge(Line3D(Point3D(-100,-100,100),Point3D(-100,-100,-100)));
-
     mesh.addEdge(Line3D(Point3D(-100,-100,-100),Point3D(100,-100,-100)));
     mesh.addEdge(Line3D(Point3D(100,-100,-100),Point3D(100,-100,100)));
     mesh.addEdge(Line3D(Point3D(100,-100,100),Point3D(-100,-100,100)));
@@ -34,11 +31,17 @@ void AppInterface::run(){
     mesh.addEdge(Line3D(Point3D(100,100,-100),Point3D(100,-100,-100)));
     mesh.addEdge(Line3D(Point3D(100,100,100),Point3D(100,-100,100)));
     meshes.push_back(mesh);
+    mesh.translate(300, 300, 0);
+    meshes.push_back(mesh);
+    mesh.translate(600, 600, 0);
+    meshes.push_back(mesh);
+    mesh.translate(-1200, -1200, 0);
+    meshes.push_back(mesh);
     Space3D sp(meshes, maxRadius());
     /*
     sp.setAngleX(30);
     sp.setAngleY(60);
     sp.setAngleZ(40);
     */
-    project3D(sp, 0, 0, 600, 600);
+    project3D(sp, 0, 0, m_appWidth, m_appHeight);
 }
