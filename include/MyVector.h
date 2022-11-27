@@ -4,6 +4,8 @@
 #include <cstddef>
 #include <initializer_list>
 #include <stdexcept>
+#include <iostream>
+#include <cstring>
 
 template<class T>
 class MyVector
@@ -14,7 +16,7 @@ class MyVector
         }
 
         MyVector(const MyVector<T>& other) : m_vec(nullptr), m_size(0), m_capacity(2) {
-            resize(other.size());
+            setCapacity(other.m_capacity);
             m_size = other.size();
             for (size_t i = 0; i < other.size(); ++i) {
                 m_vec[i] = other[i];
@@ -30,15 +32,16 @@ class MyVector
         }
 
         ~MyVector() {
-            free(m_vec);
+            delete[] m_vec;
+            m_vec = nullptr;
         }
 
         MyVector<T>& operator = (const MyVector<T>& other) {
             if (this == &other) {
                 return *this;
             }
-            resize(other.size());
-            m_size = other.size();
+            setCapacity(other.m_capacity);
+            m_size = other.m_size;
             for (size_t i = 0; i < other.size(); ++i) {
                 m_vec[i] = other[i];
             }
@@ -58,6 +61,9 @@ class MyVector
                 return;
             }
             int mult = 2;
+            if (!m_capacity) {
+                m_capacity = 1;
+            }
             while (reservedCapacity >= m_capacity * mult) {
                 mult *= 2;
             }
@@ -86,7 +92,6 @@ class MyVector
             if (m_size == m_capacity) {
                 setCapacity(m_capacity * 2);
             }
-
             m_vec[m_size++] = element;
         }
 
@@ -121,18 +126,20 @@ class MyVector
 
         void setCapacity(const size_t& newCapacity) {
             if (newCapacity == 0) {
-                free(m_vec);
+                delete[] m_vec;
                 m_vec = nullptr;
-                m_capacity = newCapacity;
+                m_capacity = 0;
+                return;
             }
-            T* newVec = (T*)realloc(m_vec, newCapacity * sizeof(T));
-            if (newVec) {
-                m_vec = newVec;
-                m_capacity = newCapacity;
+            T* newVec = new T[newCapacity];
+            if (m_vec) {
+                int toCopy = newCapacity > m_capacity ? m_capacity : newCapacity;
+                memcpy(newVec, m_vec, toCopy * sizeof(T));
             }
-            else {
-                throw std::invalid_argument("bad malloc");
-            }
+            delete[] m_vec;
+            m_capacity = newCapacity;
+            m_vec = newVec;
+
         }
 };
 
