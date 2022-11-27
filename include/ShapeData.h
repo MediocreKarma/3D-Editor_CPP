@@ -1,23 +1,25 @@
 #ifndef SHAPEDATA_H
 #define SHAPEDATA_H
 
+#include<math.h>
 #include <MyVector.h>
+#include <vector>
 
 class Point3D {
     public:
         Point3D();
         Point3D(const int& x_, const int& y_, const int& z_);
         Point3D(const Point3D& pct);
-        const int& getX() const;
-        const int& getY() const;
-        const int& getZ() const;
+        int getX() const;
+        int getY() const;
+        int getZ() const;
         void setX(const int& x_);
         void setY(const int& y_);
         void setZ(const int& z_);
         void setPoint(const Point3D& pct);
-        void rotateOX(double& alpha);
-        void rotateOY(double& alpha);
-        void rotateOZ(double& alpha);
+        void rotateOX(const double& alpha);
+        void rotateOY(const double& alpha);
+        void rotateOZ(const double& alpha);
 
     private:
         int x;
@@ -39,6 +41,8 @@ class Line3D {
     public:
         Line3D();
         Line3D(const Point3D& P_, const Point3D& Q_);
+        Line3D(const Line3D& other);
+        Line3D& operator = (const Line3D& other);
         const Point3D& getP();
         const Point3D& getQ();
         void setP(const Point3D& P_);
@@ -88,6 +92,14 @@ class Section {
 
 class Mesh {
     public:
+        Mesh();
+        Mesh(const MyVector<Line3D>& edges);
+        Mesh(const Mesh& other);
+
+        size_t size() const;
+        void addEdge(const Line3D& edge);
+        Line3D& operator [] (const size_t& index);
+        Mesh& operator = (const Mesh& other);
 
     private:
         MyVector<Line3D> m_edges;

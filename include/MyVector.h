@@ -4,6 +4,7 @@
 #include <cstddef>
 #include <initializer_list>
 #include <stdexcept>
+#include <iostream>
 
 template<class T>
 class MyVector
@@ -38,10 +39,10 @@ class MyVector
                 return *this;
             }
             resize(other.size());
-            m_size = other.size();
             for (size_t i = 0; i < other.size(); ++i) {
                 m_vec[i] = other[i];
             }
+            std::cerr << "finished =\n";
             return *this;
         }
 
@@ -58,6 +59,9 @@ class MyVector
                 return;
             }
             int mult = 2;
+            if (!m_capacity) {
+                m_capacity = 1;
+            }
             while (reservedCapacity >= m_capacity * mult) {
                 mult *= 2;
             }
@@ -66,9 +70,11 @@ class MyVector
 
         void resize(const size_t& newSize) {
             if (newSize > size()) {
+                std::cerr << "reserve";
                 reserve(newSize);
             }
             else {
+                std::cerr << "setCap";
                 setCapacity(newSize);
             }
             m_size = newSize;
@@ -86,7 +92,6 @@ class MyVector
             if (m_size == m_capacity) {
                 setCapacity(m_capacity * 2);
             }
-
             m_vec[m_size++] = element;
         }
 
@@ -123,7 +128,8 @@ class MyVector
             if (newCapacity == 0) {
                 free(m_vec);
                 m_vec = nullptr;
-                m_capacity = newCapacity;
+                m_capacity = 0;
+                return;
             }
             T* newVec = (T*)realloc(m_vec, newCapacity * sizeof(T));
             if (newVec) {
@@ -131,7 +137,8 @@ class MyVector
                 m_capacity = newCapacity;
             }
             else {
-                throw std::invalid_argument("bad malloc");
+                std::cerr << '\n' << sizeof(T) << '\n';
+                throw std::bad_alloc();
             }
         }
 };

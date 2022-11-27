@@ -1,8 +1,5 @@
-#include "../include/SettingsMenuInterface.h"
-#include<iostream>
-#include"../include/AppTools.h"
-#include"Space3D.h"
-#include"MenuInterface.h"
+#include "SettingsMenuInterface.h"
+
 using namespace SettingsMenuInterface;
 
 
@@ -18,7 +15,7 @@ void SettingsMenuInterface::setTextSettings() {
 MyArray<TextLabel, LABEL_SIZE> SettingsMenuInterface::initLabels() {
     MyArray<TextLabel, LABEL_SIZE> labels = {
         TextLabel(100, 50, 160, 50, LABEL_COLOR, "Tema / Theme"),
-        TextLabel(100,110,160,50,LABEL_COLOR,"Rezolutie/Resolution"),
+        TextLabel(100,110,160,50,LABEL_COLOR,"Rezolutie / Resolution"),
         TextLabel(100, 290, 160, 50, LABEL_COLOR, "Limba / Language")
     };
     return labels;
@@ -68,10 +65,6 @@ void SettingsMenuInterface::drawFlagButtons(MyArray<ImageButton, FLAG_SIZE>& fla
     }
 }
 
-void SettingsMenuInterface::changeResolution(const char* resSelect){
-    //un pic de text processing aci si se rezolva si asta
-}
-
 void SettingsMenuInterface::run() {
     int height = getmaxheight(), width = getmaxwidth();
     initwindow(SETTINGS_WIDTH, SETTINGS_HEIGHT, "Settings", width / 2 - SETTINGS_WIDTH / 2, height / 2 - SETTINGS_HEIGHT / 2);
@@ -92,15 +85,17 @@ bool SettingsMenuInterface::settingsMenu(MyArray<TextButton, TEXTBUTTON_SIZE>& t
     drawFlagButtons(flagButtons);
     startButton.drawTextButton(FONT, FONT_SIZE);
     ddButton.drawTextButton(FONT, FONT_SIZE);
+    themeButtons[theme].border(RED);
+    flagButtons[language].border(RED);
     while (true) {
         while (!ismouseclick(WM_LBUTTONDOWN));
         int x, y;
         getmouseclick(WM_LBUTTONDOWN, x, y);
         if (startButton.hitCollision(x, y)) {
             closegraph();
-            MenuInterface::run(resolutionX,resolutionY,theme,language);
+            AppInterface appHandler(resOptions[resolution][0], resOptions[resolution][1], theme, language);
+            appHandler.run();
             return 1;
-            // run app instance with parameters resX, resY, theme,
         }
         for (size_t i = 0; i < themeButtons.size(); ++i) {
             if (themeButtons[i].hitCollision(x, y)) {
@@ -130,15 +125,12 @@ bool SettingsMenuInterface::settingsMenu(MyArray<TextButton, TEXTBUTTON_SIZE>& t
             ddButton.toggleVisibillity(BACKGROUND_COLOR, FONT, FONT_SIZE);
         }
         if (ddButton.isListVisible()) {
-            //ddCollide e indexul elementului selectat
             const int ddCollide = ddButton.listHitCollision(x,y);
             if(ddCollide >= 0) {
                 ddButton.changeMain(ddCollide, FONT, FONT_SIZE);
-                changeResolution(ddButton.getText());
                 ddButton.border(RED);
-                // la dropdown nu as face border-urile RED, mai degraba schimbam
-                // doar selectia pe butonul principal
                 ddButton.toggleVisibillity(BACKGROUND_COLOR,FONT,FONT_SIZE);
+                resolution = ddCollide;
             }
         }
     }

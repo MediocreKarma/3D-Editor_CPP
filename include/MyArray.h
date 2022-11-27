@@ -4,7 +4,6 @@
 #include <cstddef>
 #include <initializer_list>
 #include <stdexcept>
-#include <SettingsMenuInterface.h>
 
 template<class T, size_t m_size>
 class MyArray
@@ -43,6 +42,10 @@ class MyArray
 
         size_t size() const {
             return m_size;
+        }
+
+        T* data() {
+            return m_data;
         }
 
         void fill(const T& fillValue) {
