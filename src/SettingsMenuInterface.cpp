@@ -1,6 +1,8 @@
 #include "../include/SettingsMenuInterface.h"
 #include<iostream>
 #include"../include/AppTools.h"
+#include"Space3D.h"
+#include"MenuInterface.h"
 using namespace SettingsMenuInterface;
 
 
@@ -96,6 +98,7 @@ bool SettingsMenuInterface::settingsMenu(MyArray<TextButton, TEXTBUTTON_SIZE>& t
         getmouseclick(WM_LBUTTONDOWN, x, y);
         if (startButton.hitCollision(x, y)) {
             closegraph();
+            MenuInterface::run(resolutionX,resolutionY,theme,language);
             return 1;
             // run app instance with parameters resX, resY, theme,
         }
