@@ -6,7 +6,7 @@
 #include <AppTools.h>
 #include "graphics.h"
 #include "winbgim.h"
-#include"MenuInterface.h"
+#include "AppInterface.h"
 
 namespace SettingsMenuInterface
 {
@@ -19,18 +19,19 @@ namespace SettingsMenuInterface
     static const size_t TEXTBUTTON_SIZE = 3;
     static const size_t FLAG_SIZE = 2;
     static const size_t DROPDOWN_SIZE = 5;
+    static const MyArray<MyArray<int, 2>, 5> resOptions = {
+        {1920, 1080}, {1600, 900}, {1280, 720}, {1000, 750}, {800, 600}
+    };
     static const int FONT = 3;
     static const int FONT_SIZE = 1;
-    static int resolutionX = 600;
-    static int resolutionY = 600;
-    static int theme = BLACK;
+    static int resolution = 2;
+    static int theme = 0;
     static int language = 0;
 
     void run();
     void drawScreen();
     void createButtons();
     void setTextSettings();
-    void changeResolution(const char* resSelect);
     MyArray<TextButton, TEXTBUTTON_SIZE> initThemeButtons();
     MyArray<TextLabel, LABEL_SIZE> initLabels();
     MyArray<ImageButton, FLAG_SIZE> initImageButtons();
