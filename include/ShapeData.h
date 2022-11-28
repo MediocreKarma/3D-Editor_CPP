@@ -20,6 +20,7 @@ class Point3D {
         void rotateOY(const double& alpha);
         void rotateOZ(const double& alpha);
         void translate(const int& xTranslate, const int& yTranslate, const int& zTranslate);
+        Point3D& operator += (const Point3D& other);
 
     private:
         int x;
@@ -84,11 +85,16 @@ class Line2D {
 class Section {
     public:
         Section();
-        Section(const int& Z);
+        Section(const MyVector<Line2D>& lines);
+        size_t size() const;
         void addLine(const Line2D& line);
+        Section& operator = (const Section& other);
+        Line2D& operator [] (const size_t& index);
 
     private:
         MyVector<Line2D> m_lines;
+        Point2D m_centerPoint;
+        bool m_active;
 };
 
 class Mesh {
@@ -105,6 +111,7 @@ class Mesh {
 
     private:
         MyVector<Line3D> m_edges;
+        Point3D m_centerPoint;
         bool m_active;
 };
 

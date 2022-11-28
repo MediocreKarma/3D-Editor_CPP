@@ -63,14 +63,27 @@ void Point3D::rotateOZ(const double& alpha) {
     y = y_;
 }
 
+Point3D& Point3D::operator += (const Point3D& other) {
+    x += other.x;
+    y += other.y;
+    z += other.z;
+    return *this;
+}
+
+void Point3D::translate(const int& xTranslate, const int& yTranslate, const int& zTranslate) {
+    x += xTranslate;
+    y += yTranslate;
+    z += zTranslate;
+}
+
 Point2D::Point2D() :
     x(), y() {}
 
 Point2D::Point2D(const int& x_, const int& y_) :
     x(x_), y(y_) {}
 
-Point2D::Point2D(const Point2D& pct) :
-    x(pct.getX()), y(pct.getY()) {}
+Point2D::Point2D(const Point2D& other) :
+    x(other.x), y(other.y) {}
 
 int Point2D::getX() const {
     return x;
@@ -80,6 +93,12 @@ int Point2D::getY() const{
     return y;
 }
 
+Line2D::Line2D() :
+    P(), Q() {}
+
+Line2D::Line2D(const Point2D& P_, const Point2D& Q_) :
+    P(P_), Q(Q_){}
+
 Point2D Line2D::getP() {
     return P;
 }
@@ -88,25 +107,30 @@ Point2D Line2D::getQ() {
     return Q;
 }
 
-Point3D Line3D::getP(){
-    return P;
+Section::Section() :
+    m_lines(), m_centerPoint(), m_active(false) {}
+
+Section::Section(const MyVector<Line2D>& lines) :
+    m_lines(lines), m_centerPoint(), m_active(false) {}
+
+size_t Section::size() const {
+    return m_lines.size();
 }
 
-Point3D Line3D::getQ(){
-    return Q;
+void Section::addLine(const Line2D& line) {
+    m_lines.push_back(line);
 }
 
-void Point3D::translate(const int& xTranslate, const int& yTranslate, const int& zTranslate) {
-    x += xTranslate;
-    y += yTranslate;
-    z += zTranslate;
+Section& Section::operator = (const Section& other) {
+    m_lines = other.m_lines;
+    m_centerPoint = other.m_centerPoint;
+    m_active = other.m_active;
+    return *this;
 }
 
-Line2D::Line2D() :
-    P(), Q() {}
-
-Line2D::Line2D(const Point2D& P_, const Point2D& Q_) :
-    P(P_), Q(Q_){}
+Line2D& Section::operator [] (const size_t& index) {
+    return m_lines[index];
+}
 
 Line3D::Line3D() :
     P(), Q() {}
@@ -123,11 +147,11 @@ Line3D& Line3D::operator = (const Line3D& other) {
     return *this;
 }
 
-void Line3D::setP(const Point3D& P_){
+void Line3D::setP(const Point3D& P_) {
     P.setPoint(P_);
 }
 
-void Line3D::setQ(const Point3D& Q_){
+void Line3D::setQ(const Point3D& Q_) {
     Q.setPoint(Q_);
 }
 
@@ -136,14 +160,30 @@ void Line3D::translate(const int& xTranslate, const int& yTranslate, const int& 
     Q.translate(xTranslate, yTranslate, zTranslate);
 }
 
+Point3D Line3D::getP(){
+    return P;
+}
+
+Point3D Line3D::getQ(){
+    return Q;
+}
+
 Mesh::Mesh() :
-    m_edges(), m_active(false) {}
+    m_edges(), m_centerPoint(), m_active(false) {}
 
 Mesh::Mesh(const MyVector<Line3D>& edges) :
-    m_edges(edges), m_active(false) {}
+    m_edges(edges), m_centerPoint(0, 0, 0), m_active(false) {
+    for (size_t i = 0; i < size(); ++i) {
+        m_centerPoint += m_edges[i].getP();
+        m_centerPoint += m_edges[i].getQ();
+    }
+    m_centerPoint.setX(m_centerPoint.getX() / (2 * size()));
+    m_centerPoint.setY(m_centerPoint.getY() / (2 * size()));
+    m_centerPoint.setZ(m_centerPoint.getZ() / (2 * size()));
+}
 
 Mesh::Mesh(const Mesh& other) :
-    m_edges(other.m_edges), m_active(false) {}
+    m_edges(other.m_edges), m_centerPoint(other.m_centerPoint), m_active(false) {}
 
 size_t Mesh::size() const {
     return m_edges.size();

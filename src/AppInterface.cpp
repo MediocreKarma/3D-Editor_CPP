@@ -8,7 +8,7 @@ double AppInterface::maxRadius() const {
 }
 
 void AppInterface::project3D(Space3D& Space, const int& x1, const int& y1, const int& x2, const int& y2) {
-    Space.draw3D((x1 + x2) / 2, (y1 + y2) / 2, x2 - x1, y2 - y1);
+    Space.drawProjection((x1 + x2) / 2, (y1 + y2) / 2, x2 - x1, y2 - y1);
 }
 
 void AppInterface::run(){
@@ -31,11 +31,13 @@ void AppInterface::run(){
     mesh.addEdge(Line3D(Point3D(100,100,-100),Point3D(100,-100,-100)));
     mesh.addEdge(Line3D(Point3D(100,100,100),Point3D(100,-100,100)));
     meshes.push_back(mesh);
-    mesh.translate(300, 300, 0);
+    mesh.translate(300, 300, -300);
     meshes.push_back(mesh);
-    mesh.translate(600, 600, 0);
+    mesh.translate(600, 600, 300);
     meshes.push_back(mesh);
-    mesh.translate(-1200, -1200, 0);
+    mesh.translate(-1200, -600, -300);
+    meshes.push_back(mesh);
+    mesh.translate(-600, 600, 300);
     meshes.push_back(mesh);
     Space3D sp(meshes, maxRadius());
     /*

@@ -25,7 +25,7 @@ class MyVector
         MyVector(const std::initializer_list<T>& initList) : m_vec(nullptr), m_size(0), m_capacity(2) {
             resize(initList.size());
             const T* el = initList.begin();
-            for (size_t i = 0; i < initList.size(); i++) {
+            for (size_t i = 0; i < initList.size(); ++i) {
                 m_vec[i] = *(el++);
             }
         }
@@ -50,7 +50,7 @@ class MyVector
         MyVector<T>& operator = (const std::initializer_list<T>& initList) {
             resize(initList.size());
             const T* el = initList.begin();
-            for (size_t i = 0; i < initList.size(); i++) {
+            for (size_t i = 0; i < initList.size(); ++i) {
                 m_vec[i] = *(el++);
             }
         }
