@@ -1,7 +1,7 @@
 #ifndef APPTOOLS_H
 #define APPTOOLS_H
 
-#include "../include/MyArray.h"
+#include "MyArray.h"
 #include "graphics.h"
 #include "winbgim.h"
 

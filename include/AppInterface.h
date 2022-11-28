@@ -1,7 +1,7 @@
 #ifndef APPINTERFACE_H
 #define APPINTERFACE_H
 
-#include <Space3D.h>
+#include "Space3D.h"
 #include <graphics.h>
 #include <winbgim.h>
 

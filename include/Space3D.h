@@ -10,7 +10,7 @@
 class Space3D
 {
     public:
-        Space3D(const double& maxRadius = 2500);
+        Space3D(const double& maxRadius = 2500, const int& theme = 0);
         Space3D(MyVector<Mesh>& meshes, const double& maxRadius = 2500);
         void run(const int& x0, const int& y0, const int& x1, const int& y1);
         void addMesh(const Mesh& mesh);
@@ -20,6 +20,7 @@ class Space3D
 
     private:
         double m_maxRadius;
+        int m_theme;
         MyVector<Mesh> m_meshes;
         MyVector<Section> m_sections;
         MyVector<bool> m_updated;

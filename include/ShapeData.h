@@ -2,10 +2,10 @@
 #define SHAPEDATA_H
 
 #include<math.h>
-#include <MyVector.h>
+#include "MyVector.h"
 #include <graphics.h>
 #include <winbgim.h>
-#include <AppTools.h>
+#include "AppTools.h"
 
 class Point2D {
     public:
@@ -46,7 +46,7 @@ class Section {
         void addLine(const Line2D& line);
         Section& operator = (const Section& other);
         Line2D& operator [] (const size_t& index);
-        void draw(const int& fillColor, const int& borderColor = BLACK);
+        void draw(const int& theme, const int& fillColor, const int& borderColor = BLACK);
         void drawButton(const int& fillColor, const int& borderColor = BLACK);
         bool grabButtonCollision(const int& x, const int& y) const;
 
