@@ -1,7 +1,7 @@
 #ifndef SHAPEDATA_H
 #define SHAPEDATA_H
 
-#include<math.h>
+#include <math.h>
 #include "MyVector.h"
 #include <graphics.h>
 #include <winbgim.h>

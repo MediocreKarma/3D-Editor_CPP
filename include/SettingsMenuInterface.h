@@ -4,8 +4,8 @@
 #include "MyArray.h"
 #include "MyVector.h"
 #include "AppTools.h"
-#include "graphics.h"
-#include "winbgim.h"
+#include <graphics.h>
+#include <winbgim.h>
 #include "AppInterface.h"
 
 namespace SettingsMenuInterface
@@ -22,11 +22,17 @@ namespace SettingsMenuInterface
     static const size_t TEXTBUTTON_SIZE = 3;
     static const size_t FLAG_SIZE = 2;
     static const size_t DROPDOWN_SIZE = 5;
+    static const size_t THEME_SIZE = 2;
     static const MyArray<int, FLAG_SIZE> themeFillColors = {
         RGB(182, 191, 232), RGB(182, 191, 232)
     };
     static const MyArray<MyArray<int, 2>, DROPDOWN_SIZE> resOptions = {
         {1920, 1080}, {1600, 900}, {1280, 720}, {1000, 750}, {800, 600}
+    };
+    static const int PRIMARYCOLOR = 0;
+    static const int SECONDARYCOLOR = 1;
+    static const MyArray<MyArray<int, 2>, THEME_SIZE> themeColors = {
+        {WHITE, BLACK}, {BLACK, WHITE}
     };
     static const int FONT = 3;
     static const int FONT_SIZE = 1;

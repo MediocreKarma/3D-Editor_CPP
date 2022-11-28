@@ -10,7 +10,6 @@ class AppInterface {
         AppInterface();
         AppInterface(const int& appWidth = 600, const int& appHeight = 600, const int& theme = 0, const int& languagePackage = 0);
         void run();
-        void project3D(Space3D& Space, const int& x1, const int& y1, const int& x2, const int& y2);
         void drawTools();
         void drawEditor();
         double maxRadius() const;

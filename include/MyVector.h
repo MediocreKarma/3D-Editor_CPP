@@ -4,7 +4,6 @@
 #include <cstddef>
 #include <initializer_list>
 #include <stdexcept>
-#include <cstring>
 
 template<class T>
 class MyVector

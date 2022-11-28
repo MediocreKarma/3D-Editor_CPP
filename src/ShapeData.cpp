@@ -84,7 +84,7 @@ Point3D Line3D::getQ(){
     return Q;
 }
 
-Point2D Point3D::project(const int& xCenter, const int& yCenter, const int& xLen, const int& yLen, const double& radius, const double& scale) const {
+Point2D Point3D::project(const int& xCenter, const int& /*yCenter*/, const int& /*xLen*/, const int& yLen, const double& radius, const double& scale) const {
     double aa = (radius - y) / radius;
     return Point2D( x * scale * aa + xCenter, yLen / 2 - z * scale * aa);
 }
@@ -143,8 +143,8 @@ void Section::addLine(const Line2D& line) {
     m_lines.push_back(line);
 }
 
-void Section::draw(const int& theme, const int& fillColor, const int& borderColor) {
-    setcolor(15 * theme);
+void Section::draw(const int& primaryThemeColor, const int& fillColor, const int& borderColor) {
+    setcolor(primaryThemeColor);
     for (size_t i = 0; i < size(); ++i) {
         m_lines[i].draw();
     }

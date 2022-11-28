@@ -1,10 +1,7 @@
 #include "Space3D.h"
 
 Space3D::Space3D(const double& maxRadius, const int& theme) :
-    m_maxRadius(maxRadius), m_theme(theme), m_meshes(), m_sections(), m_updated() {}
-
-Space3D::Space3D(MyVector<Mesh>& meshes, const double& maxRadius) :
-     m_maxRadius(maxRadius), m_meshes(meshes), m_sections(meshes.size()), m_updated(meshes.size(), true) {}
+     m_maxRadius(maxRadius), m_theme(theme), m_meshes(), m_sections(), m_updated() {}
 
 size_t Space3D::size() const {
     return m_meshes.size();
@@ -36,8 +33,6 @@ void Space3D::render(const int& xCenter, const int& yCenter, const int& xLen, co
 bool Space3D::insideWorkArea(const int& x, const int& y, const int& x0, const int& y0, const int& x1, const int& y1) const {
     return x0 <= x && x <= x1 && y0 <= y && y <= y1;
 }
-
-#include <iostream>
 
 void Space3D::getCommand(const int& x0, const int& y0, const int& x1, const int& y1) {
     if (!ismouseclick(WM_LBUTTONDOWN)) {
@@ -75,15 +70,17 @@ void Space3D::getCommand(const int& x0, const int& y0, const int& x1, const int&
 }
 
 void Space3D::draw(const int& xCenter, const int& yCenter, const int& xLen, const int& yLen) {
-    setfillstyle(SOLID_FILL, 15 * (1 - m_theme));
+    setfillstyle(SOLID_FILL, SettingsMenuInterface::themeColors[m_theme][SettingsMenuInterface::PRIMARYCOLOR]);
     bar(xCenter - xLen / 2, yCenter - yLen / 2, xCenter + xLen / 2, yCenter + yLen / 2);
     //drawGrid(xCenter, yCenter, xLen, yLen)
     render(xCenter, yCenter, xLen, yLen);
     for (size_t i = 0; i < size(); ++i) {
-        m_sections[i].draw(m_theme, RED, RED);
+        m_sections[i].draw(SettingsMenuInterface::themeColors[m_theme][SettingsMenuInterface::SECONDARYCOLOR], RED, RED);
     }
 }
 
+// Deprecated
+/*
 void Space3D::rotateOX(Mesh& lines, const double& alpha) {
     for(size_t i = 0; i < lines.size(); i++){
         Point3D aux1 = lines[i].getP();
@@ -116,4 +113,4 @@ void Space3D::rotateOZ(Mesh& lines, const double& alpha) {
         lines[i].setQ(aux2);
     }
 }
-
+*/
