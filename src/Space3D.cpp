@@ -1,7 +1,7 @@
 #include "Space3D.h"
 
-Space3D::Space3D(const double& maxRadius) :
-    m_maxRadius(maxRadius), m_meshes(), m_sections(), m_updated() {}
+Space3D::Space3D(const double& maxRadius, const int& theme) :
+    m_maxRadius(maxRadius), m_theme(theme), m_meshes(), m_sections(), m_updated() {}
 
 Space3D::Space3D(MyVector<Mesh>& meshes, const double& maxRadius) :
      m_maxRadius(maxRadius), m_meshes(meshes), m_sections(meshes.size()), m_updated(meshes.size(), true) {}
@@ -75,11 +75,12 @@ void Space3D::getCommand(const int& x0, const int& y0, const int& x1, const int&
 }
 
 void Space3D::draw(const int& xCenter, const int& yCenter, const int& xLen, const int& yLen) {
-    setfillstyle(SOLID_FILL, BLACK);
+    setfillstyle(SOLID_FILL, 15 * (1 - m_theme));
     bar(xCenter - xLen / 2, yCenter - yLen / 2, xCenter + xLen / 2, yCenter + yLen / 2);
+    //drawGrid(xCenter, yCenter, xLen, yLen)
     render(xCenter, yCenter, xLen, yLen);
     for (size_t i = 0; i < size(); ++i) {
-        m_sections[i].draw(RED, RED);
+        m_sections[i].draw(m_theme, RED, RED);
     }
 }
 

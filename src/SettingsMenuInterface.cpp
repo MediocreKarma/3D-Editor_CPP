@@ -86,8 +86,8 @@ void SettingsMenuInterface::settingsMenu(MyArray<TextButton, TEXTBUTTON_SIZE>& t
     drawFlagButtons(flagButtons);
     startButton.drawTextButton(FONT, FONT_SIZE, BUTTON_COLOR);
     ddButton.drawTextButton(FONT, FONT_SIZE, BUTTON_COLOR);
-    themeButtons[theme].border(RED);
-    flagButtons[language].border(RED);
+    themeButtons[theme].border(HIGHLIGHT_COLOR);
+    flagButtons[language].border(HIGHLIGHT_COLOR);
     while (true) {
         while (!ismouseclick(WM_LBUTTONDOWN));
         int x, y;
@@ -100,7 +100,7 @@ void SettingsMenuInterface::settingsMenu(MyArray<TextButton, TEXTBUTTON_SIZE>& t
         }
         for (size_t i = 0; i < themeButtons.size(); ++i) {
             if (themeButtons[i].hitCollision(x, y)) {
-                themeButtons[i].border(RED);
+                themeButtons[i].border(HIGHLIGHT_COLOR);
                 theme = i;
                 for (size_t j = 0; j < themeButtons.size(); ++j) {
                     if (i == j) {
@@ -112,7 +112,7 @@ void SettingsMenuInterface::settingsMenu(MyArray<TextButton, TEXTBUTTON_SIZE>& t
         }
         for (size_t i = 0; i < flagButtons.size(); ++i) {
             if (flagButtons[i].hitCollision(x, y)) {
-                flagButtons[i].border(RED);
+                flagButtons[i].border(HIGHLIGHT_COLOR);
                 language = i;
                 for (size_t j = 0; j < flagButtons.size(); ++j) {
                     if (i == j) {
@@ -131,6 +131,7 @@ void SettingsMenuInterface::settingsMenu(MyArray<TextButton, TEXTBUTTON_SIZE>& t
                 ddButton.changeMain(ddCollide, FONT, FONT_SIZE, BUTTON_COLOR);
                 ddButton.toggleVisibillity(BACKGROUND_COLOR, FONT, FONT_SIZE, DROPLIST_COLOR);
                 resolution = ddCollide;
+                ddButton.border(HIGHLIGHT_COLOR);
             }
         }
     }

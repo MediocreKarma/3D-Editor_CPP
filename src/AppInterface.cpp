@@ -10,7 +10,7 @@ double AppInterface::maxRadius() const {
 
 void AppInterface::run(){
     initwindow(m_appWidth, m_appHeight, "Editor 3D");
-    Space3D space(maxRadius());
+    Space3D space(maxRadius(), m_theme);
     Mesh cube;
     cube.addEdge(Line3D(Point3D(-100,-100,100),Point3D(-100,-100,-100)));
     cube.addEdge(Line3D(Point3D(-100,-100,-100),Point3D(100,-100,-100)));
