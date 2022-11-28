@@ -76,6 +76,19 @@ void Point3D::translate(const int& xTranslate, const int& yTranslate, const int&
     z += zTranslate;
 }
 
+Point3D Line3D::getP(){
+    return P;
+}
+
+Point3D Line3D::getQ(){
+    return Q;
+}
+
+Point2D Point3D::project(const int& xCenter, const int& yCenter, const int& xLen, const int& yLen, const double& radius, const double& scale) const {
+    double aa = (radius - y) / radius;
+    return Point2D(scale * (x * aa + xCenter), scale * (yLen / 2 - z * aa));
+}
+
 Point2D::Point2D() :
     x(), y() {}
 
@@ -107,11 +120,20 @@ Point2D Line2D::getQ() {
     return Q;
 }
 
-Section::Section() :
-    m_lines(), m_centerPoint(), m_active(false) {}
+void Line2D::draw() {
+    line(P.getX(), P.getY(), Q.getX(), Q.getY());
+}
 
-Section::Section(const MyVector<Line2D>& lines) :
-    m_lines(lines), m_centerPoint(), m_active(false) {}
+Section::Section() :
+    m_lines(), m_grabPoint(), m_active(false) {}
+
+Section::Section(const MyVector<Line2D>& lines, const Point2D& centerPoint) :
+    m_lines(lines), m_grabPoint(centerPoint.getX(), centerPoint.getY(), Section::RADIUS), m_active(false) {}
+
+Section::Section(const Section& other) :
+    m_lines(other.m_lines), m_grabPoint(other.m_grabPoint), m_active(other.m_active) {}
+
+constexpr int Section::RADIUS;
 
 size_t Section::size() const {
     return m_lines.size();
@@ -121,9 +143,25 @@ void Section::addLine(const Line2D& line) {
     m_lines.push_back(line);
 }
 
+void Section::draw(const int& fillColor, const int& borderColor) {
+    setcolor(WHITE);
+    for (size_t i = 0; i < size(); ++i) {
+        m_lines[i].draw();
+    }
+    drawButton(fillColor, borderColor);
+}
+
+bool Section::grabButtonCollision(const int& x, const int& y) const {
+    return m_grabPoint.hitCollision(x, y);
+}
+
+void Section::drawButton(const int& fillColor, const int& borderColor) {
+    m_grabPoint.drawLabel(fillColor, borderColor);
+}
+
 Section& Section::operator = (const Section& other) {
     m_lines = other.m_lines;
-    m_centerPoint = other.m_centerPoint;
+    m_grabPoint = other.m_grabPoint;
     m_active = other.m_active;
     return *this;
 }
@@ -160,19 +198,18 @@ void Line3D::translate(const int& xTranslate, const int& yTranslate, const int& 
     Q.translate(xTranslate, yTranslate, zTranslate);
 }
 
-Point3D Line3D::getP(){
-    return P;
-}
-
-Point3D Line3D::getQ(){
-    return Q;
-}
-
 Mesh::Mesh() :
-    m_edges(), m_centerPoint(), m_active(false) {}
+    m_edges(), m_centerPoint() {}
 
 Mesh::Mesh(const MyVector<Line3D>& edges) :
-    m_edges(edges), m_centerPoint(0, 0, 0), m_active(false) {
+    m_edges(edges), m_centerPoint(0, 0, 0) {
+    updateCenterPoint();
+}
+
+Mesh::Mesh(const Mesh& other) :
+    m_edges(other.m_edges), m_centerPoint(other.m_centerPoint) {}
+
+void Mesh::updateCenterPoint() {
     for (size_t i = 0; i < size(); ++i) {
         m_centerPoint += m_edges[i].getP();
         m_centerPoint += m_edges[i].getQ();
@@ -181,9 +218,6 @@ Mesh::Mesh(const MyVector<Line3D>& edges) :
     m_centerPoint.setY(m_centerPoint.getY() / (2 * size()));
     m_centerPoint.setZ(m_centerPoint.getZ() / (2 * size()));
 }
-
-Mesh::Mesh(const Mesh& other) :
-    m_edges(other.m_edges), m_centerPoint(other.m_centerPoint), m_active(false) {}
 
 size_t Mesh::size() const {
     return m_edges.size();
@@ -195,6 +229,7 @@ Line3D& Mesh::operator [] (const size_t& index) {
 
 Mesh& Mesh::operator = (const Mesh& other) {
     m_edges = other.m_edges;
+    m_centerPoint = other.m_centerPoint;
     return *this;
 }
 
@@ -206,4 +241,20 @@ void Mesh::translate(const int& xTranslate, const int& yTranslate, const int& zT
     for (size_t i = 0; i < size(); ++i) {
         m_edges[i].translate(xTranslate, yTranslate, zTranslate);
     }
+    m_centerPoint.translate(xTranslate, yTranslate, zTranslate);
+}
+
+Point3D Mesh::centerPoint() {
+    return m_centerPoint;
+}
+
+Section Mesh::project(const int& xCenter, const int& yCenter, const int& xLen, const int& yLen, const double& radius, const double& scale) {
+    MyVector<Line2D> lines;
+    lines.reserve(size());
+    for(size_t i = 0; i < size(); i++) {
+        const Point2D P = m_edges[i].getP().project(xCenter, yCenter, xLen, yLen, radius, scale);
+        const Point2D Q = m_edges[i].getQ().project(xCenter, yCenter, xLen, yLen, radius, scale);
+        lines.push_back(Line2D(P, Q));
+    }
+    return Section(lines, m_centerPoint.project(xCenter, yCenter, xLen, yLen, radius, scale));
 }

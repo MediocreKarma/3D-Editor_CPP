@@ -30,10 +30,12 @@ CircularLabel::CircularLabel() :
 CircularLabel::CircularLabel(const int& xCenter_, const int& yCenter_, const int& radius_) :
     xCenter(xCenter_), yCenter(yCenter_), radius(radius_) {}
 
+#include <iostream>
+
 void CircularLabel::drawLabel(const int& fillColor, const int& outlineColor) {
     border(outlineColor);
     setfillstyle(SOLID_FILL, fillColor);
-    ellipse(xCenter, yCenter, 0, 360, radius, radius);
+    fillellipse(xCenter, yCenter, radius, radius);
 }
 
 void CircularLabel::border(const int& outlineColor) const {
@@ -46,6 +48,17 @@ void CircularLabel::clear(const int& barColor) const {
     ellipse(xCenter, yCenter, 0, 360, radius, radius);
 }
 
+CircularButton::CircularButton() :
+    CircularLabel() {}
+
+CircularButton::CircularButton(const int& xCenter_, const int& yCenter_, const int& radius_) :
+    CircularLabel(xCenter_, yCenter_, radius_) {}
+
+bool CircularButton::hitCollision(const int& x, const int& y) const {
+    int xDist = x - xCenter;
+    int yDist = y - yCenter;
+    return xDist * xDist + yDist * yDist <= radius * radius;
+}
 
 TextLabel::TextLabel() :
     Label(), m_text() {}

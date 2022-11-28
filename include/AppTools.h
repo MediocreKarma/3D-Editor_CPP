@@ -38,7 +38,7 @@ class CircularButton : public CircularLabel {
     public:
         CircularButton();
         CircularButton(const int& xCenter, const int& yCenter, const int& radius);
-        hitCollision(const int& x, const int& y);
+        bool hitCollision(const int& x, const int& y) const;
 };
 
 class TextLabel : public Label {

@@ -30,6 +30,17 @@ class MyVector
             }
         }
 
+        MyVector(const size_t& vecSize, const T& value) : m_vec(nullptr), m_size(0), m_capacity(0) {
+            resize(vecSize);
+            for (size_t i = 0; i < size(); ++i) {
+                m_vec[i] = value;
+            }
+        }
+
+        MyVector(const size_t& vecSize) : m_vec(nullptr), m_size(0), m_capacity(0) {
+            resize(vecSize);
+        }
+
         ~MyVector() {
             delete[] m_vec;
             m_vec = nullptr;
@@ -145,7 +156,6 @@ class MyVector
             delete[] m_vec;
             m_capacity = newCapacity;
             m_vec = newVec;
-
         }
 };
 

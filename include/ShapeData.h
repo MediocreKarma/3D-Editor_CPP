@@ -3,57 +3,9 @@
 
 #include<math.h>
 #include <MyVector.h>
-
-class Point3D {
-    public:
-        Point3D();
-        Point3D(const int& x_, const int& y_, const int& z_);
-        Point3D(const Point3D& pct);
-        int getX() const;
-        int getY() const;
-        int getZ() const;
-        void setX(const int& x_);
-        void setY(const int& y_);
-        void setZ(const int& z_);
-        void setPoint(const Point3D& pct);
-        void rotateOX(const double& alpha);
-        void rotateOY(const double& alpha);
-        void rotateOZ(const double& alpha);
-        void translate(const int& xTranslate, const int& yTranslate, const int& zTranslate);
-        Point3D& operator += (const Point3D& other);
-
-    private:
-        int x;
-        int y;
-        int z;
-};
-
-class Coord3D {
-    public:
-        Coord3D();
-        Coord3D(const int& a_, const int& b_);
-
-    private:
-        int a;
-        int b;
-};
-
-class Line3D {
-    public:
-        Line3D();
-        Line3D(const Point3D& P_, const Point3D& Q_);
-        Line3D(const Line3D& other);
-        Line3D& operator = (const Line3D& other);
-        void translate(const int& xTranslate, const int& yTranslate, const int& zTranslate);
-        Point3D getP();
-        Point3D getQ();
-        void setP(const Point3D& P_);
-        void setQ(const Point3D& Q_);
-
-    private:
-        Point3D P;
-        Point3D Q;
-};
+#include <graphics.h>
+#include <winbgim.h>
+#include <AppTools.h>
 
 class Point2D {
     public:
@@ -76,6 +28,7 @@ class Line2D {
         Line2D(const Point2D& P_, const Point2D& Q_);
         Point2D getP();
         Point2D getQ();
+        void draw();
 
     private:
         Point2D P;
@@ -84,17 +37,65 @@ class Line2D {
 
 class Section {
     public:
+        static constexpr int RADIUS = 8;
+
         Section();
-        Section(const MyVector<Line2D>& lines);
+        Section(const MyVector<Line2D>& lines, const Point2D& centerPoint);
+        Section(const Section& other);
         size_t size() const;
         void addLine(const Line2D& line);
         Section& operator = (const Section& other);
         Line2D& operator [] (const size_t& index);
+        void draw(const int& fillColor, const int& borderColor = BLACK);
+        void drawButton(const int& fillColor, const int& borderColor = BLACK);
+        bool grabButtonCollision(const int& x, const int& y) const;
 
     private:
         MyVector<Line2D> m_lines;
-        Point2D m_centerPoint;
+        CircularButton m_grabPoint;
         bool m_active;
+};
+
+class Point3D {
+    public:
+        Point3D();
+        Point3D(const int& x_, const int& y_, const int& z_);
+        Point3D(const Point3D& pct);
+        int getX() const;
+        int getY() const;
+        int getZ() const;
+        void setX(const int& x_);
+        void setY(const int& y_);
+        void setZ(const int& z_);
+        void setPoint(const Point3D& pct);
+        void rotateOX(const double& alpha);
+        void rotateOY(const double& alpha);
+        void rotateOZ(const double& alpha);
+        void translate(const int& xTranslate, const int& yTranslate, const int& zTranslate);
+        Point3D& operator += (const Point3D& other);
+        Point2D project(const int& xCenter, const int& yCenter, const int& xLen, const int& yLen, const double& radius, const double& scale) const;
+
+    private:
+        int x;
+        int y;
+        int z;
+};
+
+class Line3D {
+    public:
+        Line3D();
+        Line3D(const Point3D& P_, const Point3D& Q_);
+        Line3D(const Line3D& other);
+        Line3D& operator = (const Line3D& other);
+        void translate(const int& xTranslate, const int& yTranslate, const int& zTranslate);
+        Point3D getP();
+        Point3D getQ();
+        void setP(const Point3D& P_);
+        void setQ(const Point3D& Q_);
+
+    private:
+        Point3D P;
+        Point3D Q;
 };
 
 class Mesh {
@@ -108,11 +109,13 @@ class Mesh {
         Line3D& operator [] (const size_t& index);
         Mesh& operator = (const Mesh& other);
         void translate(const int& xTranslate, const int& yTranslate, const int& zTranslate);
+        Section project(const int& xCenter, const int& yCenter, const int& xLen, const int& yLen, const double& radius, const double& scale);
+        Point3D centerPoint();
+        void updateCenterPoint();
 
     private:
         MyVector<Line3D> m_edges;
         Point3D m_centerPoint;
-        bool m_active;
 };
 
 #endif // SHAPEDATA_H
