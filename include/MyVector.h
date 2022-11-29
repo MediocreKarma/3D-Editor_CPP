@@ -42,7 +42,6 @@ class MyVector
 
         ~MyVector() {
             delete[] m_vec;
-            m_vec = nullptr;
         }
 
         MyVector<T>& operator = (const MyVector<T>& other) {
