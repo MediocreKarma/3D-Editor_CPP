@@ -1,11 +1,11 @@
 #ifndef SHAPEDATA_H
 #define SHAPEDATA_H
 
-#include <math.h>
-#include "MyVector.h"
+#include<math.h>
+#include "../include/MyVector.h"
 #include <graphics.h>
 #include <winbgim.h>
-#include "AppTools.h"
+#include "../include/AppTools.h"
 
 class Point2D {
     public:
@@ -68,12 +68,12 @@ class Point3D {
         void setY(const int& y_);
         void setZ(const int& z_);
         void setPoint(const Point3D& pct);
-        void rotateOX(const double& alpha);
-        void rotateOY(const double& alpha);
-        void rotateOZ(const double& alpha);
+        void rotateOX(const Point3D& center, const double& alpha);
+        void rotateOY(const Point3D& center, const double& alpha);
+        void rotateOZ(const Point3D& center, const double& alpha);
         void translate(const int& xTranslate, const int& yTranslate, const int& zTranslate);
         Point3D& operator += (const Point3D& other);
-        Point2D project(const int& xCenter, const int& yCenter, const int& xLen, const int& yLen, const double& radius, const double& scale) const;
+        //Point2D project(const int& xCenter, const int& yCenter, const int& xLen, const int& yLen, const Camera& cam, const double& scale) const;
 
     private:
         int x;
@@ -105,12 +105,13 @@ class Mesh {
         Mesh(const Mesh& other);
 
         size_t size() const;
+        MyVector<Line3D> getEdges() const;
         void addEdge(const Line3D& edge);
         Line3D& operator [] (const size_t& index);
         Mesh& operator = (const Mesh& other);
         void translate(const int& xTranslate, const int& yTranslate, const int& zTranslate);
-        Section project(const int& xCenter, const int& yCenter, const int& xLen, const int& yLen, const double& radius, const double& scale);
-        Point3D centerPoint();
+        //Section project(const int& xCenter, const int& yCenter, const int& xLen, const int& yLen, const double& radius, const double& scale);
+        Point3D centerPoint() const;
         void updateCenterPoint();
 
     private:
@@ -118,4 +119,20 @@ class Mesh {
         Point3D m_centerPoint;
 };
 
+class Camera {
+    public:
+        Camera(const int& maxRadius);
+        Camera(const Point3D& point, const int& angleX, const int& angleY, const int& angleZ);
+
+        Point3D getPoint() const;
+        float getAngleX() const;
+        float getAngleY() const;
+        float getAngleZ() const;
+        float getEZ() const;
+
+    private:
+        Point3D m_point;
+        float m_angleX, m_angleY, m_angleZ;
+        float m_EZ;
+};
 #endif // SHAPEDATA_H

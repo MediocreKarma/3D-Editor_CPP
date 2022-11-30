@@ -1,7 +1,7 @@
 #ifndef APPINTERFACE_H
 #define APPINTERFACE_H
 
-#include "Space3D.h"
+#include "../include/Space3D.h"
 #include <graphics.h>
 #include <winbgim.h>
 
@@ -15,8 +15,8 @@ class AppInterface {
         double maxRadius() const;
 
     private:
-        static constexpr double m_maxRadius = 2000;
-        static constexpr double FOV = 3.1415926 / 2;
+        static constexpr double m_maxRadius = -2000;
+        //static constexpr double FOV = 1;
         int m_appWidth;
         int m_appHeight;
         int m_theme;
