@@ -1,4 +1,4 @@
-#include "AppInterface.h"
+#include "../include/AppInterface.h"
 #include <iostream>
 
 AppInterface::AppInterface(const int& appWidth, const int& appHeight, const int& theme, const int& languagePackage) :
