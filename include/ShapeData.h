@@ -43,6 +43,7 @@ class Section {
         Section(const MyVector<Line2D>& lines, const Point2D& centerPoint);
         Section(const Section& other);
         size_t size() const;
+        Point2D centerPoint() const;
         void addLine(const Line2D& line);
         Section& operator = (const Section& other);
         Line2D& operator [] (const size_t& index);
@@ -52,6 +53,7 @@ class Section {
 
     private:
         MyVector<Line2D> m_lines;
+        Point2D m_centerPoint;
         CircularButton m_grabPoint;
         bool m_active;
 };
@@ -73,7 +75,6 @@ class Point3D {
         void rotateOZ(const Point3D& center, const double& alpha);
         void translate(const int& xTranslate, const int& yTranslate, const int& zTranslate);
         Point3D& operator += (const Point3D& other);
-        //Point2D project(const int& xCenter, const int& yCenter, const int& xLen, const int& yLen, const Camera& cam, const double& scale) const;
 
     private:
         int x;
@@ -90,6 +91,7 @@ class Line3D {
         void translate(const int& xTranslate, const int& yTranslate, const int& zTranslate);
         Point3D getP();
         Point3D getQ();
+        float getLength() const;
         void setP(const Point3D& P_);
         void setQ(const Point3D& Q_);
 
@@ -110,7 +112,6 @@ class Mesh {
         Line3D& operator [] (const size_t& index);
         Mesh& operator = (const Mesh& other);
         void translate(const int& xTranslate, const int& yTranslate, const int& zTranslate);
-        //Section project(const int& xCenter, const int& yCenter, const int& xLen, const int& yLen, const double& radius, const double& scale);
         Point3D centerPoint() const;
         void updateCenterPoint();
 

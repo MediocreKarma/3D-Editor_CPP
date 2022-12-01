@@ -22,15 +22,16 @@ class Space3D
     private:
         double m_maxRadius;
         int m_theme;
-        int m_selected;
         MyVector<Mesh> m_meshes;
         MyVector<Section> m_sections;
         MyVector<bool> m_updated;
         Camera m_cam;
+        int m_selected;
 
         size_t size() const;
-        Point2D projectPoint(const Point3D& pct, const int& xCenter, const int& yCenter, const int& xLen, const int& yLen, const double& scale) const;
-        Section projectSection(Mesh& mesh, const int& xCenter, const int& yCenter, const int& xLen, const int& yLen, const double& scale);
+        Point2D projectPoint(const Point3D& pct, const int& xCenter, const int& yCenter, const int& xLen, const int& yLen, const double& scale = 1) const;
+        Point3D getProjectPoint(const Point3D& pct, const int& xCenter, const int& yCenter, const int& xLen, const int& yLen, const double& scale = 1) const;
+        Section projectSection(Mesh& mesh, const int& xCenter, const int& yCenter, const int& xLen, const int& yLen, const double& scale = 1);
         void render(const int& xCenter, const int& yCenter, const int& xLen, const int& yLen, const double& scale = 1);
         void rotateOX(Mesh& lines, const double& alpha);
         void rotateOY(Mesh& lines, const double& alpha);
@@ -38,7 +39,6 @@ class Space3D
         void selectMesh(const size_t& index);
         void highlightMesh();
         bool isDragAndDrop(int& xDrag, int& yDrag) const;
-
 };
 
 #endif // SPACE3D_H

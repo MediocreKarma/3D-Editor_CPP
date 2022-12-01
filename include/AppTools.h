@@ -1,7 +1,7 @@
 #ifndef APPTOOLS_H
 #define APPTOOLS_H
 
-#include "MyArray.h"
+#include "../include/MyArray.h"
 #include "graphics.h"
 #include "winbgim.h"
 
@@ -39,6 +39,8 @@ class CircularButton : public CircularLabel {
         CircularButton();
         CircularButton(const int& xCenter, const int& yCenter, const int& radius);
         bool hitCollision(const int& x, const int& y) const;
+        int getX() const;
+        int getY() const;
 };
 
 class TextLabel : public Label {
