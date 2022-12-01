@@ -1,5 +1,6 @@
 #include "../include/ShapeData.h"
-
+#include<iostream>
+#include<math.h>
 Point3D::Point3D() :
     x(), y(), z() {}
 
@@ -42,8 +43,8 @@ void Point3D::setPoint(const Point3D& pct) {
 void Point3D::rotateOX(const Point3D& center, const double& alpha) {
     translate(center.getX() * (-1), center.getY() * (-1), center.getZ() * (-1));
     double beta = alpha * 3.14 / 180;
-    int y_ = y * cos(beta) - z * sin(beta);
-    int z_ = y * sin(beta) + z * cos(beta);
+    double y_ = y * cos(beta) - z * sin(beta);
+    double z_ = y * sin(beta) + z * cos(beta);
     y = y_;
     z = z_;
     translate(center.getX(), center.getY(), center.getZ());
@@ -52,8 +53,8 @@ void Point3D::rotateOX(const Point3D& center, const double& alpha) {
 void Point3D::rotateOY(const Point3D& center, const double& alpha) {
     translate(center.getX() * (-1), center.getY() * (-1), center.getZ() * (-1));
     double beta = alpha * 3.14 / 180;
-    int x_ = x * cos(beta) - z * sin(beta);
-    int z_ = x * sin(beta) + z * cos(beta);
+    double x_ = x * cos(beta) - z * sin(beta);
+    double z_ = x * sin(beta) + z * cos(beta);
     x = x_;
     z = z_;
     translate(center.getX(), center.getY(), center.getZ());
@@ -90,8 +91,8 @@ Point3D Line3D::getQ(){
     return Q;
 }
 
-// DEPRECATED
 /*Point2D Point3D::project(const int& xCenter, const int& yCenter, const int& xLen, const int& yLen, const Camera& cam, const double& scale) const {
+    /*DEPRECATED
     double aa = (radius - y) / radius;
     return Point2D( x * scale * aa + xCenter, yLen / 2 - z * scale * aa);
 
@@ -112,8 +113,8 @@ Point3D Line3D::getQ(){
     int xprim = xLen/2 * dx / dy;
     int yprim = yLen/2 * dz / dy;
     return Point2D(xprim,yprim);
-
-    //PENTRU e
+    /*
+    PENTRU e
     x' = (half width of viewport) * x / z
     y' = (half height of viewport) * y / z
 
@@ -154,19 +155,24 @@ void Line2D::draw() {
     line(P.getX(), P.getY(), Q.getX(), Q.getY());
 }
 
+constexpr int Section::RADIUS;
+
 Section::Section() :
     m_lines(), m_grabPoint(), m_active(false) {}
 
 Section::Section(const MyVector<Line2D>& lines, const Point2D& centerPoint) :
-    m_lines(lines), m_grabPoint(centerPoint.getX(), centerPoint.getY(), Section::RADIUS), m_active(false) {}
+    m_lines(lines), m_centerPoint(centerPoint.getX(), centerPoint.getY()), m_grabPoint(centerPoint.getX(), centerPoint.getY(), Section::RADIUS), m_active(false) {}
 
 Section::Section(const Section& other) :
-    m_lines(other.m_lines), m_grabPoint(other.m_grabPoint), m_active(other.m_active) {}
+    m_lines(other.m_lines), m_centerPoint(other.centerPoint()), m_grabPoint(other.m_grabPoint), m_active(other.m_active) {}
 
-constexpr int Section::RADIUS;
 
 size_t Section::size() const {
     return m_lines.size();
+}
+
+Point2D Section::centerPoint() const {
+    return m_centerPoint;
 }
 
 void Section::addLine(const Line2D& line) {
@@ -192,6 +198,7 @@ void Section::drawButton(const int& fillColor, const int& borderColor) {
 Section& Section::operator = (const Section& other) {
     m_lines = other.m_lines;
     m_grabPoint = other.m_grabPoint;
+    m_centerPoint = other.m_centerPoint;
     m_active = other.m_active;
     return *this;
 }
@@ -228,13 +235,16 @@ void Line3D::translate(const int& xTranslate, const int& yTranslate, const int& 
     Q.translate(xTranslate, yTranslate, zTranslate);
 }
 
-/*int Line2D::getLength(){
+/*float Line2D::getLength(){
     //pitagora in 2d
-}
-
-int Line3D::getLength() const{
-    //pitagora in 3d.
 }*/
+
+float Line3D::getLength() const{
+    float dx = abs(Q.getX() - P.getX());
+    float dy = abs(Q.getY() - P.getY());
+    float dz = abs(Q.getZ() - P.getZ());
+    return sqrt(dx*dx + dy*dy + dz*dz);
+}
 
 Mesh::Mesh() :
     m_edges(), m_centerPoint() {}
@@ -252,9 +262,9 @@ void Mesh::updateCenterPoint() {
         m_centerPoint += m_edges[i].getP();
         m_centerPoint += m_edges[i].getQ();
     }
-    m_centerPoint.setX(m_centerPoint.getX() / (2 * size()));
-    m_centerPoint.setY(m_centerPoint.getY() / (2 * size()));
-    m_centerPoint.setZ(m_centerPoint.getZ() / (2 * size()));
+    m_centerPoint.setX(m_centerPoint.getX() / (2 * (int)size()));
+    m_centerPoint.setY(m_centerPoint.getY() / (2 * (int)size()));
+    m_centerPoint.setZ(m_centerPoint.getZ() / (2 * (int)size()));
 }
 
 size_t Mesh::size() const {
@@ -299,12 +309,11 @@ MyVector<Line3D> Mesh::getEdges() const {
     }
     return Section(lines, m_centerPoint.project(xCenter, yCenter, xLen, yLen, radius, scale));
 }*/
-
 Camera::Camera(const int& maxRadius) :
     m_point(0, maxRadius, 0), m_angleX(0), m_angleY(0), m_angleZ(0), m_EZ(-1) {}
 
 Camera::Camera(const Point3D& point, const int& alpha, const int& beta, const int& theta) :
-    m_point(point), m_angleX(alpha), m_angleY(beta), m_angleZ(theta), m_EZ(-1) {}
+    m_point(point), m_angleX(alpha), m_angleY(beta), m_angleZ(theta), m_EZ(1) {}
 
 Point3D Camera::getPoint() const {
     return m_point;
