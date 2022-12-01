@@ -17,10 +17,12 @@ class Space3D
         void draw(const int& xCenter, const int& yCenter, const int& xLen, const int& yLen);
         bool insideWorkArea(const int& x, const int& y, const int& xCenter, const int& yCenter, const int& xLen, const int& yLen) const;
         void getCommand(const int& x0, const int& y0, const int& x1, const int& y1);
+        void dragAndDrop(const int& xDrag, const int& yDrag, const int& x0, const int& y0, const int& x1, const int& y1);
 
     private:
         double m_maxRadius;
         int m_theme;
+        int m_selected;
         MyVector<Mesh> m_meshes;
         MyVector<Section> m_sections;
         MyVector<bool> m_updated;
@@ -33,6 +35,10 @@ class Space3D
         void rotateOX(Mesh& lines, const double& alpha);
         void rotateOY(Mesh& lines, const double& alpha);
         void rotateOZ(Mesh& lines, const double& alpha);
+        void selectMesh(const size_t& index);
+        void highlightMesh();
+        bool isDragAndDrop(int& xDrag, int& yDrag) const;
+
 };
 
 #endif // SPACE3D_H

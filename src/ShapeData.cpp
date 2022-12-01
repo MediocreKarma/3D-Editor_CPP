@@ -90,8 +90,8 @@ Point3D Line3D::getQ(){
     return Q;
 }
 
+// DEPRECATED
 /*Point2D Point3D::project(const int& xCenter, const int& yCenter, const int& xLen, const int& yLen, const Camera& cam, const double& scale) const {
-    /*DEPRECATED
     double aa = (radius - y) / radius;
     return Point2D( x * scale * aa + xCenter, yLen / 2 - z * scale * aa);
 
@@ -112,8 +112,8 @@ Point3D Line3D::getQ(){
     int xprim = xLen/2 * dx / dy;
     int yprim = yLen/2 * dz / dy;
     return Point2D(xprim,yprim);
-    /*
-    PENTRU e
+
+    //PENTRU e
     x' = (half width of viewport) * x / z
     y' = (half height of viewport) * y / z
 
@@ -300,8 +300,8 @@ MyVector<Line3D> Mesh::getEdges() const {
     return Section(lines, m_centerPoint.project(xCenter, yCenter, xLen, yLen, radius, scale));
 }*/
 
-Camera::Camera(const int& maxRadius):
-    m_point(0,maxRadius,0), m_angleX(0), m_angleY(0), m_angleZ(0), m_EZ(-1) {}
+Camera::Camera(const int& maxRadius) :
+    m_point(0, maxRadius, 0), m_angleX(0), m_angleY(0), m_angleZ(0), m_EZ(-1) {}
 
 Camera::Camera(const Point3D& point, const int& alpha, const int& beta, const int& theta) :
     m_point(point), m_angleX(alpha), m_angleY(beta), m_angleZ(theta), m_EZ(-1) {}

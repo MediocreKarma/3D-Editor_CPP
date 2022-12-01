@@ -1,4 +1,4 @@
-#include "../include/AppInterface.h"
+#include "AppInterface.h"
 #include <iostream>
 
 AppInterface::AppInterface(const int& appWidth, const int& appHeight, const int& theme, const int& languagePackage) :
@@ -27,16 +27,15 @@ void AppInterface::run(){
     cube.addEdge(Line3D(Point3D(100,100,-100),Point3D(100,-100,-100)));
     cube.addEdge(Line3D(Point3D(100,100,100),Point3D(100,-100,100)));
     cube.updateCenterPoint();
-    cube.translate(0, 0, 0);
     space.addMesh(cube);
-    cube.translate(300, 300, -300);
+    /*cube.translate(300, 300, -300);
     space.addMesh(cube);
     cube.translate(600, 600, 300);
     space.addMesh(cube);
     cube.translate(-1200, -600, -300);
     space.addMesh(cube);
     cube.translate(-600, 600, 300);
-    space.addMesh(cube);
+    space.addMesh(cube);*/
     space.run(0, 0, m_appWidth, m_appHeight);
     int x, y;
     while (true) {
@@ -47,8 +46,4 @@ void AppInterface::run(){
             space.getCommand(0, 0, m_appWidth, m_appHeight);
         }
     }
-    /*sp.setAngleX(30);
-    sp.setAngleY(60);
-    sp.setAngleZ(40);
-    */
 }

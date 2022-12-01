@@ -3,7 +3,7 @@
 #include<iostream>
 #include<math.h>
 Space3D::Space3D(const double& maxRadius, const int& theme) :
-    m_maxRadius(maxRadius), m_theme(theme), m_meshes(), m_sections(), m_updated(), m_cam(maxRadius) {}
+    m_maxRadius(maxRadius), m_theme(theme), m_selected(-1), m_meshes(), m_sections(), m_updated(), m_cam(maxRadius) {}
 
 size_t Space3D::size() const {
     return m_meshes.size();
@@ -29,7 +29,7 @@ Point2D Space3D::projectPoint(const Point3D& pct, const int& xCenter, const int&
     /*
     double aa = (radius - y) / radius;
     return Point2D( x * scale * aa + xCenter, yLen / 2 - z * scale * aa);*/
-    float mx,my,mz;
+    double mx,my,mz;
     mx = pct.getX();
     my = pct.getY();
     mz = pct.getZ();
@@ -38,22 +38,22 @@ Point2D Space3D::projectPoint(const Point3D& pct, const int& xCenter, const int&
     xr = mx - P.getX();
     yr = my - P.getY();
     zr = mz - P.getZ();
-    float dx, dy, dz; //rotire euler pct 3D.
+    double dx, dy, dz; //rotire euler pct 3D.
 
     //axa X roteste in genul "te uiti mai in jos/sus"
     //axa Y roteste in genul "iti rotesti capul intr o parte, dar tot in fata te uiti"
     //axa Z roteste in genul "te uiti in stanga/dreapta"
-    float aX = m_cam.getAngleX() ;
-    float aY = m_cam.getAngleY() - 3.14/12;
-    float aZ = m_cam.getAngleZ() ;
+    double aX = m_cam.getAngleX();
+    double aY = m_cam.getAngleY();
+    double aZ = m_cam.getAngleZ();
     //tie ti tot zisesem ex dar e defapt ez. Scuze.
-    float EZ = m_cam.getEZ();
-    dx = cos(aX) * (sin(aZ * yr) + cos(aZ) * xr ) - sin(aY) * zr;
-    dy = sin(aX) * (cos(aY) * zr + sin(aY) * (sin(aZ) * yr + cos(aZ) * xr)) + cos(aX) * (cos(aZ) * yr - sin(aZ) * xr);
-    dz = cos(aX) * (cos(aY) * zr + sin(aY) * (sin(aZ) * yr + cos(aZ) * xr)) - sin(aX) * (cos(aZ) * yr - sin(aZ) * xr);
-    float xprim = EZ/dy * dx * yLen + xCenter;
-    float yprim = EZ/dy * dz * yLen + yCenter;
-    return Point2D(xprim,yprim);
+    double EZ = m_cam.getEZ();
+    dx =  cos(aX) * cos(aZ) * xr + cos(aX) * sin(aZ) * yr - sin(aY) * zr;
+    dy = (sin(aX) * sin(aY) * cos(aZ) - cos(aX) * sin(aZ)) * xr + (cos(aX) * cos(aZ) + sin(aX) * sin(aY) * sin(aZ)) * yr + sin(aX) * cos(aY) * zr;
+    dz = (cos(aX) * sin(aY) * cos(aZ) - sin(aX) * sin(aZ)) * xr + (cos(aX) * sin(aY) * sin(aZ) - sin(aX) * cos(aZ)) * yr + cos(aX) * cos(aY) * zr;
+    double xprim = EZ * dx * yLen / dy + xCenter;
+    double yprim = EZ * dz * yLen / dy + yCenter;
+    return Point2D(round(xprim), round(yprim));
 }
 
 Section Space3D::projectSection(Mesh& mesh, const int& xCenter, const int& yCenter, const int& xLen, const int& yLen, const double& scale) {
@@ -96,41 +96,72 @@ void Space3D::getCommand(const int& x0, const int& y0, const int& x1, const int&
     getmouseclick(WM_LBUTTONDOWN, x, y);
     for (size_t i = 0; i < size(); ++i) {
         if (m_sections[i].grabButtonCollision(x, y)) {
-            m_sections[i].drawButton(LIGHTGREEN, LIGHTGREEN);
-            for (size_t j = 0; j < size(); ++j) {
-                if (i == j) {
-                    continue;
-                }
-                m_sections[j].drawButton(RED, RED);
-            }
-            while (!ismouseclick(WM_LBUTTONUP));
+            selectMesh(i);
             int xDrag, yDrag;
-            getmouseclick(WM_LBUTTONUP, xDrag, yDrag);
-            if (m_sections[i].grabButtonCollision(xDrag, yDrag)) {
-                    //daca s a dat mouseUP tot pe ala
-                return;
+            if (isDragAndDrop(xDrag, yDrag)) {
+                dragAndDrop(xDrag, yDrag, x0, y0, x1, y1);
             }
-
-            double aa = (m_maxRadius - m_meshes[i].centerPoint().getY()) / m_maxRadius;
-            const int xCenter = (x0 + x1) / 2;
-            const int yLen = y1 - y0;
-            int xMovePosition = (xDrag - xCenter) / aa;
-            int zMovePosition = (yLen / 2 - yDrag) / aa;
-
-            //trebe calculat defapt in functie de camera. Deci. Les go
-            //ce avem? avem i la dispozitie. Deci, centerPoint of m_meshes[i] ig.
-            /*Point3D punctAux(m_meshes[i].centerPoint());
-            Point3D origine(0,0,0)
-            deci. cumva vom roti vectorul in functie de cum e rotita camera. nu stiu cum. bag picioarele
-            si dupaia translatam efectiv cu x si y
-            si aflam care i treaba
-            */
-
-            m_meshes[i].translate(xMovePosition - m_meshes[i].centerPoint().getX(), 0, zMovePosition - m_meshes[i].centerPoint().getZ());
-            m_updated[i] = true;
-            run(x0, y0, x1, y1);
         }
     }
+}
+
+void Space3D::dragAndDrop(const int& xDrag, const int& yDrag, const int& x0, const int& y0, const int& x1, const int& y1) {
+    const int xCenter = (x0 + x1) / 2;
+    const int yLen = y1 - y0;
+    const int yCenter = (y0 + y1) / 2;
+    const int yr = m_meshes[m_selected].centerPoint().getY();
+    std::cout << yr << '\n';
+    const double aX = m_cam.getAngleX();
+    const double aY = m_cam.getAngleY();
+    const double aZ = m_cam.getAngleZ();
+    const double EZ = m_cam.getEZ();
+    const double Cx1 = cos(aX) * cos(aZ);
+    const double Cx2 = cos(aX) * sin(aZ) * yr;
+    const double Cx3 = -sin(aY);
+    const double Cy1 = sin(aX) * sin(aY) * cos(aZ) - cos(aX) * sin(aZ);
+    const double Cy2 = (cos(aX) * cos(aZ) + sin(aX) * sin(aY) * sin(aZ)) * yr;
+    const double Cy3 = sin(aX) * cos(aY);
+    const double Cz1 = cos(aX) * sin(aY) * cos(aZ) - sin(aX) * sin(aZ);
+    const double Cz2 = (cos(aX) * sin(aY) * sin(aZ) - sin(aX) * cos(aZ)) * yr;
+    const double Cz3 = cos(aX) * cos(aY);
+    const double C1 = (xDrag - xCenter) / (EZ * yLen);
+    const double C2 = (yDrag - yCenter) / (EZ * yLen);
+    const double alpha1 = C1 * Cy1 - Cx1;
+    const double beta1 = C1 * Cy3 - Cx3;
+    const double delta1 = Cx2 - C1 * Cy2;
+    const double alpha2 = C2 * Cy1 - Cz1;
+    const double beta2 = C2 * Cy3 - Cz3;
+    const double delta2 = Cz2 - C2 * Cy2;
+    std::cout << alpha2 * beta1 << ' ' << alpha1 * beta2 << '\n';
+    const int zr = (delta1 * alpha2 - delta2 * alpha1) / (alpha2 * beta1 - alpha1 * beta2);
+    const int xr = (delta1 * beta2 - delta2 * beta1) / (alpha1 * beta2 - alpha2 * beta1);
+    int realX = xr + m_cam.getPoint().getX();
+    int realZ = zr + m_cam.getPoint().getZ();
+    std::cout << realX << ' ' << realZ << '\n';
+    m_meshes[m_selected].translate(realX - m_meshes[m_selected].centerPoint().getX(), 0, realZ - m_meshes[m_selected].centerPoint().getZ());
+    m_updated[m_selected] = 1;
+    run(x0, y0, x1, y1);
+}
+
+bool Space3D::isDragAndDrop(int& xDrag, int& yDrag) const {
+    while (!ismouseclick(WM_LBUTTONUP));
+    getmouseclick(WM_LBUTTONUP, xDrag, yDrag);
+    return !m_sections[m_selected].grabButtonCollision(xDrag, yDrag);
+}
+
+void Space3D::highlightMesh() {
+    m_sections[m_selected].drawButton(LIGHTGREEN, LIGHTGREEN);
+    for (int j = 0; j < m_selected; ++j) {
+        m_sections[j].drawButton(RED, RED);
+    }
+    for (size_t j = m_selected + 1; j < size(); ++j) {
+        m_sections[j].drawButton(RED, RED);
+    }
+}
+
+void Space3D::selectMesh(const size_t& index) {
+    m_selected = index;
+    highlightMesh();
 }
 
 //deseneaza toate mesh-urile proiectate + centrele
