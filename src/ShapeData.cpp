@@ -1,4 +1,4 @@
-#include "../include/ShapeData.h"
+#include "ShapeData.h"
 #include<iostream>
 #include<math.h>
 Point3D::Point3D() :
@@ -310,7 +310,7 @@ MyVector<Line3D> Mesh::getEdges() const {
     return Section(lines, m_centerPoint.project(xCenter, yCenter, xLen, yLen, radius, scale));
 }*/
 Camera::Camera(const int& maxRadius) :
-    m_point(0, maxRadius, 0), m_angleX(0), m_angleY(0), m_angleZ(0), m_EZ(-1) {}
+    m_point(0, maxRadius, -150), m_angleX(0), m_angleY(-3.14/12), m_angleZ(-3.14/12), m_EZ(-1) {}
 
 Camera::Camera(const Point3D& point, const int& alpha, const int& beta, const int& theta) :
     m_point(point), m_angleX(alpha), m_angleY(beta), m_angleZ(theta), m_EZ(1) {}

@@ -2,10 +2,10 @@
 #define SHAPEDATA_H
 
 #include<math.h>
-#include "../include/MyVector.h"
+#include "MyVector.h"
 #include <graphics.h>
 #include <winbgim.h>
-#include "../include/AppTools.h"
+#include "AppTools.h"
 
 class Point2D {
     public:

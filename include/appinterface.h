@@ -1,7 +1,7 @@
 #ifndef APPINTERFACE_H
 #define APPINTERFACE_H
 
-#include "../include/Space3D.h"
+#include "Space3D.h"
 #include <graphics.h>
 #include <winbgim.h>
 
@@ -16,7 +16,7 @@ class AppInterface {
 
     private:
         static constexpr double m_maxRadius = -2000;
-        //static constexpr double FOV = 1;
+        //Pozitia default a camerei e in shapeData, hardcoded; nu stiu unde sa pun exact offsetul
         int m_appWidth;
         int m_appHeight;
         int m_theme;
