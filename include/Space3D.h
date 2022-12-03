@@ -6,6 +6,9 @@
 #include <graphics.h>
 #include "MyArray.h"
 #include <math.h>
+#include "Camera.h"
+#include<math.h>
+#include "SettingsMenuInterface.h"
 
 class Space3D
 {
@@ -20,19 +23,31 @@ class Space3D
         void dragAndDrop(const int& xDrag, const int& yDrag, const int& x0, const int& y0, const int& x1, const int& y1);
 
     private:
-        double m_maxRadius;
         int m_theme;
+        int m_selected;
+        bool m_spinballSelected;
         MyVector<Mesh> m_meshes;
         MyVector<Section> m_sections;
         MyVector<bool> m_updated;
         Camera m_cam;
-        int m_selected;
+        CircularButton m_buttonOX;
+        CircularButton m_buttonOY;
+        CircularButton m_buttonOZ;
+        DonutButton m_donutOX;
+        DonutButton m_donutOY;
+        DonutButton m_donutOZ;
+        Button m_spinballButton;
 
         size_t size() const;
-        Point2D projectPoint(const Point3D& pct, const int& xCenter, const int& yCenter, const int& xLen, const int& yLen, const double& scale = 1) const;
-        Point3D getProjectPoint(const Point3D& pct, const int& xCenter, const int& yCenter, const int& xLen, const int& yLen, const double& scale = 1) const;
-        Section projectSection(Mesh& mesh, const int& xCenter, const int& yCenter, const int& xLen, const int& yLen, const double& scale = 1);
-        void render(const int& xCenter, const int& yCenter, const int& xLen, const int& yLen, const double& scale = 1);
+        void getDrag(int& xDrag, int& yDrag) const;
+        double findRotation(const int& xDrag, const int& yDrag, const DonutButton& angleDonut, CircularButton& button);
+        bool checkAxisRotation(const int& x, const int& y);
+        void drawSpinball(const int& x, const int& y);
+        void showAngleOptions(const int& x, const int& y);
+        Point2D projectPoint(const Point3D& pct, const int& xCenter, const int& yCenter, const int& /*xLen*/, const int& yLen) const;
+        Point3D normalisePoint(const Point3D& pct) const;
+        Section projectSection(const Mesh& mesh, const int& xCenter, const int& yCenter, const int& xLen, const int& yLen);
+        void render(const int& xCenter, const int& yCenter, const int& xLen, const int& yLen);
         void rotateOX(Mesh& lines, const double& alpha);
         void rotateOY(Mesh& lines, const double& alpha);
         void rotateOZ(Mesh& lines, const double& alpha);

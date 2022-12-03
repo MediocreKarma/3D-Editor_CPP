@@ -89,9 +89,9 @@ class Line3D {
         Line3D(const Line3D& other);
         Line3D& operator = (const Line3D& other);
         void translate(const int& xTranslate, const int& yTranslate, const int& zTranslate);
-        Point3D getP();
-        Point3D getQ();
-        float getLength() const;
+        Point3D getP() const;
+        Point3D getQ() const;
+        double getLength() const;
         void setP(const Point3D& P_);
         void setQ(const Point3D& Q_);
 
@@ -107,9 +107,9 @@ class Mesh {
         Mesh(const Mesh& other);
 
         size_t size() const;
-        MyVector<Line3D> getEdges() const;
         void addEdge(const Line3D& edge);
         Line3D& operator [] (const size_t& index);
+        const Line3D& operator [] (const size_t& index) const;
         Mesh& operator = (const Mesh& other);
         void translate(const int& xTranslate, const int& yTranslate, const int& zTranslate);
         Point3D centerPoint() const;
@@ -120,20 +120,4 @@ class Mesh {
         Point3D m_centerPoint;
 };
 
-class Camera {
-    public:
-        Camera(const int& maxRadius);
-        Camera(const Point3D& point, const int& angleX, const int& angleY, const int& angleZ);
-
-        Point3D getPoint() const;
-        float getAngleX() const;
-        float getAngleY() const;
-        float getAngleZ() const;
-        float getEZ() const;
-
-    private:
-        Point3D m_point;
-        float m_angleX, m_angleY, m_angleZ;
-        float m_EZ;
-};
 #endif // SHAPEDATA_H

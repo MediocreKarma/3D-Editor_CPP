@@ -15,6 +15,7 @@ namespace SettingsMenuInterface
     static const int BACKGROUND_COLOR = RGB(48, 47, 77);
     static const int HIGHLIGHT_COLOR = RGB(242, 195, 107);
     //static const int BORDER_WIDTH = 3;
+    static const int NO_COLOR = -1;
     static const int LABEL_COLOR = RGB(108, 106, 175);
     static const int BUTTON_COLOR = RGB(182, 191, 232);
     static const int DROPLIST_COLOR = RGB(235, 235, 235);

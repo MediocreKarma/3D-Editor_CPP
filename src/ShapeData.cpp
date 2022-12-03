@@ -83,43 +83,6 @@ void Point3D::translate(const int& xTranslate, const int& yTranslate, const int&
     z += zTranslate;
 }
 
-Point3D Line3D::getP(){
-    return P;
-}
-
-Point3D Line3D::getQ(){
-    return Q;
-}
-
-/*Point2D Point3D::project(const int& xCenter, const int& yCenter, const int& xLen, const int& yLen, const Camera& cam, const double& scale) const {
-    /*DEPRECATED
-    double aa = (radius - y) / radius;
-    return Point2D( x * scale * aa + xCenter, yLen / 2 - z * scale * aa);
-
-    int xr, yr, zr; //temporare; a.x - cam.x
-    Point3D P = cam.getPoint();
-    xr = x - P.getX();
-    yr = y - P.getY();
-    zr = z - P.getZ();
-    int dx, dy, dz; //rotire euler pct 3D.
-    int aX, aY, aZ;
-    aX = cam.getAngleX();
-    aY = cam.getAngleY();
-    aZ = cam.getAngleZ();
-    dx = cos(aX) * (sin(aZ * yr) + cos(aZ) * xr ) - sin(cam.getAngleY()) * zr;
-    dy = sin(aX) * (cos(aY) * zr + sin(aY) * (sin(aZ) * yr + cos(aZ) * xr)) + cos(aX) * (cos(aZ) * yr - sin(aZ) * xr);
-    dz = cos(aX) * (cos(aY) * zr + sin(aY) * (sin(aZ) * yr + cos(aZ) * xr)) - sin(aX) * (cos(aZ) * yr - sin(aZ) * xr);
-    int FOV = 1;
-    int xprim = xLen/2 * dx / dy;
-    int yprim = yLen/2 * dz / dy;
-    return Point2D(xprim,yprim);
-    /*
-    PENTRU e
-    x' = (half width of viewport) * x / z
-    y' = (half height of viewport) * y / z
-
-}*/
-
 Point2D::Point2D() :
     x(), y() {}
 
@@ -158,7 +121,7 @@ void Line2D::draw() {
 constexpr int Section::RADIUS;
 
 Section::Section() :
-    m_lines(), m_grabPoint(), m_active(false) {}
+    m_lines(), m_centerPoint(), m_grabPoint(), m_active(false) {}
 
 Section::Section(const MyVector<Line2D>& lines, const Point2D& centerPoint) :
     m_lines(lines), m_centerPoint(centerPoint.getX(), centerPoint.getY()), m_grabPoint(centerPoint.getX(), centerPoint.getY(), Section::RADIUS), m_active(false) {}
@@ -222,6 +185,14 @@ Line3D& Line3D::operator = (const Line3D& other) {
     return *this;
 }
 
+Point3D Line3D::getP() const {
+    return P;
+}
+
+Point3D Line3D::getQ() const {
+    return Q;
+}
+
 void Line3D::setP(const Point3D& P_) {
     P.setPoint(P_);
 }
@@ -235,14 +206,10 @@ void Line3D::translate(const int& xTranslate, const int& yTranslate, const int& 
     Q.translate(xTranslate, yTranslate, zTranslate);
 }
 
-/*float Line2D::getLength(){
-    //pitagora in 2d
-}*/
-
-float Line3D::getLength() const{
-    float dx = abs(Q.getX() - P.getX());
-    float dy = abs(Q.getY() - P.getY());
-    float dz = abs(Q.getZ() - P.getZ());
+double Line3D::getLength() const{
+    double dx = abs(Q.getX() - P.getX());
+    double dy = abs(Q.getY() - P.getY());
+    double dz = abs(Q.getZ() - P.getZ());
     return sqrt(dx*dx + dy*dy + dz*dz);
 }
 
@@ -275,6 +242,10 @@ Line3D& Mesh::operator [] (const size_t& index) {
     return m_edges[index];
 }
 
+const Line3D& Mesh::operator [] (const size_t& index) const {
+    return m_edges[index];
+}
+
 Mesh& Mesh::operator = (const Mesh& other) {
     m_edges = other.m_edges;
     m_centerPoint = other.m_centerPoint;
@@ -296,9 +267,6 @@ Point3D Mesh::centerPoint() const {
     return m_centerPoint;
 }
 
-MyVector<Line3D> Mesh::getEdges() const {
-    return m_edges;
-}
 /*Section Mesh::project(const int& xCenter, const int& yCenter, const int& xLen, const int& yLen, const double& radius, const double& scale) {
     MyVector<Line2D> lines;
     lines.reserve(size());
@@ -309,28 +277,3 @@ MyVector<Line3D> Mesh::getEdges() const {
     }
     return Section(lines, m_centerPoint.project(xCenter, yCenter, xLen, yLen, radius, scale));
 }*/
-Camera::Camera(const int& maxRadius) :
-    m_point(0, maxRadius, -150), m_angleX(0), m_angleY(-3.14/12), m_angleZ(-3.14/12), m_EZ(-1) {}
-
-Camera::Camera(const Point3D& point, const int& alpha, const int& beta, const int& theta) :
-    m_point(point), m_angleX(alpha), m_angleY(beta), m_angleZ(theta), m_EZ(1) {}
-
-Point3D Camera::getPoint() const {
-    return m_point;
-}
-
-float Camera::getAngleX() const {
-    return m_angleX;
-}
-
-float Camera::getAngleY() const {
-    return m_angleY;
-}
-
-float Camera::getAngleZ() const {
-    return m_angleZ;
-}
-
-float Camera::getEZ() const {
-    return m_EZ;
-}

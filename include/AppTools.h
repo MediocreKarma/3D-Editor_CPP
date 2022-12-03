@@ -27,6 +27,10 @@ class CircularLabel {
         void drawLabel(const int& fillColor, const int& outlineColor = BLACK);
         void border(const int& outlineColor) const;
         void clear(const int& barColor) const;
+        void move(const int& x, const int& y);
+        int getX() const;
+        int getY() const;
+        int getRadius() const;
 
     protected:
         int xCenter;
@@ -39,8 +43,17 @@ class CircularButton : public CircularLabel {
         CircularButton();
         CircularButton(const int& xCenter, const int& yCenter, const int& radius);
         bool hitCollision(const int& x, const int& y) const;
-        int getX() const;
-        int getY() const;
+};
+
+class DonutButton : public CircularButton {
+    public:
+        DonutButton();
+        DonutButton(const int& xCenter, const int& yCenter, const int& radius, const int& donutLen);
+        bool hitCollision(const int& x, const int& y) const;
+
+    private:
+        CircularButton m_outerRing;
+        CircularButton m_innerRing;
 };
 
 class TextLabel : public Label {

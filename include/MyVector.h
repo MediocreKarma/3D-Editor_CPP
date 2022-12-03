@@ -109,11 +109,21 @@ class MyVector
         }
 
         void pop_back() {
-            if (!m_size)
+            if (!m_size) {
                 return;
+            }
             --m_size;
             if (m_capacity / 2 == m_size) {
                 setCapacity(m_capacity / 2);
+            }
+        }
+
+        void fill(const T& value) {
+            if (!m_size) {
+                return;
+            }
+            for (size_t i = 0; i < size(); ++i) {
+                m_vec[i] = value;
             }
         }
 
