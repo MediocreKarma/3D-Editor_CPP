@@ -7,6 +7,7 @@
 #include "graphics.h"
 #include "winbgim.h"
 #include "AppInterface.h"
+#include <stdio.h>
 
 namespace SettingsMenuInterface
 {
@@ -41,6 +42,8 @@ namespace SettingsMenuInterface
     static const int FONT_SIZE = 1;
 
     void run();
+    void checkSavedSettings();
+    void saveSelection();
     void drawScreen();
     void createButtons();
     void setTextSettings();

@@ -19,6 +19,7 @@ class Space3D
         void addMesh(const Mesh& mesh);
         void draw(const int& xCenter, const int& yCenter, const int& xLen, const int& yLen);
         bool insideWorkArea(const int& x, const int& y, const int& xCenter, const int& yCenter, const int& xLen, const int& yLen) const;
+        bool insideWorkArea(const Point2D& point, const int& x0, const int& y0, const int& x1, const int& y1) const;
         void getCommand(const int& x0, const int& y0, const int& x1, const int& y1);
         void dragAndDrop(const int& xDrag, const int& yDrag, const int& x0, const int& y0, const int& x1, const int& y1);
 

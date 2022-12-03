@@ -1,4 +1,5 @@
 #include "Space3D.h"
+
 Space3D::Space3D(const double& maxRadius, const int& theme) :
     m_theme(theme), m_selected(-1), m_spinballSelected(false), m_meshes(), m_sections(), m_updated(), m_cam(maxRadius),
     m_buttonOX(), m_buttonOY(), m_buttonOZ(), m_donutOX(), m_donutOY(), m_donutOZ(), m_spinballButton() {}
@@ -128,21 +129,33 @@ Point2D Space3D::projectPoint(const Point3D& pct, const int& xCenter, const int&
     int dx = cos(aY) * (sin(aZ) * yr + cos(aZ) * xr ) - sin(aY) * zr;
     int dy = sin(aX) * (cos(aY) * zr + sin(aY) * (sin(aZ) * yr + cos(aZ) * xr)) + cos(aX) * (cos(aZ) * yr - sin(aZ) * xr);
     int dz = cos(aX) * (cos(aY) * zr + sin(aY) * (sin(aZ) * yr + cos(aZ) * xr)) - sin(aX) * (cos(aZ) * yr - sin(aZ) * xr);
-    double xprim = EZ * dx * yLen / dy + xCenter;
-    double yprim = EZ * dz * yLen / dy * -1 + yCenter;
+    if (dy <= 0) {
+        dy = 0.0000000000000001;
+    }
+    int xprim = EZ * dx * yLen / dy + xCenter;
+    int yprim = EZ * dz * yLen / dy * -1 + yCenter;
     return Point2D(round(xprim), round(yprim));
 }
 
 Section Space3D::projectSection(const Mesh& mesh, const int& xCenter, const int& yCenter, const int& xLen, const int& yLen) {
+    const int x0 = xCenter - xLen / 2;
+    const int x1 = xCenter + xLen / 2;
+    const int y0 = yCenter - yLen / 2;
+    const int y1 = yCenter + yLen / 2;
     MyVector<Line2D> lines;
     lines.reserve(mesh.size());
     for(size_t i = 0; i < mesh.size(); i++) {
-        const Point2D P = projectPoint(mesh[i].getP(), xCenter, yCenter, xLen, yLen);
-        const Point2D Q = projectPoint(mesh[i].getQ(), xCenter, yCenter, xLen, yLen);
-        lines.push_back(Line2D(P, Q));
+        Point2D P = projectPoint(mesh[i].getP(), xCenter, yCenter, xLen, yLen);
+        Point2D Q = projectPoint(mesh[i].getQ(), xCenter, yCenter, xLen, yLen);
+        if (insideWorkArea(P, x0, y0, x1, y1) || insideWorkArea(Q, x0, y0, x1, y1)) {
+            lines.push_back(Line2D(P, Q));
+        }
     }
     const Point3D meshCenterPoint = mesh.centerPoint();
-    const Point2D sectionCenterPoint = projectPoint(meshCenterPoint, xCenter, yCenter, xLen, yLen);
+    Point2D sectionCenterPoint = projectPoint(meshCenterPoint, xCenter, yCenter, xLen, yLen);
+    if (!insideWorkArea(sectionCenterPoint, x0, y0, x1, y1)) {
+        sectionCenterPoint = Point2D(-100, -100);
+    }
     return Section(lines, sectionCenterPoint);
 }
 
@@ -158,6 +171,10 @@ void Space3D::render(const int& xCenter, const int& yCenter, const int& xLen, co
 
 bool Space3D::insideWorkArea(const int& x, const int& y, const int& x0, const int& y0, const int& x1, const int& y1) const {
     return x0 <= x && x <= x1 && y0 <= y && y <= y1;
+}
+
+bool Space3D::insideWorkArea(const Point2D& point, const int& x0, const int& y0, const int& x1, const int& y1) const {
+    return insideWorkArea(point.getX(), point.getY(), x0, y0, x1, y1);
 }
 
 void Space3D::getCommand(const int& x0, const int& y0, const int& x1, const int& y1) {
@@ -219,10 +236,10 @@ void Space3D::dragAndDrop(const int& xDrag, const int& yDrag, const int& x0, con
     in loc de (x1,y1) la (x2, y2):
     */
 
-    double bx1 = (xC - xCenter) / yLen; //EZ/dy * dx1.
-    double by1 = (yC - yCenter) / yLen * -1;        //EZ/dy * dz1.
-    double bx2 = (xDrag - xCenter) / yLen; //EZ/dy * dx2.
-    double by2 = (yDrag - yCenter) / yLen * -1;        //EZ/dy * dz2.
+    double bx1 = (xC - xCenter) / yLen;
+    double by1 = (yC - yCenter) / yLen * -1;
+    double bx2 = (xDrag - xCenter) / yLen;
+    double by2 = (yDrag - yCenter) / yLen * -1;
     double dx1 = normalizedPoint.getX();
     double dy1 = normalizedPoint.getY();
     double dz1 = normalizedPoint.getZ();

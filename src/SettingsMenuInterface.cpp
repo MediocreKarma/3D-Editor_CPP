@@ -39,12 +39,13 @@ MyArray<ImageButton, SettingsMenuInterface::FLAG_SIZE> SettingsMenuInterface::in
 }
 
 DropdownButton<SettingsMenuInterface::DROPDOWN_SIZE> SettingsMenuInterface::buildDropdownButton() {
-    DropdownButton<SettingsMenuInterface::DROPDOWN_SIZE> ddButton(425, 110, 140, 50, "1280x720", 120);
+    DropdownButton<SettingsMenuInterface::DROPDOWN_SIZE> ddButton(425, 110, 140, 50, "", 120);
     ddButton.addOption("1920x1080");
     ddButton.addOption("1600x900");
     ddButton.addOption("1280x720");
     ddButton.addOption("1000x750");
     ddButton.addOption("800x600");
+    ddButton.changeMain(resolution, FONT, FONT_SIZE, BUTTON_COLOR);
     return ddButton;
 }
 
@@ -66,11 +67,29 @@ void SettingsMenuInterface::drawFlagButtons(MyArray<ImageButton, FLAG_SIZE>& fla
     }
 }
 
+void SettingsMenuInterface::checkSavedSettings() {
+    FILE* fp = fopen("Settings.ini", "r");
+    int resRead = 2, themeRead = 0, langRead = 0;
+    if (fscanf(fp, "%i %i %i", &resRead, &themeRead, &langRead) == 3) {
+        resolution = resRead;
+        theme = themeRead;
+        language = langRead;
+    }
+    fclose(fp);
+}
+
+void SettingsMenuInterface::saveSelection() {
+    FILE* fp = fopen("Settings.ini", "w");
+    fprintf(fp, "%i %i %i", resolution, theme, language);
+    fclose(fp);
+}
+
 void SettingsMenuInterface::run() {
     int height = getmaxheight(), width = getmaxwidth();
     initwindow(SETTINGS_WIDTH, SETTINGS_HEIGHT, "Settings", width / 2 - SETTINGS_WIDTH / 2, height / 2 - SETTINGS_HEIGHT / 2);
     drawScreen();
     setTextSettings();
+    checkSavedSettings();
     MyArray<TextLabel, LABEL_SIZE> labels(initLabels());
     MyArray<TextButton, TEXTBUTTON_SIZE> themeButtons(initThemeButtons());
     MyArray<ImageButton, FLAG_SIZE> flagButtons(initImageButtons());
@@ -93,6 +112,7 @@ void SettingsMenuInterface::settingsMenu(MyArray<TextButton, TEXTBUTTON_SIZE>& t
         int x, y;
         getmouseclick(WM_LBUTTONDOWN, x, y);
         if (startButton.hitCollision(x, y)) {
+            saveSelection();
             closegraph();
             AppInterface appHandler(resOptions[resolution][0], resOptions[resolution][1], theme, language);
             appHandler.run();
@@ -131,7 +151,6 @@ void SettingsMenuInterface::settingsMenu(MyArray<TextButton, TEXTBUTTON_SIZE>& t
                 ddButton.changeMain(ddCollide, FONT, FONT_SIZE, BUTTON_COLOR);
                 ddButton.toggleVisibillity(BACKGROUND_COLOR, FONT, FONT_SIZE, DROPLIST_COLOR);
                 resolution = ddCollide;
-                ddButton.border(HIGHLIGHT_COLOR);
             }
         }
     }

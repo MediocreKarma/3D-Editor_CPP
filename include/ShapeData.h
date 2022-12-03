@@ -16,6 +16,7 @@ class Point2D {
         int getY() const;
         void setX(const int& x_);
         void setY(const int& y_);
+        bool operator == (const Point2D& other);
 
     private:
         int x;
