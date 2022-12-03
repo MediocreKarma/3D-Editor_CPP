@@ -3,7 +3,7 @@
 static const double PI = 3.141592653589793238462;
 
 Camera::Camera(const int& maxRadius) :
-    m_point(0, maxRadius, 0), m_angleX(0), m_angleY(0), m_angleZ(0), m_EZ(-1) {}
+    m_point(0, maxRadius, 0), m_angleX(0), m_angleY(0), m_angleZ(0), m_EZ(1) {}
 
 Camera::Camera(const Point3D& point, const double& angleX_, const double& angleY_, const double& angleZ_, const double& EZ_) :
     m_point(point), m_angleX(angleX_), m_angleY(angleY_), m_angleZ(angleZ_), m_EZ(EZ_) {}

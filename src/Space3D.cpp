@@ -1,5 +1,4 @@
 #include "Space3D.h"
-
 Space3D::Space3D(const double& maxRadius, const int& theme) :
     m_theme(theme), m_selected(-1), m_spinballSelected(false), m_meshes(), m_sections(), m_updated(), m_cam(maxRadius),
     m_buttonOX(), m_buttonOY(), m_buttonOZ(), m_donutOX(), m_donutOY(), m_donutOZ(), m_spinballButton() {}
@@ -129,8 +128,8 @@ Point2D Space3D::projectPoint(const Point3D& pct, const int& xCenter, const int&
     int dx = cos(aY) * (sin(aZ) * yr + cos(aZ) * xr ) - sin(aY) * zr;
     int dy = sin(aX) * (cos(aY) * zr + sin(aY) * (sin(aZ) * yr + cos(aZ) * xr)) + cos(aX) * (cos(aZ) * yr - sin(aZ) * xr);
     int dz = cos(aX) * (cos(aY) * zr + sin(aY) * (sin(aZ) * yr + cos(aZ) * xr)) - sin(aX) * (cos(aZ) * yr - sin(aZ) * xr);
-    double xprim = EZ * dx * yLen / dy * -1 + xCenter;
-    double yprim = EZ * dz * yLen / dy + yCenter;
+    double xprim = EZ * dx * yLen / dy + xCenter;
+    double yprim = EZ * dz * yLen / dy * -1 + yCenter;
     return Point2D(round(xprim), round(yprim));
 }
 
@@ -220,10 +219,10 @@ void Space3D::dragAndDrop(const int& xDrag, const int& yDrag, const int& x0, con
     in loc de (x1,y1) la (x2, y2):
     */
 
-    double bx1 = (xC - xCenter) / yLen * -1; //EZ/dy * dx1.
-    double by1 = (yC - yCenter) / yLen;        //EZ/dy * dz1.
-    double bx2 = (xDrag - xCenter) / yLen * -1; //EZ/dy * dx2.
-    double by2 = (yDrag - yCenter) / yLen;        //EZ/dy * dz2.
+    double bx1 = (xC - xCenter) / yLen; //EZ/dy * dx1.
+    double by1 = (yC - yCenter) / yLen * -1;        //EZ/dy * dz1.
+    double bx2 = (xDrag - xCenter) / yLen; //EZ/dy * dx2.
+    double by2 = (yDrag - yCenter) / yLen * -1;        //EZ/dy * dz2.
     double dx1 = normalizedPoint.getX();
     double dy1 = normalizedPoint.getY();
     double dz1 = normalizedPoint.getZ();
