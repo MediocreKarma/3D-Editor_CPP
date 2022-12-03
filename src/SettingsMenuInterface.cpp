@@ -70,7 +70,7 @@ void SettingsMenuInterface::drawFlagButtons(MyArray<ImageButton, FLAG_SIZE>& fla
 void SettingsMenuInterface::checkSavedSettings() {
     FILE* fp = fopen("Settings.ini", "r");
     int resRead = 2, themeRead = 0, langRead = 0;
-    if (fscanf(fp, "%i %i %i", &resRead, &themeRead, &langRead) == 3) {
+    if (fscanf(fp, "Resolution: %i\nTheme:%i\nLanguage: %i", &resRead, &themeRead, &langRead) == 3) {
         resolution = resRead;
         theme = themeRead;
         language = langRead;
@@ -80,7 +80,7 @@ void SettingsMenuInterface::checkSavedSettings() {
 
 void SettingsMenuInterface::saveSelection() {
     FILE* fp = fopen("Settings.ini", "w");
-    fprintf(fp, "%i %i %i", resolution, theme, language);
+    fprintf(fp, "Resolution: %i\nTheme:%i\nLanguage: %i", resolution, theme, language);
     fclose(fp);
 }
 
