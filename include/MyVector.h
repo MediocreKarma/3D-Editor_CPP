@@ -79,12 +79,7 @@ class MyVector
         }
 
         void resize(const size_t& newSize) {
-            if (newSize > size()) {
-                reserve(newSize);
-            }
-            else {
-                setCapacity(newSize);
-            }
+            setCapacity(newSize);
             m_size = newSize;
         }
 

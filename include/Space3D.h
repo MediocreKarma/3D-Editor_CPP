@@ -22,6 +22,8 @@ class Space3D
         bool insideWorkArea(const Point2D& point, const int& x0, const int& y0, const int& x1, const int& y1) const;
         void getCommand(const int& x0, const int& y0, const int& x1, const int& y1);
         void dragAndDrop(const int& xDrag, const int& yDrag, const int& x0, const int& y0, const int& x1, const int& y1);
+        bool fscan(FILE* fp);
+        void fprint(FILE* fp);
 
     private:
         int m_theme;
@@ -54,7 +56,7 @@ class Space3D
         void rotateOZ(Mesh& lines, const double& alpha);
         void selectMesh(const size_t& index);
         void highlightMesh();
-        bool isDragAndDrop(int& xDrag, int& yDrag) const;
+        bool isDragAndDrop(int& xDrag, int& yDrag, const int& x0, const int& y0, const int& x1, const int& y1) const;
 };
 
 #endif // SPACE3D_H

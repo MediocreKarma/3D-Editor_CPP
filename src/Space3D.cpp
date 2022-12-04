@@ -14,6 +14,36 @@ void Space3D::addMesh(const Mesh& mesh) {
     m_updated.push_back(true);
 }
 
+#include <iostream>
+
+bool Space3D::fscan(FILE* fp) {
+    size_t meshCount = 0;
+    if (fscanf(fp, "Models: %u\n", &meshCount) != 1) {
+        return 0;
+    }
+    m_meshes.resize(meshCount);
+    for (size_t i = 0; i < meshCount; ++i) {
+        if (!m_meshes[i].fscan(fp)) {
+            return false;
+        }
+    }
+    m_updated.resize(meshCount);
+    m_updated.fill(true);
+    m_sections.resize(meshCount);
+    if (!m_cam.fscan(fp)) {
+        return false;
+    }
+    return true;
+}
+
+void Space3D::fprint(FILE* fp) {
+    fprintf(fp, "Models: %u\n", size());
+    for (size_t i = 0; i < size(); ++i) {
+        m_meshes[i].fprint(fp);
+    }
+    m_cam.fprint(fp);
+}
+
 //porneste desenarea pe o parte a ecranului
 void Space3D::run(const int& x0, const int& y0, const int& x1, const int& y1) {
     const int xCenter = (x0 + x1) / 2;
@@ -59,8 +89,6 @@ void Space3D::showAngleOptions(const int& x, const int& y) {
     m_buttonOZ = CircularButton(x + 20 + 40 * cos(m_cam.angleZ()), y + 320 + 40 * sin(m_cam.angleZ()), 5);
     m_buttonOZ.drawLabel(LIGHTBLUE, LIGHTBLUE);
 }
-
-#include <iostream>
 
 bool Space3D::checkAxisRotation(const int& x, const int& y) {
     int xDrag, yDrag;
@@ -194,12 +222,13 @@ void Space3D::getCommand(const int& x0, const int& y0, const int& x1, const int&
             run(x0, y0, x1, y1);
             return;
         }
+        m_spinballSelected = false;
     }
     for (size_t i = 0; i < size(); ++i) {
         if (m_sections[i].grabButtonCollision(x, y)) {
             selectMesh(i);
             int xDrag, yDrag;
-            if (isDragAndDrop(xDrag, yDrag)) {
+            if (isDragAndDrop(xDrag, yDrag, x0, y0, x1, y1) && !m_sections[i].grabButtonCollision(xDrag, yDrag)) {
                 dragAndDrop(xDrag, yDrag, x0, y0, x1, y1);
                 return;
             }
@@ -269,9 +298,9 @@ void Space3D::dragAndDrop(const int& xDrag, const int& yDrag, const int& x0, con
     run(x0, y0, x1, y1);
 }
 
-bool Space3D::isDragAndDrop(int& xDrag, int& yDrag) const {
+bool Space3D::isDragAndDrop(int& xDrag, int& yDrag, const int& x0, const int& y0, const int& x1, const int& y1) const {
     getDrag(xDrag, yDrag);
-    return !m_sections[m_selected].grabButtonCollision(xDrag, yDrag);
+    return insideWorkArea(xDrag, yDrag, x0, y0, x1, y1);
 }
 
 void Space3D::highlightMesh() {

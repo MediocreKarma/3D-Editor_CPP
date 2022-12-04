@@ -1,6 +1,7 @@
 #ifndef CAMERA_H
 #define CAMERA_H
 #include "ShapeData.h"
+#include <cstdio>
 
 class Camera {
     public:
@@ -15,6 +16,8 @@ class Camera {
         void modifyAngles(const double& angleX, const double& angleY, const double& angleZ);
         void moveAngle(const double& angleX, const double& angleY, const double& angleZ);
         void movePosition(const Point3D& newPosition);
+        bool fscan(FILE* fp);
+        void fprint(FILE* fp);
 
     private:
         Point3D m_point;

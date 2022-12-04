@@ -6,6 +6,7 @@
 #include <graphics.h>
 #include <winbgim.h>
 #include "AppTools.h"
+#include <cstdio>
 
 class Point2D {
     public:
@@ -76,6 +77,8 @@ class Point3D {
         void rotateOZ(const Point3D& center, const double& alpha);
         void translate(const int& xTranslate, const int& yTranslate, const int& zTranslate);
         Point3D& operator += (const Point3D& other);
+        void fprint(FILE* fp);
+        bool fscan(FILE* fp);
 
     private:
         int x;
@@ -95,6 +98,8 @@ class Line3D {
         double getLength() const;
         void setP(const Point3D& P_);
         void setQ(const Point3D& Q_);
+        void fprint(FILE* fp);
+        bool fscan(FILE* fp);
 
     private:
         Point3D P;
@@ -115,6 +120,8 @@ class Mesh {
         void translate(const int& xTranslate, const int& yTranslate, const int& zTranslate);
         Point3D centerPoint() const;
         void updateCenterPoint();
+        void fprint(FILE* fp);
+        bool fscan(FILE* fp);
 
     private:
         MyVector<Line3D> m_edges;
