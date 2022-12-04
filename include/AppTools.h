@@ -56,6 +56,25 @@ class DonutButton : public CircularButton {
         CircularButton m_innerRing;
 };
 
+class Arrow {
+    public:
+        Arrow();
+        Arrow(const int& x1, const int& y1, const int& x2, const int& y2, const int& thickness);
+        void drawArrow(const int& color) const;
+
+    protected:
+        int x0, y0, x1, y1;
+        int m_thickness;
+};
+
+class AxisButton : public Arrow, public CircularLabel {
+    public:
+        AxisButton();
+        AxisButton(const int& x1, const int& y1, const int& x2, const int& y2, const int& thickness, const int& radius);
+        bool hitCollision(const int& x, const int& y) const;
+        void drawButton(const int& color);
+};
+
 class TextLabel : public Label {
     public:
         TextLabel();

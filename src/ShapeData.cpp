@@ -1,6 +1,7 @@
 #include "ShapeData.h"
-#include<iostream>
 #include<math.h>
+#include "MyArray.h"
+
 Point3D::Point3D() :
     x(), y(), z() {}
 
@@ -83,6 +84,18 @@ void Point3D::translate(const int& xTranslate, const int& yTranslate, const int&
     z += zTranslate;
 }
 
+void Point3D::fprint(FILE* fp) {
+    fprintf(fp, "%i, %i, %i", x, y, z);
+}
+
+bool Point3D::fscan(FILE* fp) {
+    if (fscanf(fp, "%i, %i, %i", &x, &y, &z) != 3) {
+        x = y = z = 0;
+        return false;
+    }
+    return true;
+}
+
 Point2D::Point2D() :
     x(), y() {}
 
@@ -125,7 +138,7 @@ void Line2D::draw() {
 constexpr int Section::RADIUS;
 
 Section::Section() :
-    m_lines(), m_centerPoint(), m_grabPoint(), m_active(false) {}
+    m_lines(), m_centerPoint(), m_grabPoint(), m_active(false), m_axisButtons() {}
 
 Section::Section(const MyVector<Line2D>& lines, const Point2D& centerPoint) :
     m_lines(lines), m_centerPoint(centerPoint.getX(), centerPoint.getY()), m_grabPoint(centerPoint.getX(), centerPoint.getY(), Section::RADIUS), m_active(false) {}
@@ -217,6 +230,25 @@ double Line3D::getLength() const{
     return sqrt(dx*dx + dy*dy + dz*dz);
 }
 
+bool Line3D::fscan(FILE* fp) {
+    if (!P.fscan(fp)) {
+        return false;
+    }
+    fscanf(fp, " - ");
+    if (!Q.fscan(fp)) {
+        return false;
+    }
+    fscanf(fp, "\n");
+    return true;
+}
+
+void Line3D::fprint(FILE* fp) {
+    P.fprint(fp);
+    fprintf(fp, " - ");
+    Q.fprint(fp);
+    fprintf(fp, "\n");
+}
+
 Mesh::Mesh() :
     m_edges(), m_centerPoint() {}
 
@@ -271,13 +303,29 @@ Point3D Mesh::centerPoint() const {
     return m_centerPoint;
 }
 
-/*Section Mesh::project(const int& xCenter, const int& yCenter, const int& xLen, const int& yLen, const double& radius, const double& scale) {
-    MyVector<Line2D> lines;
-    lines.reserve(size());
-    for(size_t i = 0; i < size(); i++) {
-        const Point2D P = m_edges[i].getP().project(xCenter, yCenter, xLen, yLen, radius, scale);
-        const Point2D Q = m_edges[i].getQ().project(xCenter, yCenter, xLen, yLen, radius, scale);
-        lines.push_back(Line2D(P, Q));
+void Mesh::fprint(FILE* fp) {
+    fprintf(fp, "Mesh: %u\n", size());
+    for (size_t i = 0; i < size(); ++i) {
+        m_edges[i].fprint(fp);
     }
-    return Section(lines, m_centerPoint.project(xCenter, yCenter, xLen, yLen, radius, scale));
-}*/
+    m_centerPoint.fprint(fp);
+    fprintf(fp, "\n");
+}
+
+bool Mesh::fscan(FILE* fp) {
+    size_t edgesCount = 0;
+    if (fscanf(fp, "Mesh: %u\n", &edgesCount) != 1) {
+        return false;
+    }
+    m_edges.resize(edgesCount);
+    for (size_t i = 0; i < edgesCount; ++i) {
+        if (!m_edges[i].fscan(fp)) {
+            return false;
+        }
+    }
+    if (!m_centerPoint.fscan(fp)) {
+        return false;
+    }
+    fscanf(fp, "\n");
+    return true;
+}

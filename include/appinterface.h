@@ -16,6 +16,7 @@ class AppInterface {
 
     private:
         static constexpr double m_maxRadius = -2000;
+        //Pozitia default a camerei e in shapeData, hardcoded; nu stiu unde sa pun exact offsetul
         int m_appWidth;
         int m_appHeight;
         int m_theme;

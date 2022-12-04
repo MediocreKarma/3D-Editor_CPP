@@ -37,13 +37,16 @@ void AppInterface::run(){
     cube.translate(-600, 600, 300);
     space.addMesh(cube);
 
+    FILE* fp = fopen("save.txt", "r");
+    space.fscan(fp);
     space.run(0, 0, m_appWidth, m_appHeight);
+    fclose(fp);
     int x, y;
     while (true) {
         if (ismouseclick(WM_MOUSEMOVE)) {
             getmouseclick(WM_MOUSEMOVE, x, y);
         }
-        else if (space.insideWorkArea(x, y, 0, 0, m_appWidth, m_appHeight)) {
+        else if (space.insideWorkArea(x, y, 100, 100, m_appWidth, m_appHeight)) {
             space.getCommand(0, 0, m_appWidth, m_appHeight);
         }
     }
