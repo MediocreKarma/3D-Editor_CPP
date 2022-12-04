@@ -1,7 +1,7 @@
 #ifndef CAMERA_H
 #define CAMERA_H
 #include "ShapeData.h"
-#include<cstdio>
+#include <cstdio>
 
 class Camera {
     public:

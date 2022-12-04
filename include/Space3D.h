@@ -22,9 +22,8 @@ class Space3D
         bool insideWorkArea(const Point2D& point, const int& x0, const int& y0, const int& x1, const int& y1) const;
         void getCommand(const int& x0, const int& y0, const int& x1, const int& y1);
         void dragAndDrop(const int& xDrag, const int& yDrag, const int& x0, const int& y0, const int& x1, const int& y1);
-        void fprint(FILE* fp);
         bool fscan(FILE* fp);
-        //void drawAxisButton(const int& x1, const int& y1, const int& x2, const int& y2, const int& thickness, const int& radius);
+        void fprint(FILE* fp);
 
     private:
         int m_theme;

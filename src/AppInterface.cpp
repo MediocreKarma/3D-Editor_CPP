@@ -11,7 +11,7 @@ double AppInterface::maxRadius() const {
 void AppInterface::run(){
     initwindow(m_appWidth, m_appHeight, "Editor 3D");
     Space3D space(maxRadius(), m_theme);
-    Mesh cube;
+    /*Mesh cube;
     cube.addEdge(Line3D(Point3D(-100,-100,100),Point3D(-100,-100,-100)));
     cube.addEdge(Line3D(Point3D(-100,-100,-100),Point3D(100,-100,-100)));
     cube.addEdge(Line3D(Point3D(100,-100,-100),Point3D(100,-100,100)));
@@ -35,7 +35,7 @@ void AppInterface::run(){
     cube.translate(-1200, -600, -300);
     space.addMesh(cube);
     cube.translate(-600, 600, 300);
-    space.addMesh(cube);
+    space.addMesh(cube);*/
 
     FILE* fp = fopen("save.txt", "r");
     space.fscan(fp);
