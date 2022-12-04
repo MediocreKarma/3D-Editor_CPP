@@ -1,6 +1,5 @@
 #include "AppTools.h"
-#include <Math.h>
-#include <iostream>
+
 Label::Label() :
     xCenter(), yCenter(), xLen(), yLen() {}
 
@@ -95,77 +94,6 @@ DonutButton::DonutButton(const int& xCenter_, const int& yCenter_, const int& ra
 
 bool DonutButton::hitCollision(const int& x, const int& y) const {
     return m_outerRing.hitCollision(x, y) && !m_innerRing.hitCollision(x, y);
-}
-
-Arrow::Arrow() :
-    x0(-100), y0(-100), x1(-100), y1(-100), m_thickness(1) {}
-
-Arrow::Arrow(const int& x0_, const int& y0_, const int& x1_, const int& y1_, const int& thickness) :
-    x0(x0_), y0(y0_), x1(x1_), y1(y1_), m_thickness(thickness) {}
-
-void Arrow::drawArrow(const int& color) const {
-    //vezi tu cum modifici thicknessu ca mie nu mi iese nici de al dracu
-
-    /*struct linesettingstype lineinfo;
-    getlinesettings(&lineinfo);
-    int oldThickness = lineinfo.thickness;*/
-    //setlinestyle(0, 0, m_thickness);
-
-    setcolor(color);
-    line(x0, y0, x1, y1);
-    line(x0, y0, x1, y1);
-    const int arrLen = 7;
-    double theta = atan2(y1 - y0, x1 - x0);
-    const double phi_A = 0.785398163397448;
-    int xA = x1 - arrLen * cos(theta + phi_A);
-    int yA = y1 - arrLen * sin(theta + phi_A);
-    const double phi_B = -0.785398163397448;
-    int xB = x1 - arrLen * cos(theta + phi_B);
-    int yB = y1 - arrLen * sin(theta + phi_B);
-    line(xA, yA, x1, y1);
-    line(xB, yB, x1, y1);
-
-    //setlinestyle(lineinfo.linestyle, lineinfo.upattern, lineinfo.thickness);
-}
-
-AxisButton::AxisButton() :
-    Arrow(), CircularLabel() {}
-
-AxisButton::AxisButton(const int& x1_, const int& y1_, const int& x2_, const int& y2_, const int& thickness, const int& circleRadius) :
-    Arrow(x1_,y1_,x2_,y2_, thickness), CircularLabel(x2_,y2_,circleRadius) {}
-
-bool AxisButton::hitCollision(const int& x, const int& y) const{
-    int xDist = x - xCenter;
-    int yDist = y - yCenter;
-    if(xDist * xDist + yDist * yDist <= radius * radius){
-        return true;
-    }
-    //Otherwise, cineva wise a spus pe internet:
-    //"The cross product divided by the length of the line gives
-    //the distance of the point from the line."
-    //si chiar are dreptate.
-    //Trebuie ca distanta de la unde am dat click la unde e defapt linia
-    //sa fie sub thickness/2.
-    //Primul capat al liniei va fi acoperit de butonul nostru ros de drag and drop
-    //Al doilea va fi acoperit de cercul pe care l punem in varf
-    //Deci nici nu ne intereseaza acuratetea in capete
-
-    double dxL = x1 - x0, dyL = y1 - y0;
-    double dxP = x - x0, dyP = y - y0;
-
-    double squareLineLength = dxL * dxL + dyL * dyL;
-    double dotProd = dxP * dxL + dyP * dyL;
-    double crossProduct = dyP * dxL - dxP * dyL;
-
-    // distanta efectiva de la punct la linie
-    double distance = abs(crossProduct) / sqrt(squareLineLength);
-
-    return (distance <= m_thickness/2 && dotProd >= 0 && dotProd <= squareLineLength);
-}
-
-void AxisButton::drawButton(const int& color) {
-    drawArrow(color);
-    drawLabel(color, color);
 }
 
 TextLabel::TextLabel() :

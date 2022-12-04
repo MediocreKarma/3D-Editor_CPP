@@ -4,6 +4,7 @@
 #include "Space3D.h"
 #include <graphics.h>
 #include <winbgim.h>
+#include "Menu.h"
 
 class AppInterface {
     public:
@@ -21,6 +22,8 @@ class AppInterface {
         int m_appHeight;
         int m_theme;
         int m_languagePackage;
+
+        void clearMouse();
 };
 
 #endif // APPINTERFACE_H

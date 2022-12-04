@@ -1,6 +1,4 @@
 #include "ShapeData.h"
-#include<math.h>
-#include "MyArray.h"
 
 Point3D::Point3D() :
     x(), y(), z() {}
@@ -138,7 +136,7 @@ void Line2D::draw() {
 constexpr int Section::RADIUS;
 
 Section::Section() :
-    m_lines(), m_centerPoint(), m_grabPoint(), m_active(false), m_axisButtons() {}
+    m_lines(), m_centerPoint(), m_grabPoint(), m_active(false) {}
 
 Section::Section(const MyVector<Line2D>& lines, const Point2D& centerPoint) :
     m_lines(lines), m_centerPoint(centerPoint.getX(), centerPoint.getY()), m_grabPoint(centerPoint.getX(), centerPoint.getY(), Section::RADIUS), m_active(false) {}

@@ -20,7 +20,7 @@ class Space3D
         void draw(const int& xCenter, const int& yCenter, const int& xLen, const int& yLen);
         bool insideWorkArea(const int& x, const int& y, const int& xCenter, const int& yCenter, const int& xLen, const int& yLen) const;
         bool insideWorkArea(const Point2D& point, const int& x0, const int& y0, const int& x1, const int& y1) const;
-        void getCommand(const int& x0, const int& y0, const int& x1, const int& y1);
+        void getCommand(const int& xClick, const int& yClick, const int& x0, const int& y0, const int& x1, const int& y1);
         void dragAndDrop(const int& xDrag, const int& yDrag, const int& x0, const int& y0, const int& x1, const int& y1);
         bool fscan(FILE* fp);
         void fprint(FILE* fp);
@@ -40,12 +40,12 @@ class Space3D
         DonutButton m_donutOY;
         DonutButton m_donutOZ;
         Button m_spinballButton;
-        MyArray<AxisButton,3> m_axisButtons;
 
         size_t size() const;
         void getDrag(int& xDrag, int& yDrag) const;
         double findRotation(const int& xDrag, const int& yDrag, const DonutButton& angleDonut, CircularButton& button);
         bool checkAxisRotation(const int& x, const int& y);
+        Point2D moveInsideWorkArea(const Point2D& P, const Point2D& Q, const int& xBorder, const int& yBorder);
         void drawSpinball(const int& x, const int& y);
         void showAngleOptions(const int& x, const int& y);
         Point2D projectPoint(const Point3D& pct, const int& xCenter, const int& yCenter, const int& /*xLen*/, const int& yLen) const;
@@ -55,13 +55,9 @@ class Space3D
         void rotateOX(Mesh& lines, const double& alpha);
         void rotateOY(Mesh& lines, const double& alpha);
         void rotateOZ(Mesh& lines, const double& alpha);
-        void selectMesh(const size_t& index, const int& x0, const int& y0, const int& x1, const int& y1);
-        void highlightMesh(const int& x0, const int& y0, const int& x1, const int& y1);
+        void selectMesh(const size_t& index);
+        void highlightMesh();
         bool isDragAndDrop(int& xDrag, int& yDrag, const int& x0, const int& y0, const int& x1, const int& y1) const;
-        void setAxisButtons(const int& x0, const int& y0, const int& x1, const int& y1);
-        void drawAxes();
-        int getDraggedAxis(int& xDrag, int& yDrag, const int& x0, const int& y0, const int& x1, const int& y1) const;
-        void moveMesh(const int axis, const int& xDrag, const int& yDrag, const int& xDrop, const int& yDrop, const int& x0, const int& y0, const int& x1, const int& y1);
 };
 
 #endif // SPACE3D_H

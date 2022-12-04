@@ -39,7 +39,7 @@ MyArray<ImageButton, SettingsMenuInterface::FLAG_SIZE> SettingsMenuInterface::in
 }
 
 DropdownButton<SettingsMenuInterface::DROPDOWN_SIZE> SettingsMenuInterface::buildDropdownButton() {
-    DropdownButton<SettingsMenuInterface::DROPDOWN_SIZE> ddButton(425, 110, 140, 50, "", 120);
+    DropdownButton<SettingsMenuInterface::DROPDOWN_SIZE> ddButton(425, 110, 140, 50, "", 140, 120);
     ddButton.addOption("1920x1080");
     ddButton.addOption("1600x900");
     ddButton.addOption("1280x720");

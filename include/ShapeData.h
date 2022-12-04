@@ -52,16 +52,12 @@ class Section {
         void draw(const int& theme, const int& fillColor, const int& borderColor = BLACK);
         void drawButton(const int& fillColor, const int& borderColor = BLACK);
         bool grabButtonCollision(const int& x, const int& y) const;
-        int axisCollision(const int& x, const int& y) const;
-        void setAxisButtons(const MyArray<AxisButton,3>& buttons);
-        void drawAxes();
 
     private:
         MyVector<Line2D> m_lines;
         Point2D m_centerPoint;
         CircularButton m_grabPoint;
         bool m_active;
-        MyArray<AxisButton,3> m_axisButtons;
 };
 
 class Point3D {
