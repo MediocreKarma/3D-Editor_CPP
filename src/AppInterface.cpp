@@ -1,9 +1,7 @@
 #include "AppInterface.h"
-#include <iostream>
-
 
 AppInterface::AppInterface(const int& appWidth, const int& appHeight, const int& theme, const int& languagePackage) :
-    m_appWidth(appWidth), m_appHeight(appHeight), m_theme(theme), m_languagePackage(languagePackage) {}
+    m_appWidth(appWidth), m_appHeight(appHeight), m_theme(theme), m_languagePackage(languagePackage), m_fileGetter() {}
 
 double AppInterface::maxRadius() const {
     return m_maxRadius;
@@ -20,7 +18,31 @@ void AppInterface::clearMouse() {
     //getmouseclick(WM_MOUSEMOVE, x, y);
 }
 
-#include <iostream>
+void AppInterface::saveSpace3D(Space3D& space, const char& saveType) {
+    if (space.isLinkedWithFile() && saveType != 2) {
+        FILE* fp = fopen(space.getLinkedFileName().data(), "w");
+        space.fprint(fp);
+        fclose(fp);
+        return;
+    }
+    int getCurrentWindowNumber = getcurrentwindow();
+    MyArray<char, 512> savepath = m_fileGetter.userSavePath();
+    setcurrentwindow(getCurrentWindowNumber);
+    FILE* fp = fopen(savepath.data(), "w");
+    space.fprint(fp);
+    space.setLinkedFileName(savepath);
+    fclose(fp);
+}
+
+void AppInterface::openSpace3D(Space3D& space) {
+    int getCurrentWindowNumber = getcurrentwindow();
+    MyArray<char, 512> openpath = m_fileGetter.userOpenPath();
+    setcurrentwindow(getCurrentWindowNumber);
+    FILE* fp = fopen(openpath.data(), "r");
+    space.fscan(fp);
+    space.setLinkedFileName(openpath);
+    fclose(fp);
+}
 
 void AppInterface::run(){
     initwindow(m_appWidth, m_appHeight, "Editor 3D");
@@ -41,43 +63,41 @@ void AppInterface::run(){
     cube.addEdge(Line3D(Point3D(100,100,-100),Point3D(100,-100,-100)));
     cube.addEdge(Line3D(Point3D(100,100,100),Point3D(100,-100,100)));
     cube.updateCenterPoint();
+    cube.translate(500, 0, 0);
     space.addMesh(cube);
-    cube.translate(300, 300, -300);
-    //space.addMesh(cube);
-    cube.translate(600, 600, 300);
-    //space.addMesh(cube);
-    cube.translate(-1200, -600, -300);
-    //space.addMesh(cube);
-    cube.translate(-600, 600, 300);
-    //space.addMesh(cube);
-
-    //FILE* fp = fopen("save.txt", "r");
-    //space.fscan(fp);
+    cube.translate(0, 600, 0);
+    space.addMesh(cube);
+    cube.translate(0, 600, 0);
+    space.addMesh(cube);
+    cube.translate(0, 600, 0);
+    space.addMesh(cube);
+    cube.translate(0, 600, 0);
+    space.addMesh(cube);
     space.run(0, 27, m_appWidth, m_appHeight);
-    //fclose(fp);
     Menu menu(m_theme);
     menu.drawMenu(0, 0, m_appWidth, 27);
-    bool looped = 0;
     while (true) {
         if (ismouseclick(WM_MOUSEMOVE)) {
             clearMouse();
-            looped = 1;
         }
-        else if (looped) {
+        else {
             int xClick, yClick;
             getClick(xClick, yClick);
-            if (xClick == -1) {
-                continue;
-            }
             if (menu.getCommand(xClick, yClick)) {
+                char saveType = menu.saveSpace();
+                if (menu.newSpace()) {
+                    space = Space3D(maxRadius(), m_theme);
+                }
+                else if (saveType) {
+                    saveSpace3D(space, saveType);
+                }
+                else if (menu.openSpace()) {
+                    openSpace3D(space);
+                }
                 space.run(0, 27, m_appWidth, m_appHeight);
                 continue;
             }
             space.getCommand(xClick, yClick, 0, 27, m_appWidth, m_appHeight);
         }
     }
-    /*sp.setAngleX(30);
-    sp.setAngleY(60);
-    sp.setAngleZ(40);
-    */
 }

@@ -1,8 +1,15 @@
 #include "Space3D.h"
 
+static const int PRIMARYCOLOR = 0;
+static const int SECONDARYCOLOR = 1;
+static const MyArray<MyArray<int, 2>, 2> themeColors = {
+    {WHITE, BLACK}, {BLACK, WHITE}
+};
+static const int NO_COLOR = -1;
+
 Space3D::Space3D(const double& maxRadius, const int& theme) :
     m_theme(theme), m_selected(-1), m_spinballSelected(false), m_meshes(), m_sections(), m_updated(), m_cam(maxRadius),
-    m_buttonOX(), m_buttonOY(), m_buttonOZ(), m_donutOX(), m_donutOY(), m_donutOZ(), m_spinballButton() {}
+    m_buttonOX(), m_buttonOY(), m_buttonOZ(), m_donutOX(), m_donutOY(), m_donutOZ(), m_spinballButton(), m_linkedFile{0} {}
 
 size_t Space3D::size() const {
     return m_meshes.size();
@@ -54,7 +61,7 @@ void Space3D::run(const int& x0, const int& y0, const int& x1, const int& y1) {
 
 void Space3D::drawSpinball(const int& x, const int& y) {
     m_spinballButton = Button(x, y, 140, 140);
-    m_spinballButton.drawLabel(SettingsMenuInterface::themeColors[m_theme][SettingsMenuInterface::PRIMARYCOLOR], SettingsMenuInterface::themeColors[m_theme][SettingsMenuInterface::SECONDARYCOLOR]);
+    m_spinballButton.drawLabel(themeColors[m_theme][PRIMARYCOLOR], themeColors[m_theme][SECONDARYCOLOR]);
     setlinestyle(SOLID_LINE, 0, 2);
     setcolor(LIGHTRED);
     CircularLabel labelOX = CircularLabel(x + 10 * cos(m_cam.angleX()), y + 60 * sin(m_cam.angleX()), 5);
@@ -75,15 +82,15 @@ void Space3D::drawSpinball(const int& x, const int& y) {
 
 void Space3D::showAngleOptions(const int& x, const int& y) {
     m_donutOX = DonutButton(x + 20, y + 120, 40, 20);
-    m_donutOX.drawLabel(SettingsMenuInterface::NO_COLOR, LIGHTGREEN);
+    m_donutOX.drawLabel(NO_COLOR, LIGHTGREEN);
     m_buttonOX = CircularButton(x + 20 + 40 * cos(m_cam.angleX()), y + 120 + 40 * sin(m_cam.angleX()), 7);
     m_buttonOX.drawLabel(LIGHTGREEN, LIGHTGREEN);
     m_donutOY = DonutButton(x + 20, y + 220, 40, 20);
-    m_donutOY.drawLabel(SettingsMenuInterface::NO_COLOR, LIGHTRED);
+    m_donutOY.drawLabel(NO_COLOR, LIGHTRED);
     m_buttonOY = CircularButton(x + 20 + 40 * cos(m_cam.angleY()), y + 220 + 40 * sin(m_cam.angleY()), 7);
     m_buttonOY.drawLabel(LIGHTRED, LIGHTRED);
     m_donutOZ = DonutButton(x + 20, y + 320, 40, 20);
-    m_donutOZ.drawLabel(SettingsMenuInterface::NO_COLOR, LIGHTBLUE);
+    m_donutOZ.drawLabel(NO_COLOR, LIGHTBLUE);
     m_buttonOZ = CircularButton(x + 20 + 40 * cos(m_cam.angleZ()), y + 320 + 40 * sin(m_cam.angleZ()), 7);
     m_buttonOZ.drawLabel(LIGHTBLUE, LIGHTBLUE);
 }
@@ -344,11 +351,23 @@ void Space3D::selectMesh(const size_t& index) {
 
 //deseneaza toate mesh-urile proiectate + centrele
 void Space3D::draw(const int& xCenter, const int& yCenter, const int& xLen, const int& yLen) {
-    setfillstyle(SOLID_FILL, SettingsMenuInterface::themeColors[m_theme][SettingsMenuInterface::PRIMARYCOLOR]);
+    setfillstyle(SOLID_FILL, themeColors[m_theme][PRIMARYCOLOR]);
     bar(xCenter - xLen / 2, yCenter - yLen / 2, xCenter + xLen / 2, yCenter + yLen / 2);
     render(xCenter, yCenter, xLen, yLen);
     setlinestyle(SOLID_LINE, 0, 1);
     for (size_t i = 0; i < size(); ++i) {
-        m_sections[i].draw(SettingsMenuInterface::themeColors[m_theme][SettingsMenuInterface::SECONDARYCOLOR], RED, RED);
+        m_sections[i].draw(themeColors[m_theme][SECONDARYCOLOR], RED, RED);
     }
+}
+
+MyArray<char, 512> Space3D::getLinkedFileName() {
+    return m_linkedFile.data();
+}
+
+void Space3D::setLinkedFileName(const MyArray<char, 512>& name) {
+    m_linkedFile = name;
+}
+
+bool Space3D::isLinkedWithFile() {
+    return m_linkedFile[0];
 }

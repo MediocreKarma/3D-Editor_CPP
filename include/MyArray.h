@@ -91,7 +91,24 @@ class MyArray<char, m_size> {
             }
         }
 
+        MyArray(const std::initializer_list<int>& rhs) {
+            if (rhs.size() > size()) {
+                throw std::invalid_argument("Too many initializers");
+            }
+            const int* ptr = rhs.begin();
+            for (size_t i = 0; i < rhs.size(); ++i) {
+                m_data[i] = *(ptr++);
+            }
+            for (size_t i = rhs.size(); i < size(); ++i) {
+                m_data[i] = char();
+            }
+        }
+
         MyArray(const char* p) {
+            if (!p) {
+                m_data[0] = 0;
+                return;
+            }
             size_t i = 0;
             for (i = 0; p[i]; ++i) {
                 m_data[i] = p[i];

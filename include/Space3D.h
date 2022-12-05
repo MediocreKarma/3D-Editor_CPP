@@ -7,8 +7,6 @@
 #include "MyArray.h"
 #include <math.h>
 #include "Camera.h"
-#include<math.h>
-#include "SettingsMenuInterface.h"
 
 class Space3D
 {
@@ -24,6 +22,9 @@ class Space3D
         void dragAndDrop(const int& xDrag, const int& yDrag, const int& x0, const int& y0, const int& x1, const int& y1);
         bool fscan(FILE* fp);
         void fprint(FILE* fp);
+        MyArray<char, 512> getLinkedFileName();
+        void setLinkedFileName(const MyArray<char, 512>& name);
+        bool isLinkedWithFile();
 
     private:
         int m_theme;
@@ -40,6 +41,7 @@ class Space3D
         DonutButton m_donutOY;
         DonutButton m_donutOZ;
         Button m_spinballButton;
+        MyArray<char, 512> m_linkedFile;
 
         size_t size() const;
         void getDrag(int& xDrag, int& yDrag) const;

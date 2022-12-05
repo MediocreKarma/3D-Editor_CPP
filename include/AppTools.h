@@ -155,7 +155,7 @@ class DropdownButton : public TextButton {
         }
         int listHitCollision(const int& x, const int& y) {
             if (xCenter - xLen / 2 <= x && x <= xCenter - xLen / 2 + m_listWidth && yCenter + yLen / 2 <= y && y <= yCenter + yLen / 2 + m_listHeight) {
-                return (y - yCenter - yLen / 2) / (m_listHeight / m_index);
+                return (y - yCenter - yLen / 2) / (m_listHeight / lenList);
             }
             return -1;
         }
