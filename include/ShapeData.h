@@ -100,6 +100,9 @@ class Line3D {
         void setQ(const Point3D& Q_);
         void fprint(FILE* fp);
         bool fscan(FILE* fp);
+        void rotateOX(const Point3D& center, const double& angle);
+        void rotateOY(const Point3D& center, const double& angle);
+        void rotateOZ(const Point3D& center, const double& angle);
 
     private:
         Point3D P;

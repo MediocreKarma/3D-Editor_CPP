@@ -315,7 +315,7 @@ Point3D Mesh::centerPoint() const {
 
 void Mesh::fprint(FILE* fp) {
     fprintf(fp, "Mesh: %u\n", size());
-    fprintf(fp, "%f %f %f\n", angleX, angleY, angleZ);
+    fprintf(fp, "%f %f %f\n", &angleX, &angleY, &angleZ);
     for (size_t i = 0; i < size(); ++i) {
         m_edges[i].fprint(fp);
     }
