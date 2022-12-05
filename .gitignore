@@ -1,8 +1,9 @@
 
-3D-Editor_CPP.cbp
-3D-Editor_CPP.depend
-3D-Editor_CPP.layout
+*.cbp
+*.depend
+*.layout
 *.exe
+*.txt
 main.cpp
 *.o
 *.ini
