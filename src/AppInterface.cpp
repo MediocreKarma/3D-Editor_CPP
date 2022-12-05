@@ -29,8 +29,18 @@ void AppInterface::saveSpace3D(Space3D& space, const char& saveType) {
     MyArray<char, 512> savepath = m_fileGetter.userSavePath();
     setcurrentwindow(getCurrentWindowNumber);
     FILE* fp = fopen(savepath.data(), "w");
-    space.fprint(fp);
-    space.setLinkedFileName(savepath);
+    if (!fp) {
+        MyArray<char, 32> errorMessage = "Bad file path!";
+        setbkcolor(LIGHTRED);
+        setcolor(BLACK);
+        outtextxy(m_appWidth / 2 - textwidth(errorMessage.data()) / 2, m_appHeight / 2 - textheight(errorMessage.data()) / 2, errorMessage.data());
+        Sleep(4000);
+    }
+    else {
+        space.fprint(fp);
+        space.setLinkedFileName(savepath);
+    }
+
     fclose(fp);
 }
 
@@ -39,12 +49,27 @@ void AppInterface::openSpace3D(Space3D& space) {
     MyArray<char, 512> openpath = m_fileGetter.userOpenPath();
     setcurrentwindow(getCurrentWindowNumber);
     FILE* fp = fopen(openpath.data(), "r");
-    space.fscan(fp);
-    space.setLinkedFileName(openpath);
+    if (!fp) {
+        MyArray<char, 32> errorMessage = "File not found!";
+        setbkcolor(LIGHTRED);
+        setcolor(BLACK);
+        outtextxy(m_appWidth / 2 - textwidth(errorMessage.data()) / 2, m_appHeight / 2 - textheight(errorMessage.data()) / 2, errorMessage.data());
+        Sleep(4000);
+    }
+    else if (!space.fscan(fp)){
+        MyArray<char, 32> errorMessage = "Bad file!";
+        setbkcolor(BLACK);
+        outtextxy(m_appWidth / 2 - textwidth(errorMessage.data()) / 2, m_appHeight / 2 - textheight(errorMessage.data()) / 2, errorMessage.data());
+        Sleep(4000);
+        fclose(fp);
+    }
+    else {
+        space.setLinkedFileName(openpath);
+    }
     fclose(fp);
 }
 
-void AppInterface::run(){
+void AppInterface::run() {
     initwindow(m_appWidth, m_appHeight, "Editor 3D");
     Space3D space(maxRadius(), m_theme);
     Mesh cube;

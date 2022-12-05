@@ -1,40 +1,58 @@
 #include "FileHandler.h"
 
-#include <iostream>
-
 FileHandler::FileHandler() :
-    m_width(600), m_height(300), m_index(0) {}
+    m_width(600), m_height(300), m_index(0), m_xButton(575, 25, 50, 50, "media\\xButton.jpg") {}
 
 void FileHandler::initSaveWindow() {
-    initwindow(m_width, m_height, "Save space", getmaxwidth() / 2 - m_width / 2, getmaxheight() / 2 - m_height / 2);
+    initwindow(m_width, m_height, "Save space", getmaxwidth() / 2 - m_width / 2, getmaxheight() / 2 - m_height / 2, false, false);
     setfillstyle(SOLID_FILL, LIGHTGRAY);
     bar(0, 0, m_width, m_height);
     setcolor(BLACK);
     setbkcolor(LIGHTGRAY);
     MyArray<char, 20> auxText = "Enter save path:";
     outtextxy(WriteAreaBegin - 5, m_height / 2 - 30, auxText.data());
-    setbkcolor(WHITE);
     rectangle(WriteAreaBegin - 5, m_height / 2 - 10, WriteAreaEnd + 5, m_height / 2 + 10);
+    m_xButton.drawImageButton();
+    m_xButton.border(LIGHTGRAY);
     setfillstyle(SOLID_FILL, WHITE);
+    setbkcolor(WHITE);
+    setcolor(BLACK);
     clearText();
 }
 
 void FileHandler::initOpenWindow() {
-    initwindow(m_width, m_height, "Open space", getmaxwidth() / 2 - m_width / 2, getmaxheight() / 2 - m_height / 2);
+    initwindow(m_width, m_height, "Open space", getmaxwidth() / 2 - m_width / 2, getmaxheight() / 2 - m_height / 2, false, false);
     setfillstyle(SOLID_FILL, LIGHTGRAY);
     bar(0, 0, m_width, m_height);
     setcolor(BLACK);
     setbkcolor(LIGHTGRAY);
     MyArray<char, 20> auxText = "Enter open path:";
     outtextxy(WriteAreaBegin - 5, m_height / 2 - 30, auxText.data());
-    setbkcolor(WHITE);
     rectangle(WriteAreaBegin - 5, m_height / 2 - 10, WriteAreaEnd + 5, m_height / 2 + 10);
     setfillstyle(SOLID_FILL, WHITE);
+    m_xButton.drawImageButton();
+    m_xButton.border(LIGHTGRAY);
+    setfillstyle(SOLID_FILL, WHITE);
+    setbkcolor(WHITE);
+    setcolor(BLACK);
     clearText();
 }
 
 void FileHandler::clearText() {
     bar(WriteAreaBegin - 5 + 1, m_height / 2 - 10 + 1, WriteAreaEnd + 5, m_height / 2 + 10);
+}
+
+bool FileHandler::checkWindowClose() {
+    while (!kbhit()) {
+        if (ismouseclick(WM_LBUTTONDOWN)) {
+            int x, y;
+            getmouseclick(WM_LBUTTONDOWN, x, y);
+            if (m_xButton.hitCollision(x, y)) {
+                return true;
+            }
+        }
+    }
+    return false;
 }
 
 MyArray<char, 256> FileHandler::getFilename() {
@@ -43,6 +61,10 @@ MyArray<char, 256> FileHandler::getFilename() {
     displayCursor({0}, 0);
     size_t displayBegin = 0;
     size_t displayEnd = 0;
+    if (checkWindowClose()) {
+        closegraph(CURRENT_WINDOW);
+        return {0};
+    }
     char ch = getch();
     while ((!isspace(ch) || ch == 0 || ch == ' ')) {
         if (ch == '\b') {
@@ -74,6 +96,10 @@ MyArray<char, 256> FileHandler::getFilename() {
             }
         }
         display(text, displayBegin, displayEnd);
+        if (checkWindowClose()) {
+            closegraph(CURRENT_WINDOW);
+            return {0};
+        }
         ch = getch();
     }
     closegraph(CURRENT_WINDOW);
