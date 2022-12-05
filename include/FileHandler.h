@@ -4,6 +4,7 @@
 #include <graphics.h>
 #include <winbgim.h>
 #include "AppTools.h"
+#include <conio.h>
 
 class FileHandler {
     public:
@@ -22,6 +23,7 @@ class FileHandler {
         int m_width;
         int m_height;
         size_t m_index;
+        ImageButton m_xButton;
 
         void clearText();
         MyArray<char, 256> getFilename();
@@ -33,6 +35,7 @@ class FileHandler {
         void incrementBeginEnd(const MyArray<char, 256>& text, size_t& begin, size_t& end, const size_t& lenText = 0);
         void display(const MyArray<char, 256>& text, const size_t& from, const size_t& to);
         MyArray<char, 512> doubleBackslashes(const MyArray<char, 256>& text);
+        bool checkWindowClose();
 };
 
 #endif // FILEHANDLER_H

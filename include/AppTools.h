@@ -80,7 +80,7 @@ class ImageButton : public Button {
         void drawImageButton();
 
     private:
-        MyArray<char, 128> filename;
+        MyArray<char, 256> filename;
 };
 
 class TextButton : public Button {
