@@ -27,6 +27,10 @@ class CircularLabel {
         void drawLabel(const int& fillColor, const int& outlineColor = BLACK);
         void border(const int& outlineColor) const;
         void clear(const int& barColor) const;
+        void move(const int& x, const int& y);
+        int getX() const;
+        int getY() const;
+        int getRadius() const;
 
     protected:
         int xCenter;
@@ -39,6 +43,17 @@ class CircularButton : public CircularLabel {
         CircularButton();
         CircularButton(const int& xCenter, const int& yCenter, const int& radius);
         bool hitCollision(const int& x, const int& y) const;
+};
+
+class DonutButton : public CircularButton {
+    public:
+        DonutButton();
+        DonutButton(const int& xCenter, const int& yCenter, const int& radius, const int& donutLen);
+        bool hitCollision(const int& x, const int& y) const;
+
+    private:
+        CircularButton m_outerRing;
+        CircularButton m_innerRing;
 };
 
 class TextLabel : public Label {
@@ -65,7 +80,7 @@ class ImageButton : public Button {
         void drawImageButton();
 
     private:
-        MyArray<char, 128> filename;
+        MyArray<char, 256> filename;
 };
 
 class TextButton : public Button {
@@ -86,15 +101,15 @@ template<size_t lenList>
 class DropdownButton : public TextButton {
     public:
         DropdownButton() :
-            TextButton(), m_index(), m_listHeight(), m_listVisibility(false), m_list() {}
+            TextButton(), m_index(), m_listHeight(), m_listWidth(), m_listVisibility(false), m_list() {}
 
-        DropdownButton(const int& xCenter_, const int& yCenter_, const int& xLen_, const int& yLen_, const char* p, const int& listHeight) :
-            TextButton(xCenter_, yCenter_, xLen_, yLen_, p), m_index(0), m_listHeight(listHeight), m_listVisibility(false), m_list() {}
+        DropdownButton(const int& xCenter_, const int& yCenter_, const int& xLen_, const int& yLen_, const char* p, const int& listWidth, const int& listHeight) :
+            TextButton(xCenter_, yCenter_, xLen_, yLen_, p), m_index(0), m_listWidth(listWidth), m_listHeight(listHeight), m_listVisibility(false), m_list() {}
 
         void addOption(const char* p) {
             int yOffset = yCenter + yLen / 2;
             int option_yLen = m_listHeight / lenList;
-            m_list[m_index] = TextButton(xCenter, yOffset + (2 * m_index + 1) * option_yLen / 2, xLen, option_yLen, p);
+            m_list[m_index] = TextButton(xCenter - xLen / 2 + m_listWidth / 2, yOffset + (2 * m_index + 1) * option_yLen / 2, m_listWidth, option_yLen, p);
             ++m_index;
         }
 
@@ -112,10 +127,12 @@ class DropdownButton : public TextButton {
             if (!isListVisible()) {
                 return;
             }
-            setfillstyle(SOLID_FILL, barColor);
-            bar(xCenter - xLen / 2 - 1, yCenter + yLen / 2 + 1,
-                xCenter + xLen / 2 + 1, yCenter + yLen / 2 + m_listHeight + 1);
             m_listVisibility = 0;
+            if (barColor == -1) {
+                return;
+            }
+            setfillstyle(SOLID_FILL, barColor);
+            bar(xCenter - xLen / 2 - 1, yCenter + yLen / 2 + 1, xCenter + xLen / 2 + 1, yCenter + yLen / 2 + m_listHeight + 1);
         }
 
         void toggleVisibillity(const int& barColor, const int& font, const int& fontSize, const int& fillColor) {
@@ -137,8 +154,8 @@ class DropdownButton : public TextButton {
             drawTextButton(font, fontSize, fillColor);
         }
         int listHitCollision(const int& x, const int& y) {
-            if (xCenter - xLen / 2 <= x && x <= xCenter + xLen / 2 && yCenter + yLen / 2 <= y && y <= yCenter + yLen / 2 + m_listHeight) {
-                return ((y - (yCenter + yLen/2)) / (m_listHeight / m_index));
+            if (xCenter - xLen / 2 <= x && x <= xCenter - xLen / 2 + m_listWidth && yCenter + yLen / 2 <= y && y <= yCenter + yLen / 2 + m_listHeight) {
+                return (y - yCenter - yLen / 2) / (m_listHeight / lenList);
             }
             return -1;
         }
@@ -149,6 +166,7 @@ class DropdownButton : public TextButton {
 
     private:
         size_t m_index;
+        int m_listWidth;
         int m_listHeight;
         bool m_listVisibility;
         MyArray<TextButton, lenList> m_list;

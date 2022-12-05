@@ -4,9 +4,10 @@
 #include "MyArray.h"
 #include "MyVector.h"
 #include "AppTools.h"
-#include <graphics.h>
-#include <winbgim.h>
+#include "graphics.h"
+#include "winbgim.h"
 #include "AppInterface.h"
+#include <stdio.h>
 
 namespace SettingsMenuInterface
 {
@@ -15,6 +16,7 @@ namespace SettingsMenuInterface
     static const int BACKGROUND_COLOR = RGB(48, 47, 77);
     static const int HIGHLIGHT_COLOR = RGB(242, 195, 107);
     //static const int BORDER_WIDTH = 3;
+    static const int NO_COLOR = -1;
     static const int LABEL_COLOR = RGB(108, 106, 175);
     static const int BUTTON_COLOR = RGB(182, 191, 232);
     static const int DROPLIST_COLOR = RGB(235, 235, 235);
@@ -22,13 +24,15 @@ namespace SettingsMenuInterface
     static const size_t TEXTBUTTON_SIZE = 3;
     static const size_t FLAG_SIZE = 2;
     static const size_t DROPDOWN_SIZE = 5;
+    //cate teme?
     static const size_t THEME_SIZE = 2;
     static const MyArray<int, FLAG_SIZE> themeFillColors = {
-        RGB(182, 191, 232), RGB(182, 191, 232)
+        RGB(182, 191, 232), RGB(132, 141, 182)
     };
     static const MyArray<MyArray<int, 2>, DROPDOWN_SIZE> resOptions = {
         {1920, 1080}, {1600, 900}, {1280, 720}, {1000, 750}, {800, 600}
     };
+    //pt teme
     static const int PRIMARYCOLOR = 0;
     static const int SECONDARYCOLOR = 1;
     static const MyArray<MyArray<int, 2>, THEME_SIZE> themeColors = {
@@ -38,6 +42,8 @@ namespace SettingsMenuInterface
     static const int FONT_SIZE = 1;
 
     void run();
+    void checkSavedSettings();
+    void saveSelection();
     void drawScreen();
     void createButtons();
     void setTextSettings();

@@ -1,9 +1,11 @@
 #ifndef APPINTERFACE_H
 #define APPINTERFACE_H
 
+#include "FileHandler.h"
 #include "Space3D.h"
 #include <graphics.h>
 #include <winbgim.h>
+#include "Menu.h"
 
 class AppInterface {
     public:
@@ -15,12 +17,17 @@ class AppInterface {
         double maxRadius() const;
 
     private:
-        static constexpr double m_maxRadius = 2000;
-        static constexpr double FOV = 3.1415926 / 2;
+        static constexpr double m_maxRadius = -2000;
+        //Pozitia default a camerei e in shapeData, hardcoded; nu stiu unde sa pun exact offsetul
         int m_appWidth;
         int m_appHeight;
         int m_theme;
         int m_languagePackage;
+        FileHandler m_fileGetter;
+
+        void clearMouse();
+        void saveSpace3D(Space3D& space, const char& saveType);
+        void openSpace3D(Space3D& space);
 };
 
 #endif // APPINTERFACE_H

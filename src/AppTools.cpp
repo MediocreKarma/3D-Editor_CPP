@@ -8,11 +8,16 @@ Label::Label(const int& xCenter_, const int& yCenter_, const int& xLen_, const i
 
 void Label::drawLabel(const int& fillColor, const int& outlineColor) const {
     border(outlineColor);
+    if (fillColor == -1) {
+        return;
+    }
     setfillstyle(SOLID_FILL, fillColor);
     bar(xCenter - xLen / 2 + 1, yCenter - yLen / 2 + 1, xCenter + xLen / 2, yCenter + yLen / 2);
 }
 
 void Label::border(const int& outlineColor) const {
+    if (outlineColor == -1)
+        return;
     setcolor(outlineColor);
     rectangle(xCenter - xLen / 2, yCenter - yLen / 2,
         xCenter + xLen / 2, yCenter + yLen / 2);
@@ -30,15 +35,19 @@ CircularLabel::CircularLabel() :
 CircularLabel::CircularLabel(const int& xCenter_, const int& yCenter_, const int& radius_) :
     xCenter(xCenter_), yCenter(yCenter_), radius(radius_) {}
 
-#include <iostream>
-
 void CircularLabel::drawLabel(const int& fillColor, const int& outlineColor) {
     border(outlineColor);
+    if (fillColor == -1) {
+        return;
+    }
     setfillstyle(SOLID_FILL, fillColor);
     fillellipse(xCenter, yCenter, radius, radius);
 }
 
 void CircularLabel::border(const int& outlineColor) const {
+    if (outlineColor == -1) {
+        return;
+    }
     setcolor(outlineColor);
     circle(xCenter, yCenter, radius);
 }
@@ -46,6 +55,23 @@ void CircularLabel::border(const int& outlineColor) const {
 void CircularLabel::clear(const int& barColor) const {
     setfillstyle(SOLID_FILL, barColor);
     ellipse(xCenter, yCenter, 0, 360, radius, radius);
+}
+
+void CircularLabel::move(const int& x, const int& y) {
+    xCenter = x;
+    yCenter = y;
+}
+
+int CircularLabel::getX() const {
+    return xCenter;
+}
+
+int CircularLabel::getY() const {
+    return yCenter;
+}
+
+int CircularLabel::getRadius() const {
+    return radius;
 }
 
 CircularButton::CircularButton() :
@@ -58,6 +84,16 @@ bool CircularButton::hitCollision(const int& x, const int& y) const {
     int xDist = x - xCenter;
     int yDist = y - yCenter;
     return xDist * xDist + yDist * yDist <= radius * radius;
+}
+
+DonutButton::DonutButton() :
+    CircularButton(), m_outerRing(), m_innerRing() {}
+
+DonutButton::DonutButton(const int& xCenter_, const int& yCenter_, const int& radius_, const int& donutLen) :
+    CircularButton(xCenter_, yCenter_, radius_), m_outerRing(xCenter_, yCenter_, radius_ + donutLen / 2), m_innerRing(xCenter_, yCenter_, radius_ - donutLen / 2) {}
+
+bool DonutButton::hitCollision(const int& x, const int& y) const {
+    return m_outerRing.hitCollision(x, y) && !m_innerRing.hitCollision(x, y);
 }
 
 TextLabel::TextLabel() :

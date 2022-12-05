@@ -39,28 +39,31 @@ void Point3D::setPoint(const Point3D& pct) {
     z = pct.getZ();
 }
 
-void Point3D::rotateOX(const double& alpha) {
-    double beta = alpha * 3.14 / 180;
-    int y_ = y * cos(beta) - z * sin(beta);
-    int z_ = y * sin(beta) + z * cos(beta);
+void Point3D::rotateOX(const Point3D& center, const double& alpha) {
+    translate(center.getX() * (-1), center.getY() * (-1), center.getZ() * (-1));
+    double y_ = y * cos(alpha) - z * sin(alpha);
+    double z_ = y * sin(alpha) + z * cos(alpha);
     y = y_;
     z = z_;
+    translate(center.getX(), center.getY(), center.getZ());
 }
 
-void Point3D::rotateOY(const double& alpha) {
-    double beta = alpha * 3.14 / 180;
-    int x_ = x * cos(beta) - z * sin(beta);
-    int z_ = x * sin(beta) + z * cos(beta);
+void Point3D::rotateOY(const Point3D& center, const double& alpha) {
+    translate(center.getX() * (-1), center.getY() * (-1), center.getZ() * (-1));
+    double x_ = x * cos(alpha) - z * sin(alpha);
+    double z_ = x * sin(alpha) + z * cos(alpha);
     x = x_;
     z = z_;
+    translate(center.getX(), center.getY(), center.getZ());
 }
 
-void Point3D::rotateOZ(const double& alpha) {
-    double beta = alpha * 3.14 / 180;
-    int x_ = x * cos(beta) - y * sin(beta);
-    int y_ = x * sin(beta) + y * cos(beta);
+void Point3D::rotateOZ(const Point3D& center, const double& alpha) {
+    translate(center.getX() * (-1), center.getY() * (-1), center.getZ() * (-1));
+    int x_ = x * cos(alpha) - y * sin(alpha);
+    int y_ = x * sin(alpha) + y * cos(alpha);
     x = x_;
     y = y_;
+    translate(center.getX(), center.getY(), center.getZ());
 }
 
 Point3D& Point3D::operator += (const Point3D& other) {
@@ -76,17 +79,16 @@ void Point3D::translate(const int& xTranslate, const int& yTranslate, const int&
     z += zTranslate;
 }
 
-Point3D Line3D::getP(){
-    return P;
+void Point3D::fprint(FILE* fp) {
+    fprintf(fp, "%i, %i, %i", x, y, z);
 }
 
-Point3D Line3D::getQ(){
-    return Q;
-}
-
-Point2D Point3D::project(const int& xCenter, const int& /*yCenter*/, const int& /*xLen*/, const int& yLen, const double& radius, const double& scale) const {
-    double aa = (radius - y) / radius;
-    return Point2D( x * scale * aa + xCenter, yLen / 2 - z * scale * aa);
+bool Point3D::fscan(FILE* fp) {
+    if (fscanf(fp, "%i, %i, %i", &x, &y, &z) != 3) {
+        x = y = z = 0;
+        return false;
+    }
+    return true;
 }
 
 Point2D::Point2D() :
@@ -102,8 +104,12 @@ int Point2D::getX() const {
     return x;
 }
 
-int Point2D::getY() const{
+int Point2D::getY() const {
     return y;
+}
+
+bool Point2D::operator == (const Point2D& other) {
+    return x == other.x && y == other.y;
 }
 
 Line2D::Line2D() :
@@ -124,19 +130,24 @@ void Line2D::draw() {
     line(P.getX(), P.getY(), Q.getX(), Q.getY());
 }
 
+constexpr int Section::RADIUS;
+
 Section::Section() :
-    m_lines(), m_grabPoint(), m_active(false) {}
+    m_lines(), m_centerPoint(), m_grabPoint(), m_active(false) {}
 
 Section::Section(const MyVector<Line2D>& lines, const Point2D& centerPoint) :
-    m_lines(lines), m_grabPoint(centerPoint.getX(), centerPoint.getY(), Section::RADIUS), m_active(false) {}
+    m_lines(lines), m_centerPoint(centerPoint.getX(), centerPoint.getY()), m_grabPoint(centerPoint.getX(), centerPoint.getY(), Section::RADIUS), m_active(false) {}
 
 Section::Section(const Section& other) :
-    m_lines(other.m_lines), m_grabPoint(other.m_grabPoint), m_active(other.m_active) {}
+    m_lines(other.m_lines), m_centerPoint(other.centerPoint()), m_grabPoint(other.m_grabPoint), m_active(other.m_active) {}
 
-constexpr int Section::RADIUS;
 
 size_t Section::size() const {
     return m_lines.size();
+}
+
+Point2D Section::centerPoint() const {
+    return m_centerPoint;
 }
 
 void Section::addLine(const Line2D& line) {
@@ -162,6 +173,7 @@ void Section::drawButton(const int& fillColor, const int& borderColor) {
 Section& Section::operator = (const Section& other) {
     m_lines = other.m_lines;
     m_grabPoint = other.m_grabPoint;
+    m_centerPoint = other.m_centerPoint;
     m_active = other.m_active;
     return *this;
 }
@@ -185,6 +197,14 @@ Line3D& Line3D::operator = (const Line3D& other) {
     return *this;
 }
 
+Point3D Line3D::getP() const {
+    return P;
+}
+
+Point3D Line3D::getQ() const {
+    return Q;
+}
+
 void Line3D::setP(const Point3D& P_) {
     P.setPoint(P_);
 }
@@ -198,25 +218,66 @@ void Line3D::translate(const int& xTranslate, const int& yTranslate, const int& 
     Q.translate(xTranslate, yTranslate, zTranslate);
 }
 
+double Line3D::getLength() const{
+    double dx = abs(Q.getX() - P.getX());
+    double dy = abs(Q.getY() - P.getY());
+    double dz = abs(Q.getZ() - P.getZ());
+    return sqrt(dx*dx + dy*dy + dz*dz);
+}
+
+void Line3D::rotateOX(const Point3D& center, const double& angle) {
+    P.rotateOX(center, angle);
+    Q.rotateOX(center, angle);
+}
+
+void Line3D::rotateOY(const Point3D& center, const double& angle) {
+    P.rotateOY(center, angle);
+    Q.rotateOY(center, angle);
+}
+
+void Line3D::rotateOZ(const Point3D& center, const double& angle) {
+    P.rotateOZ(center, angle);
+    Q.rotateOZ(center, angle);
+}
+
+bool Line3D::fscan(FILE* fp) {
+    if (!P.fscan(fp)) {
+        return false;
+    }
+    fscanf(fp, " - ");
+    if (!Q.fscan(fp)) {
+        return false;
+    }
+    fscanf(fp, "\n");
+    return true;
+}
+
+void Line3D::fprint(FILE* fp) {
+    P.fprint(fp);
+    fprintf(fp, " - ");
+    Q.fprint(fp);
+    fprintf(fp, "\n");
+}
+
 Mesh::Mesh() :
-    m_edges(), m_centerPoint() {}
+    m_edges(), m_centerPoint(), m_angleX(0), m_angleY(0), m_angleZ(0) {}
 
 Mesh::Mesh(const MyVector<Line3D>& edges) :
-    m_edges(edges), m_centerPoint(0, 0, 0) {
+    m_edges(edges), m_centerPoint(0, 0, 0), m_angleX(0), m_angleY(0), m_angleZ(0) {
     updateCenterPoint();
 }
 
 Mesh::Mesh(const Mesh& other) :
-    m_edges(other.m_edges), m_centerPoint(other.m_centerPoint) {}
+    m_edges(other.m_edges), m_angleX(other.m_angleX), m_angleY(other.m_angleY), m_angleZ(other.m_angleZ), m_centerPoint(other.m_centerPoint) {}
 
 void Mesh::updateCenterPoint() {
     for (size_t i = 0; i < size(); ++i) {
         m_centerPoint += m_edges[i].getP();
         m_centerPoint += m_edges[i].getQ();
     }
-    m_centerPoint.setX(m_centerPoint.getX() / (2 * size()));
-    m_centerPoint.setY(m_centerPoint.getY() / (2 * size()));
-    m_centerPoint.setZ(m_centerPoint.getZ() / (2 * size()));
+    m_centerPoint.setX(m_centerPoint.getX() / (2 * (int)size()));
+    m_centerPoint.setY(m_centerPoint.getY() / (2 * (int)size()));
+    m_centerPoint.setZ(m_centerPoint.getZ() / (2 * (int)size()));
 }
 
 size_t Mesh::size() const {
@@ -224,6 +285,10 @@ size_t Mesh::size() const {
 }
 
 Line3D& Mesh::operator [] (const size_t& index) {
+    return m_edges[index];
+}
+
+const Line3D& Mesh::operator [] (const size_t& index) const {
     return m_edges[index];
 }
 
@@ -244,17 +309,67 @@ void Mesh::translate(const int& xTranslate, const int& yTranslate, const int& zT
     m_centerPoint.translate(xTranslate, yTranslate, zTranslate);
 }
 
-Point3D Mesh::centerPoint() {
+Point3D Mesh::centerPoint() const {
     return m_centerPoint;
 }
 
-Section Mesh::project(const int& xCenter, const int& yCenter, const int& xLen, const int& yLen, const double& radius, const double& scale) {
-    MyVector<Line2D> lines;
-    lines.reserve(size());
-    for(size_t i = 0; i < size(); i++) {
-        const Point2D P = m_edges[i].getP().project(xCenter, yCenter, xLen, yLen, radius, scale);
-        const Point2D Q = m_edges[i].getQ().project(xCenter, yCenter, xLen, yLen, radius, scale);
-        lines.push_back(Line2D(P, Q));
+void Mesh::fprint(FILE* fp) {
+    fprintf(fp, "Mesh: %u\n", size());
+    fprintf(fp, "%f %f %f\n", &angleX, &angleY, &angleZ);
+    for (size_t i = 0; i < size(); ++i) {
+        m_edges[i].fprint(fp);
     }
-    return Section(lines, m_centerPoint.project(xCenter, yCenter, xLen, yLen, radius, scale));
+    m_centerPoint.fprint(fp);
+    fprintf(fp, "\n");
+}
+
+bool Mesh::fscan(FILE* fp) {
+    size_t edgesCount = 0;
+    if (fscanf(fp, "Mesh: %u\n", &edgesCount) != 1) {
+        return false;
+    }
+    m_edges.resize(edgesCount);
+    for (size_t i = 0; i < edgesCount; ++i) {
+        if (!m_edges[i].fscan(fp)) {
+            return false;
+        }
+    }
+    if (fscanf(fp, "%lf %lf %lf", &angleX, &angleY, &angleZ) != 3) {
+        return false;
+    }
+    fscanf(fp, "\n");
+    if (!m_centerPoint.fscan(fp)) {
+        return false;
+    }
+    fscanf(fp, "\n");
+    return true;
+}
+
+double Mesh::angleX() const {
+    return m_angleX;
+}
+
+double Mesh::angleY() const {
+    return m_angleY;
+}
+
+double Mesh::angleZ() const {
+    return m_angleZ;
+}
+
+void Mesh::rotate(const double& angleX, const double& angleY, const double& angleZ) {
+    for (size_t i = 0; i < size(); ++i) {
+        if(angleX != 0) {
+            m_edges[i].rotateOX(centerPoint(), angleX);
+        }
+        if(angleY != 0) {
+            m_edges[i].rotateOY(centerPoint(), angleY);
+        }
+        if(angleZ != 0) {
+            m_edges[i].rotateOZ(centerPoint(), angleZ);
+        }
+    }
+    m_angleX += angleX;
+    m_angleY += angleY;
+    m_angleZ += angleZ;
 }

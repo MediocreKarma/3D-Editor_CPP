@@ -6,6 +6,7 @@
 #include <graphics.h>
 #include <winbgim.h>
 #include "AppTools.h"
+#include <cstdio>
 
 class Point2D {
     public:
@@ -16,6 +17,7 @@ class Point2D {
         int getY() const;
         void setX(const int& x_);
         void setY(const int& y_);
+        bool operator == (const Point2D& other);
 
     private:
         int x;
@@ -43,6 +45,7 @@ class Section {
         Section(const MyVector<Line2D>& lines, const Point2D& centerPoint);
         Section(const Section& other);
         size_t size() const;
+        Point2D centerPoint() const;
         void addLine(const Line2D& line);
         Section& operator = (const Section& other);
         Line2D& operator [] (const size_t& index);
@@ -52,6 +55,7 @@ class Section {
 
     private:
         MyVector<Line2D> m_lines;
+        Point2D m_centerPoint;
         CircularButton m_grabPoint;
         bool m_active;
 };
@@ -68,12 +72,13 @@ class Point3D {
         void setY(const int& y_);
         void setZ(const int& z_);
         void setPoint(const Point3D& pct);
-        void rotateOX(const double& alpha);
-        void rotateOY(const double& alpha);
-        void rotateOZ(const double& alpha);
+        void rotateOX(const Point3D& center, const double& alpha);
+        void rotateOY(const Point3D& center, const double& alpha);
+        void rotateOZ(const Point3D& center, const double& alpha);
         void translate(const int& xTranslate, const int& yTranslate, const int& zTranslate);
         Point3D& operator += (const Point3D& other);
-        Point2D project(const int& xCenter, const int& yCenter, const int& xLen, const int& yLen, const double& radius, const double& scale) const;
+        void fprint(FILE* fp);
+        bool fscan(FILE* fp);
 
     private:
         int x;
@@ -88,10 +93,16 @@ class Line3D {
         Line3D(const Line3D& other);
         Line3D& operator = (const Line3D& other);
         void translate(const int& xTranslate, const int& yTranslate, const int& zTranslate);
-        Point3D getP();
-        Point3D getQ();
+        Point3D getP() const;
+        Point3D getQ() const;
+        double getLength() const;
         void setP(const Point3D& P_);
         void setQ(const Point3D& Q_);
+        void fprint(FILE* fp);
+        bool fscan(FILE* fp);
+        void rotateOX(const Point3D& center, const double& angle);
+        void rotateOY(const Point3D& center, const double& angle);
+        void rotateOZ(const Point3D& center, const double& angle);
 
     private:
         Point3D P;
@@ -107,15 +118,22 @@ class Mesh {
         size_t size() const;
         void addEdge(const Line3D& edge);
         Line3D& operator [] (const size_t& index);
+        const Line3D& operator [] (const size_t& index) const;
         Mesh& operator = (const Mesh& other);
         void translate(const int& xTranslate, const int& yTranslate, const int& zTranslate);
-        Section project(const int& xCenter, const int& yCenter, const int& xLen, const int& yLen, const double& radius, const double& scale);
-        Point3D centerPoint();
+        Point3D centerPoint() const;
         void updateCenterPoint();
+        void fprint(FILE* fp);
+        bool fscan(FILE* fp);
+        void rotate(const double& angleX, const double& angleY, const double& angleZ);
+        double angleX() const;
+        double angleY() const;
+        double angleZ() const;
 
     private:
         MyVector<Line3D> m_edges;
         Point3D m_centerPoint;
+        double m_angleX, m_angleY, m_angleZ;
 };
 
 #endif // SHAPEDATA_H
