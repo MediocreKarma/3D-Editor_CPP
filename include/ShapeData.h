@@ -122,10 +122,15 @@ class Mesh {
         void updateCenterPoint();
         void fprint(FILE* fp);
         bool fscan(FILE* fp);
+        void rotate(const double& angleX, const double& angleY, const double& angleZ);
+        double angleX() const;
+        double angleY() const;
+        double angleZ() const;
 
     private:
         MyVector<Line3D> m_edges;
         Point3D m_centerPoint;
+        double m_angleX, m_angleY, m_angleZ;
 };
 
 #endif // SHAPEDATA_H

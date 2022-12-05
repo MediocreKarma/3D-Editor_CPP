@@ -41,9 +41,8 @@ void Point3D::setPoint(const Point3D& pct) {
 
 void Point3D::rotateOX(const Point3D& center, const double& alpha) {
     translate(center.getX() * (-1), center.getY() * (-1), center.getZ() * (-1));
-    double beta = alpha * 3.14 / 180;
-    double y_ = y * cos(beta) - z * sin(beta);
-    double z_ = y * sin(beta) + z * cos(beta);
+    double y_ = y * cos(alpha) - z * sin(alpha);
+    double z_ = y * sin(alpha) + z * cos(alpha);
     y = y_;
     z = z_;
     translate(center.getX(), center.getY(), center.getZ());
@@ -51,9 +50,8 @@ void Point3D::rotateOX(const Point3D& center, const double& alpha) {
 
 void Point3D::rotateOY(const Point3D& center, const double& alpha) {
     translate(center.getX() * (-1), center.getY() * (-1), center.getZ() * (-1));
-    double beta = alpha * 3.14 / 180;
-    double x_ = x * cos(beta) - z * sin(beta);
-    double z_ = x * sin(beta) + z * cos(beta);
+    double x_ = x * cos(alpha) - z * sin(alpha);
+    double z_ = x * sin(alpha) + z * cos(alpha);
     x = x_;
     z = z_;
     translate(center.getX(), center.getY(), center.getZ());
@@ -61,9 +59,8 @@ void Point3D::rotateOY(const Point3D& center, const double& alpha) {
 
 void Point3D::rotateOZ(const Point3D& center, const double& alpha) {
     translate(center.getX() * (-1), center.getY() * (-1), center.getZ() * (-1));
-    double beta = alpha * 3.14 / 180;
-    int x_ = x * cos(beta) - y * sin(beta);
-    int y_ = x * sin(beta) + y * cos(beta);
+    int x_ = x * cos(alpha) - y * sin(alpha);
+    int y_ = x * sin(alpha) + y * cos(alpha);
     x = x_;
     y = y_;
     translate(center.getX(), center.getY(), center.getZ());
@@ -228,6 +225,21 @@ double Line3D::getLength() const{
     return sqrt(dx*dx + dy*dy + dz*dz);
 }
 
+void Line3D::rotateOX(const Point3D& center, const double& angle) {
+    P.rotateOX(center, angle);
+    Q.rotateOX(center, angle);
+}
+
+void Line3D::rotateOY(const Point3D& center, const double& angle) {
+    P.rotateOY(center, angle);
+    Q.rotateOY(center, angle);
+}
+
+void Line3D::rotateOZ(const Point3D& center, const double& angle) {
+    P.rotateOZ(center, angle);
+    Q.rotateOZ(center, angle);
+}
+
 bool Line3D::fscan(FILE* fp) {
     if (!P.fscan(fp)) {
         return false;
@@ -248,15 +260,15 @@ void Line3D::fprint(FILE* fp) {
 }
 
 Mesh::Mesh() :
-    m_edges(), m_centerPoint() {}
+    m_edges(), m_centerPoint(), m_angleX(0), m_angleY(0), m_angleZ(0) {}
 
 Mesh::Mesh(const MyVector<Line3D>& edges) :
-    m_edges(edges), m_centerPoint(0, 0, 0) {
+    m_edges(edges), m_centerPoint(0, 0, 0), m_angleX(0), m_angleY(0), m_angleZ(0) {
     updateCenterPoint();
 }
 
 Mesh::Mesh(const Mesh& other) :
-    m_edges(other.m_edges), m_centerPoint(other.m_centerPoint) {}
+    m_edges(other.m_edges), m_angleX(other.m_angleX), m_angleY(other.m_angleY), m_angleZ(other.m_angleZ), m_centerPoint(other.m_centerPoint) {}
 
 void Mesh::updateCenterPoint() {
     for (size_t i = 0; i < size(); ++i) {
@@ -303,6 +315,7 @@ Point3D Mesh::centerPoint() const {
 
 void Mesh::fprint(FILE* fp) {
     fprintf(fp, "Mesh: %u\n", size());
+    fprintf(fp, "%f %f %f\n", angleX, angleY, angleZ);
     for (size_t i = 0; i < size(); ++i) {
         m_edges[i].fprint(fp);
     }
@@ -321,9 +334,42 @@ bool Mesh::fscan(FILE* fp) {
             return false;
         }
     }
+    if (fscanf(fp, "%lf %lf %lf", &angleX, &angleY, &angleZ) != 3) {
+        return false;
+    }
+    fscanf(fp, "\n");
     if (!m_centerPoint.fscan(fp)) {
         return false;
     }
     fscanf(fp, "\n");
     return true;
+}
+
+double Mesh::angleX() const {
+    return m_angleX;
+}
+
+double Mesh::angleY() const {
+    return m_angleY;
+}
+
+double Mesh::angleZ() const {
+    return m_angleZ;
+}
+
+void Mesh::rotate(const double& angleX, const double& angleY, const double& angleZ) {
+    for (size_t i = 0; i < size(); ++i) {
+        if(angleX != 0) {
+            m_edges[i].rotateOX(centerPoint(), angleX);
+        }
+        if(angleY != 0) {
+            m_edges[i].rotateOY(centerPoint(), angleY);
+        }
+        if(angleZ != 0) {
+            m_edges[i].rotateOZ(centerPoint(), angleZ);
+        }
+    }
+    m_angleX += angleX;
+    m_angleY += angleY;
+    m_angleZ += angleZ;
 }
