@@ -7,6 +7,7 @@
 
 class Menu {
     public:
+
         Menu(const int& m_theme = 0);
         void clear(const int& x1, const int& y1, const int& x2, const int& y2);
         void drawMenu(const int& x1, const int& y1, const int& x2, const int& y2);

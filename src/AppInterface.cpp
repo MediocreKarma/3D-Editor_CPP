@@ -28,13 +28,16 @@ void AppInterface::saveSpace3D(Space3D& space, const char& saveType) {
     int getCurrentWindowNumber = getcurrentwindow();
     MyArray<char, 512> savepath = m_fileGetter.userSavePath();
     setcurrentwindow(getCurrentWindowNumber);
+    if (!savepath[0]) {
+        return;
+    }
     FILE* fp = fopen(savepath.data(), "w");
     if (!fp) {
         MyArray<char, 32> errorMessage = "Bad file path!";
         setbkcolor(LIGHTRED);
         setcolor(BLACK);
         outtextxy(m_appWidth / 2 - textwidth(errorMessage.data()) / 2, m_appHeight / 2 - textheight(errorMessage.data()) / 2, errorMessage.data());
-        Sleep(4000);
+        Sleep(2000);
     }
     else {
         space.fprint(fp);
@@ -48,19 +51,22 @@ void AppInterface::openSpace3D(Space3D& space) {
     int getCurrentWindowNumber = getcurrentwindow();
     MyArray<char, 512> openpath = m_fileGetter.userOpenPath();
     setcurrentwindow(getCurrentWindowNumber);
+    if (!openpath[0]) {
+        return;
+    }
     FILE* fp = fopen(openpath.data(), "r");
     if (!fp) {
         MyArray<char, 32> errorMessage = "File not found!";
         setbkcolor(LIGHTRED);
         setcolor(BLACK);
         outtextxy(m_appWidth / 2 - textwidth(errorMessage.data()) / 2, m_appHeight / 2 - textheight(errorMessage.data()) / 2, errorMessage.data());
-        Sleep(4000);
+        Sleep(2000);
     }
     else if (!space.fscan(fp)){
         MyArray<char, 32> errorMessage = "Bad file!";
         setbkcolor(BLACK);
         outtextxy(m_appWidth / 2 - textwidth(errorMessage.data()) / 2, m_appHeight / 2 - textheight(errorMessage.data()) / 2, errorMessage.data());
-        Sleep(4000);
+        Sleep(2000);
         fclose(fp);
     }
     else {

@@ -268,7 +268,7 @@ Mesh::Mesh(const MyVector<Line3D>& edges) :
 }
 
 Mesh::Mesh(const Mesh& other) :
-    m_edges(other.m_edges), m_angleX(other.m_angleX), m_angleY(other.m_angleY), m_angleZ(other.m_angleZ), m_centerPoint(other.m_centerPoint) {}
+    m_edges(other.m_edges), m_centerPoint(other.m_centerPoint), m_angleX(other.m_angleX), m_angleY(other.m_angleY), m_angleZ(other.m_angleZ) {}
 
 void Mesh::updateCenterPoint() {
     for (size_t i = 0; i < size(); ++i) {
@@ -315,7 +315,7 @@ Point3D Mesh::centerPoint() const {
 
 void Mesh::fprint(FILE* fp) {
     fprintf(fp, "Mesh: %u\n", size());
-    fprintf(fp, "%f %f %f\n", &angleX, &angleY, &angleZ);
+    fprintf(fp, "%f %f %f\n", m_angleX, m_angleY, m_angleZ);
     for (size_t i = 0; i < size(); ++i) {
         m_edges[i].fprint(fp);
     }
@@ -334,7 +334,7 @@ bool Mesh::fscan(FILE* fp) {
             return false;
         }
     }
-    if (fscanf(fp, "%lf %lf %lf", &angleX, &angleY, &angleZ) != 3) {
+    if (fscanf(fp, "%lf %lf %lf", &m_angleX, &m_angleY, &m_angleZ) != 3) {
         return false;
     }
     fscanf(fp, "\n");
@@ -358,14 +358,15 @@ double Mesh::angleZ() const {
 }
 
 void Mesh::rotate(const double& angleX, const double& angleY, const double& angleZ) {
+    const double e = 0.000000001;
     for (size_t i = 0; i < size(); ++i) {
-        if(angleX != 0) {
+        if(abs(angleX) > e) {
             m_edges[i].rotateOX(centerPoint(), angleX);
         }
-        if(angleY != 0) {
+        if(abs(angleY) > e) {
             m_edges[i].rotateOY(centerPoint(), angleY);
         }
-        if(angleZ != 0) {
+        if(abs(angleZ) > e) {
             m_edges[i].rotateOZ(centerPoint(), angleZ);
         }
     }

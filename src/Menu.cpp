@@ -22,8 +22,6 @@ void Menu::drawMenu(const int& x1, const int& y1, const int& x2, const int& y2) 
     m_helpButton.border(BLACK);
 }
 
-#include <iostream>
-
 //returns true if Space3D should redraw itself
 bool Menu::getCommand(const int& x, const int& y) {
     if (m_fileButton.isListVisible()) {
