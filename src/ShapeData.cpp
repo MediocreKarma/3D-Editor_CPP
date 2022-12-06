@@ -328,14 +328,14 @@ bool Mesh::fscan(FILE* fp) {
     if (fscanf(fp, "Mesh: %u\n", &edgesCount) != 1) {
         return false;
     }
+    if (fscanf(fp, "%lf %lf %lf", &m_angleX, &m_angleY, &m_angleZ) != 3) {
+        return false;
+    }
     m_edges.resize(edgesCount);
     for (size_t i = 0; i < edgesCount; ++i) {
         if (!m_edges[i].fscan(fp)) {
             return false;
         }
-    }
-    if (fscanf(fp, "%lf %lf %lf", &m_angleX, &m_angleY, &m_angleZ) != 3) {
-        return false;
     }
     fscanf(fp, "\n");
     if (!m_centerPoint.fscan(fp)) {
