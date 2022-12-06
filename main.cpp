@@ -2,4 +2,5 @@
 
 int main() {
     SettingsMenuInterface::run();
+    return 0;
 }
