@@ -4,7 +4,7 @@ Point3D::Point3D() :
     x(), y(), z() {}
 
 Point3D::Point3D(const int& x_, const int& y_, const int& z_) :
-    x(x_), y(y_), z(z_){}
+    x(x_), y(y_), z(z_) {}
 
 Point3D::Point3D(const Point3D& other) :
     x(other.x), y(other.y), z(other.z) {}
