@@ -1,4 +1,5 @@
 #include "Space3D.h"
+#include <iostream>
 
 static const int PRIMARYCOLOR = 0;
 static const int SECONDARYCOLOR = 1;
@@ -177,35 +178,16 @@ Section Space3D::projectSection(const Mesh& mesh, const int& xCenter, const int&
     const int x1 = xCenter + xLen / 2;
     const int y0 = yCenter - yLen / 2;
     const int y1 = yCenter + yLen / 2;
-    MyVector<Line2D> lines;
-    lines.reserve(mesh.size());
+    MyVector<Point2D> projectedPoints;
+    projectedPoints.resize(mesh.size());
     for(size_t i = 0; i < mesh.size(); i++) {
-        Point2D P = projectPoint(mesh[i].getP(), xCenter, yCenter, xLen, yLen);
-        if (P == Point2D(-100, -100)) {
-            continue;
-        }
-        Point2D Q = projectPoint(mesh[i].getQ(), xCenter, yCenter, xLen, yLen);
-        if (Q == Point2D(-100, -100)) {
-            continue;
-        }
-        if (insideWorkArea(P, x0, y0, x1, y1) && insideWorkArea(Q, x0, y0, x1, y1)) {
-            lines.push_back(Line2D(P, Q));
-        }
-        else if (insideWorkArea(P, x0, y0, x1, y1)) {
-            Q = moveInsideWorkArea(P, Q, x0, y0);
-            lines.push_back(Line2D(P, Q));
-        }
-        else if (insideWorkArea(Q, x0, y0, x1, y1)) {
-            P = moveInsideWorkArea(Q, P, x0, y0);
-            lines.push_back(Line2D(P, Q));
+        projectedPoints[i] = projectPoint(mesh[i], xCenter, yCenter, xLen, yLen);
+        if (!insideWorkArea(projectedPoints[i], x0, y0, x1, y1)) {
+            projectedPoints[i] = Point2D(-100, -100);
         }
     }
-    const Point3D meshCenterPoint = mesh.centerPoint();
-    Point2D sectionCenterPoint = projectPoint(meshCenterPoint, xCenter, yCenter, xLen, yLen);
-    if (!insideWorkArea(sectionCenterPoint, x0, y0, x1, y1)) {
-        sectionCenterPoint = Point2D(-100, -100);
-    }
-    return Section(lines, sectionCenterPoint);
+    Point2D sectionCenterPoint = projectPoint(mesh.centerPoint(), xCenter, yCenter, xLen, yLen);
+    return Section(projectedPoints, sectionCenterPoint, mesh.adjacencyList());
 }
 
 Point2D Space3D::moveInsideWorkArea(const Point2D& P, const Point2D& Q, const int& xBorder, const int& yBorder) {

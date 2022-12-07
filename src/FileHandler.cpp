@@ -1,4 +1,5 @@
 #include "FileHandler.h"
+#include <iostream>
 
 FileHandler::FileHandler() :
     m_width(600), m_height(300), m_index(0), m_xButton(575, 25, 50, 50, "media\\xButton.jpg") {}
@@ -170,7 +171,8 @@ void FileHandler::display(const MyArray<char, 256>& text, const size_t& from, co
     displayCursor(outText, from);
 }
 
-MyArray<char, 512> FileHandler::doubleBackslashes(const MyArray<char, 256>& text) {
+//TODO: Add "Path with spaces" support
+MyArray<char, 512> FileHandler::correctPath(const MyArray<char, 256>& text) {
     MyArray<char, 512> moddedText = {0};
     size_t i = 0, j = 0;
     while (text[i]) {
@@ -183,18 +185,39 @@ MyArray<char, 512> FileHandler::doubleBackslashes(const MyArray<char, 256>& text
         }
         ++i;
     }
+    if (text[i - 1] == '\\') {
+        j -= 2;
+    }
+    addExtension(moddedText, j);
     return moddedText;
+}
+
+void FileHandler::addExtension(MyArray<char, 512>& text, size_t& len) {
+    const MyArray<char, 8> extension = ".e3dspc";
+    bool hasExtension = true;
+    for (size_t i = 0; i < 7; ++i) {
+        if (text[len - 7 + i] != extension[i]) {
+            hasExtension = false;
+            break;
+        }
+    }
+    if (hasExtension) {
+        return;
+    }
+    for (size_t i = 0; i < 8; ++i) {
+        text[len++] = extension[i];
+    }
 }
 
 MyArray<char, 512> FileHandler::userSavePath() {
     m_index = 0;
     initSaveWindow();
-    return doubleBackslashes(getFilename());
+    return correctPath(getFilename());
 }
 
 MyArray<char, 512> FileHandler::userOpenPath() {
     m_index = 0;
     initOpenWindow();
-    return doubleBackslashes(getFilename());
+    return correctPath(getFilename());
 }
 

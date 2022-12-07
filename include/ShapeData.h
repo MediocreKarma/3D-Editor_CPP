@@ -39,22 +39,26 @@ class Line2D {
 
 class Section {
     public:
-        static constexpr int RADIUS = 8;
+        static const int RADIUS = 8;
 
         Section();
-        Section(const MyVector<Line2D>& lines, const Point2D& centerPoint);
+        Section(const MyVector<Point2D>& points, const Point2D& centerPoint, const MyVector<MyVector<size_t>>& adjList);
         Section(const Section& other);
         size_t size() const;
         Point2D centerPoint() const;
-        void addLine(const Line2D& line);
+        void addPoint(const Point2D& line);
+        void addPoint(const int& x, const int& y);
+        void addEdge(const size_t& index1, const size_t& index2);
         Section& operator = (const Section& other);
-        Line2D& operator [] (const size_t& index);
+        Point2D& operator [] (const size_t& index);
+        const Point2D& operator [] (const size_t& index) const;
         void draw(const int& theme, const int& fillColor, const int& borderColor = BLACK);
         void drawButton(const int& fillColor, const int& borderColor = BLACK);
         bool grabButtonCollision(const int& x, const int& y) const;
 
     private:
-        MyVector<Line2D> m_lines;
+        MyVector<Point2D> m_points;
+        MyVector<MyVector<size_t>> m_adjList;
         Point2D m_centerPoint;
         CircularButton m_grabPoint;
         bool m_active;
@@ -112,14 +116,19 @@ class Line3D {
 class Mesh {
     public:
         Mesh();
-        Mesh(const MyVector<Line3D>& edges);
+        Mesh(const MyVector<Point3D>& points, const MyVector<MyVector<size_t>>& adjList);
         Mesh(const Mesh& other);
 
         size_t size() const;
-        void addEdge(const Line3D& edge);
-        Line3D& operator [] (const size_t& index);
-        const Line3D& operator [] (const size_t& index) const;
+        void addPoint(const Point3D& point);
+        void addPoint(const int& x, const int& y, const int& z);
+        void addEdge(const size_t& index1, const size_t& index2);
+        Point3D& operator [] (const size_t& index);
+        const Point3D& operator [] (const size_t& index) const;
         Mesh& operator = (const Mesh& other);
+        MyVector<size_t> adjListAt(const size_t& index) const;
+        const MyVector<MyVector<size_t>>& adjacencyList() const;
+        void addIndexConnections(const size_t& index, const MyVector<size_t>& adjList);
         void translate(const int& xTranslate, const int& yTranslate, const int& zTranslate);
         Point3D centerPoint() const;
         void updateCenterPoint();
@@ -131,7 +140,8 @@ class Mesh {
         double angleZ() const;
 
     private:
-        MyVector<Line3D> m_edges;
+        MyVector<Point3D> m_points;
+        MyVector<MyVector<size_t>> m_adjList;
         Point3D m_centerPoint;
         double m_angleX, m_angleY, m_angleZ;
 };

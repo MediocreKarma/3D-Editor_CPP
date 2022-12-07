@@ -1,4 +1,5 @@
 #include "AppInterface.h"
+#include <iostream>
 
 AppInterface::AppInterface(const int& appWidth, const int& appHeight, const int& theme, const int& languagePackage) :
     m_appWidth(appWidth), m_appHeight(appHeight), m_theme(theme), m_languagePackage(languagePackage), m_fileGetter() {}
@@ -64,7 +65,8 @@ void AppInterface::openSpace3D(Space3D& space) {
     }
     else if (!space.fscan(fp)){
         MyArray<char, 32> errorMessage = "Bad file!";
-        setbkcolor(BLACK);
+        setbkcolor(LIGHTRED);
+        setcolor(BLACK);
         outtextxy(m_appWidth / 2 - textwidth(errorMessage.data()) / 2, m_appHeight / 2 - textheight(errorMessage.data()) / 2, errorMessage.data());
         Sleep(2000);
         fclose(fp);
@@ -79,7 +81,22 @@ void AppInterface::run() {
     initwindow(m_appWidth, m_appHeight, "Editor 3D");
     Space3D space(maxRadius(), m_theme);
     Mesh cube;
-    cube.addEdge(Line3D(Point3D(-100,-100,100),Point3D(-100,-100,-100)));
+    cube.addPoint(-100, -100, -100);
+    cube.addPoint(-100, -100, 100);
+    cube.addPoint(-100, 100, -100);
+    cube.addPoint(100, -100, -100);
+    cube.addPoint(-100, 100, 100);
+    cube.addPoint(100, -100, 100);
+    cube.addPoint(100, 100, -100);
+    cube.addPoint(100, 100, 100);
+    cube.addIndexConnections(0, {1, 2, 3});
+    cube.addIndexConnections(1, {0, 4, 5});
+    cube.addIndexConnections(2, {0, 4, 6});
+    cube.addIndexConnections(3, {0, 5, 6});
+    cube.addIndexConnections(4, {1, 2, 7});
+    cube.addIndexConnections(5, {1, 3, 7});
+    cube.addIndexConnections(6, {2, 3, 7});
+    /*cube.addEdge(Line3D(Point3D(-100,-100,100),Point3D(-100,-100,-100)));
     cube.addEdge(Line3D(Point3D(-100,-100,-100),Point3D(100,-100,-100)));
     cube.addEdge(Line3D(Point3D(100,-100,-100),Point3D(100,-100,100)));
     cube.addEdge(Line3D(Point3D(100,-100,100),Point3D(-100,-100,100)));
@@ -92,7 +109,7 @@ void AppInterface::run() {
     cube.addEdge(Line3D(Point3D(-100,100,100),Point3D(-100,-100,100)));
     cube.addEdge(Line3D(Point3D(-100,100,-100),Point3D(-100,-100,-100)));
     cube.addEdge(Line3D(Point3D(100,100,-100),Point3D(100,-100,-100)));
-    cube.addEdge(Line3D(Point3D(100,100,100),Point3D(100,-100,100)));
+    cube.addEdge(Line3D(Point3D(100,100,100),Point3D(100,-100,100)));*/
     cube.updateCenterPoint();
     cube.translate(500, 0, 0);
     space.addMesh(cube);

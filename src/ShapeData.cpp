@@ -1,4 +1,121 @@
 #include "ShapeData.h"
+#include <iostream>
+
+Point2D::Point2D() :
+    x(), y() {}
+
+Point2D::Point2D(const int& x_, const int& y_) :
+    x(x_), y(y_) {}
+
+Point2D::Point2D(const Point2D& other) :
+    x(other.x), y(other.y) {}
+
+int Point2D::getX() const {
+    return x;
+}
+
+int Point2D::getY() const {
+    return y;
+}
+
+bool Point2D::operator == (const Point2D& other) {
+    return x == other.x && y == other.y;
+}
+
+Line2D::Line2D() :
+    P(), Q() {}
+
+Line2D::Line2D(const Point2D& P_, const Point2D& Q_) :
+    P(P_), Q(Q_){}
+
+Point2D Line2D::getP() {
+    return P;
+}
+
+Point2D Line2D::getQ() {
+    return Q;
+}
+
+void Line2D::draw() {
+    line(P.getX(), P.getY(), Q.getX(), Q.getY());
+}
+
+const int Section::RADIUS;
+
+Section::Section() :
+    m_points(), m_adjList(), m_centerPoint(), m_grabPoint(), m_active(false) {}
+
+Section::Section(const MyVector<Point2D>& points, const Point2D& centerPoint, const MyVector<MyVector<size_t>>& adjList) :
+    m_points(points), m_adjList(adjList), m_centerPoint(centerPoint), m_grabPoint(centerPoint.getX(), centerPoint.getY(), Section::RADIUS), m_active(false) {}
+
+Section::Section(const Section& other) :
+    m_points(other.m_points), m_adjList(other.m_adjList), m_centerPoint(other.m_centerPoint), m_grabPoint(other.m_grabPoint), m_active(other.m_active) {}
+
+
+size_t Section::size() const {
+    return m_points.size();
+}
+
+Point2D Section::centerPoint() const {
+    return m_centerPoint;
+}
+
+void Section::addEdge(const size_t& index1, const size_t& index2) {
+    for (size_t i = 0; i < m_adjList[index1].size(); ++i) {
+        if (m_adjList[index1][i] == index2) {
+            return;
+        }
+    }
+    m_adjList[index1].push_back(index2);
+    m_adjList[index2].push_back(index1);
+}
+
+void Section::draw(const int& primaryThemeColor, const int& fillColor, const int& borderColor) {
+    setcolor(primaryThemeColor);
+    for (size_t i = 0; i < size(); ++i) {
+        int x0 = m_points[i].getX();
+        int y0 = m_points[i].getY();
+        if (x0 == -100) {
+            continue;
+        }
+        for (size_t j = 0; j < m_adjList[i].size(); ++j) {
+            if (i < m_adjList[i][j]) {
+                int x1 = m_points[m_adjList[i][j]].getX();
+                int y1 = m_points[m_adjList[i][j]].getY();
+                if (x1 == -100) {
+                    continue;
+                }
+                line(x0, y0, x1, y1);
+            }
+        }
+    }
+    drawButton(fillColor, borderColor);
+}
+
+bool Section::grabButtonCollision(const int& x, const int& y) const {
+    return m_grabPoint.hitCollision(x, y);
+}
+
+void Section::drawButton(const int& fillColor, const int& borderColor) {
+    m_grabPoint.drawLabel(fillColor, borderColor);
+}
+
+Section& Section::operator = (const Section& other) {
+    m_points = other.m_points;
+    m_adjList = other.m_adjList;
+    m_grabPoint = other.m_grabPoint;
+    m_centerPoint = other.m_centerPoint;
+    m_active = other.m_active;
+    return *this;
+}
+
+Point2D& Section::operator [] (const size_t& index) {
+    return m_points[index];
+}
+
+const Point2D& Section::operator [] (const size_t& index) const {
+    return m_points[index];
+}
 
 Point3D::Point3D() :
     x(), y(), z() {}
@@ -40,7 +157,7 @@ void Point3D::setPoint(const Point3D& pct) {
 }
 
 void Point3D::rotateOX(const Point3D& center, const double& alpha) {
-    translate(center.getX() * (-1), center.getY() * (-1), center.getZ() * (-1));
+    translate(-center.getX(), -center.getY(), -center.getZ());
     double y_ = y * cos(alpha) - z * sin(alpha);
     double z_ = y * sin(alpha) + z * cos(alpha);
     y = y_;
@@ -49,7 +166,7 @@ void Point3D::rotateOX(const Point3D& center, const double& alpha) {
 }
 
 void Point3D::rotateOY(const Point3D& center, const double& alpha) {
-    translate(center.getX() * (-1), center.getY() * (-1), center.getZ() * (-1));
+    translate(-center.getX(), -center.getY(), -center.getZ());
     double x_ = x * cos(alpha) - z * sin(alpha);
     double z_ = x * sin(alpha) + z * cos(alpha);
     x = x_;
@@ -58,7 +175,7 @@ void Point3D::rotateOY(const Point3D& center, const double& alpha) {
 }
 
 void Point3D::rotateOZ(const Point3D& center, const double& alpha) {
-    translate(center.getX() * (-1), center.getY() * (-1), center.getZ() * (-1));
+    translate(-center.getX(), -center.getY(), -center.getZ());
     int x_ = x * cos(alpha) - y * sin(alpha);
     int y_ = x * sin(alpha) + y * cos(alpha);
     x = x_;
@@ -89,97 +206,6 @@ bool Point3D::fscan(FILE* fp) {
         return false;
     }
     return true;
-}
-
-Point2D::Point2D() :
-    x(), y() {}
-
-Point2D::Point2D(const int& x_, const int& y_) :
-    x(x_), y(y_) {}
-
-Point2D::Point2D(const Point2D& other) :
-    x(other.x), y(other.y) {}
-
-int Point2D::getX() const {
-    return x;
-}
-
-int Point2D::getY() const {
-    return y;
-}
-
-bool Point2D::operator == (const Point2D& other) {
-    return x == other.x && y == other.y;
-}
-
-Line2D::Line2D() :
-    P(), Q() {}
-
-Line2D::Line2D(const Point2D& P_, const Point2D& Q_) :
-    P(P_), Q(Q_){}
-
-Point2D Line2D::getP() {
-    return P;
-}
-
-Point2D Line2D::getQ() {
-    return Q;
-}
-
-void Line2D::draw() {
-    line(P.getX(), P.getY(), Q.getX(), Q.getY());
-}
-
-constexpr int Section::RADIUS;
-
-Section::Section() :
-    m_lines(), m_centerPoint(), m_grabPoint(), m_active(false) {}
-
-Section::Section(const MyVector<Line2D>& lines, const Point2D& centerPoint) :
-    m_lines(lines), m_centerPoint(centerPoint.getX(), centerPoint.getY()), m_grabPoint(centerPoint.getX(), centerPoint.getY(), Section::RADIUS), m_active(false) {}
-
-Section::Section(const Section& other) :
-    m_lines(other.m_lines), m_centerPoint(other.centerPoint()), m_grabPoint(other.m_grabPoint), m_active(other.m_active) {}
-
-
-size_t Section::size() const {
-    return m_lines.size();
-}
-
-Point2D Section::centerPoint() const {
-    return m_centerPoint;
-}
-
-void Section::addLine(const Line2D& line) {
-    m_lines.push_back(line);
-}
-
-void Section::draw(const int& primaryThemeColor, const int& fillColor, const int& borderColor) {
-    setcolor(primaryThemeColor);
-    for (size_t i = 0; i < size(); ++i) {
-        m_lines[i].draw();
-    }
-    drawButton(fillColor, borderColor);
-}
-
-bool Section::grabButtonCollision(const int& x, const int& y) const {
-    return m_grabPoint.hitCollision(x, y);
-}
-
-void Section::drawButton(const int& fillColor, const int& borderColor) {
-    m_grabPoint.drawLabel(fillColor, borderColor);
-}
-
-Section& Section::operator = (const Section& other) {
-    m_lines = other.m_lines;
-    m_grabPoint = other.m_grabPoint;
-    m_centerPoint = other.m_centerPoint;
-    m_active = other.m_active;
-    return *this;
-}
-
-Line2D& Section::operator [] (const size_t& index) {
-    return m_lines[index];
 }
 
 Line3D::Line3D() :
@@ -260,51 +286,90 @@ void Line3D::fprint(FILE* fp) {
 }
 
 Mesh::Mesh() :
-    m_edges(), m_centerPoint(), m_angleX(0), m_angleY(0), m_angleZ(0) {}
+    m_points(), m_adjList(), m_centerPoint(0, 0, 0), m_angleX(0.0), m_angleY(0.0), m_angleZ(0.0) {}
 
-Mesh::Mesh(const MyVector<Line3D>& edges) :
-    m_edges(edges), m_centerPoint(0, 0, 0), m_angleX(0), m_angleY(0), m_angleZ(0) {
+Mesh::Mesh(const MyVector<Point3D>& points, const MyVector<MyVector<size_t>>& adjList) :
+    m_points(points), m_adjList(adjList), m_centerPoint(0, 0, 0), m_angleX(0.0), m_angleY(0.0), m_angleZ(0.0) {
     updateCenterPoint();
 }
 
 Mesh::Mesh(const Mesh& other) :
-    m_edges(other.m_edges), m_centerPoint(other.m_centerPoint), m_angleX(other.m_angleX), m_angleY(other.m_angleY), m_angleZ(other.m_angleZ) {}
+    m_points(other.m_points), m_adjList(other.m_adjList), m_centerPoint(other.m_centerPoint), m_angleX(other.m_angleX), m_angleY(other.m_angleY), m_angleZ(other.m_angleZ) {}
 
 void Mesh::updateCenterPoint() {
+    Point3D auxPoint;
     for (size_t i = 0; i < size(); ++i) {
-        m_centerPoint += m_edges[i].getP();
-        m_centerPoint += m_edges[i].getQ();
+        auxPoint += m_points[i];
     }
-    m_centerPoint.setX(m_centerPoint.getX() / (2 * (int)size()));
-    m_centerPoint.setY(m_centerPoint.getY() / (2 * (int)size()));
-    m_centerPoint.setZ(m_centerPoint.getZ() / (2 * (int)size()));
+    m_centerPoint = Point3D(auxPoint.getX() / size(), auxPoint.getY() / size(), auxPoint.getZ() / size());
 }
 
 size_t Mesh::size() const {
-    return m_edges.size();
+    return m_points.size();
 }
 
-Line3D& Mesh::operator [] (const size_t& index) {
-    return m_edges[index];
+Point3D& Mesh::operator [] (const size_t& index) {
+    return m_points[index];
 }
 
-const Line3D& Mesh::operator [] (const size_t& index) const {
-    return m_edges[index];
+const Point3D& Mesh::operator [] (const size_t& index) const {
+    return m_points[index];
 }
 
 Mesh& Mesh::operator = (const Mesh& other) {
-    m_edges = other.m_edges;
+    m_points = other.m_points;
     m_centerPoint = other.m_centerPoint;
+    m_adjList = other.m_adjList;
     return *this;
 }
 
-void Mesh::addEdge(const Line3D& edge) {
-    m_edges.push_back(edge);
+MyVector<size_t> Mesh::adjListAt(const size_t& index) const {
+    return m_adjList[index];
+}
+
+const MyVector<MyVector<size_t>>& Mesh::adjacencyList() const {
+    return m_adjList;
+}
+
+void Mesh::addIndexConnections(const size_t& index, const MyVector<size_t>& listAtIndex) { // O(n^2) -> O(n) daca implementam hashset-uri :D
+    for (size_t i = 0; i < listAtIndex.size(); ++i) {
+        bool alreadyConnected = false;
+        for (size_t j = 0; j < m_adjList[index].size(); ++j) {
+            if (listAtIndex[i] == m_adjList[index][j]) {
+                alreadyConnected = true;
+                break;
+            }
+        }
+        if (!alreadyConnected) {
+            m_adjList[index].push_back(listAtIndex[i]);
+            m_adjList[listAtIndex[i]].push_back(index);
+        }
+    }
+}
+
+void Mesh::addPoint(const int& x, const int& y, const int& z) {
+    m_points.push_back(Point3D(x, y, z));
+    m_adjList.push_back(MyVector<size_t>());
+}
+
+void Mesh::addPoint(const Point3D& point) {
+    m_points.push_back(point);
+    m_adjList.push_back(MyVector<size_t>());
+}
+
+void Mesh::addEdge(const size_t& index1, const size_t& index2) {
+    for (size_t i = 0; i < m_adjList[index1].size(); ++i) {
+        if (m_adjList[index1][i] == index2) {
+            return;
+        }
+    }
+    m_adjList[index1].push_back(index2);
+    m_adjList[index2].push_back(index1);
 }
 
 void Mesh::translate(const int& xTranslate, const int& yTranslate, const int& zTranslate) {
     for (size_t i = 0; i < size(); ++i) {
-        m_edges[i].translate(xTranslate, yTranslate, zTranslate);
+        m_points[i].translate(xTranslate, yTranslate, zTranslate);
     }
     m_centerPoint.translate(xTranslate, yTranslate, zTranslate);
 }
@@ -317,7 +382,15 @@ void Mesh::fprint(FILE* fp) {
     fprintf(fp, "Mesh: %u\n", size());
     fprintf(fp, "%f %f %f\n", m_angleX, m_angleY, m_angleZ);
     for (size_t i = 0; i < size(); ++i) {
-        m_edges[i].fprint(fp);
+        m_points[i].fprint(fp);
+        fprintf(fp, "\n");
+    }
+    for (size_t i = 0; i < size(); ++i) {
+        fprintf(fp, "Connections: %u - ", m_adjList[i].size());
+        for (size_t j = 0; j < m_adjList[i].size(); ++j) {
+            fprintf(fp, "%u, ", m_adjList[i][j]);
+        }
+        fprintf(fp, "\n");
     }
     m_centerPoint.fprint(fp);
     fprintf(fp, "\n");
@@ -331,13 +404,27 @@ bool Mesh::fscan(FILE* fp) {
     if (fscanf(fp, "%lf %lf %lf", &m_angleX, &m_angleY, &m_angleZ) != 3) {
         return false;
     }
-    m_edges.resize(edgesCount);
+    m_points.resize(edgesCount);
     for (size_t i = 0; i < edgesCount; ++i) {
-        if (!m_edges[i].fscan(fp)) {
+        if (!m_points[i].fscan(fp)) {
             return false;
         }
+        fscanf(fp, "\n");
     }
-    fscanf(fp, "\n");
+    m_adjList.resize(edgesCount);
+    for (size_t i = 0; i < size(); ++i) {
+        size_t iAdjListSize = 0;
+        if (fscanf(fp, "Connections: %u - ", &iAdjListSize) != 1) {
+            return false;
+        }
+        m_adjList[i].resize(iAdjListSize);
+        for (size_t j = 0; j < iAdjListSize; ++j) {
+            if (fscanf(fp, "%u, ", &m_adjList[i][j]) != 1) {
+                return false;
+            }
+        }
+        fscanf(fp, "\n");
+    }
     if (!m_centerPoint.fscan(fp)) {
         return false;
     }
@@ -357,20 +444,20 @@ double Mesh::angleZ() const {
     return m_angleZ;
 }
 
-void Mesh::rotate(const double& angleX, const double& angleY, const double& angleZ) {
+void Mesh::rotate(const double& angleX_, const double& angleY_, const double& angleZ_) {
     const double e = 0.000000001;
     for (size_t i = 0; i < size(); ++i) {
-        if(abs(angleX) > e) {
-            m_edges[i].rotateOX(centerPoint(), angleX);
+        if(abs(angleX_) > e) {
+            m_points[i].rotateOX(centerPoint(), angleX_);
         }
-        if(abs(angleY) > e) {
-            m_edges[i].rotateOY(centerPoint(), angleY);
+        if(abs(angleY_) > e) {
+            m_points[i].rotateOY(centerPoint(), angleY_);
         }
-        if(abs(angleZ) > e) {
-            m_edges[i].rotateOZ(centerPoint(), angleZ);
+        if(abs(angleZ_) > e) {
+            m_points[i].rotateOZ(centerPoint(), angleZ_);
         }
     }
-    m_angleX += angleX;
-    m_angleY += angleY;
-    m_angleZ += angleZ;
+    m_angleX += angleX_;
+    m_angleY += angleY_;
+    m_angleZ += angleZ_;
 }
