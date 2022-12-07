@@ -9,8 +9,15 @@ static const MyArray<MyArray<int, 2>, 2> themeColors = {
 static const int NO_COLOR = -1;
 
 Space3D::Space3D(const double& maxRadius, const int& theme) :
-    m_theme(theme), m_selected(-1), m_spinballSelected(false), m_meshes(), m_sections(), m_updated(), m_cam(maxRadius),
+    x0(), y0(), x1(), y1(), m_theme(theme), m_selected(-1), m_spinballSelected(false), m_meshes(), m_sections(), m_updated(), m_cam(maxRadius),
     m_buttonOX(), m_buttonOY(), m_buttonOZ(), m_donutOX(), m_donutOY(), m_donutOZ(), m_spinballButton(), m_linkedFile{0} {}
+
+void Space3D::setCorners(const int& x0_, const int& y0_, const int& x1_, const int& y1_) {
+    x0 = x0_;
+    y0 = y0_;
+    x1 = x1_;
+    y1 = y1_;
+}
 
 size_t Space3D::size() const {
     return m_meshes.size();
@@ -51,12 +58,8 @@ void Space3D::fprint(FILE* fp) {
 }
 
 //porneste desenarea pe o parte a ecranului
-void Space3D::run(const int& x0, const int& y0, const int& x1, const int& y1) {
-    const int xCenter = (x0 + x1) / 2;
-    const int yCenter = (y0 + y1) / 2;
-    const int xLen = x1 - x0;
-    const int yLen = y1 - y0;
-    draw(xCenter, yCenter, xLen, yLen);
+void Space3D::run() {
+    draw();
     drawSpinball(x1 - 75, y0 + 75);
 }
 
@@ -109,7 +112,6 @@ bool Space3D::checkAxisRotation(const int& x, const int& y) {
         }
     }
     if (m_buttonOY.hitCollision(x, y)) {
-
         getDrag(xDrag, yDrag);
         if (m_donutOY.hitCollision(xDrag, yDrag)) {
             double angle = findRotation(xDrag, yDrag, m_donutOY, m_buttonOY);
@@ -154,7 +156,10 @@ Point3D Space3D::normalisePoint(const Point3D& pct) const {
     return Point3D(dx, dy, dz);
 }
 
-Point2D Space3D::projectPoint(const Point3D& pct, const int& xCenter, const int& yCenter, const int& /*xLen*/, const int& yLen) const {
+Point2D Space3D::projectPoint(const Point3D& pct) const {
+    const int xCenter = (x0 + x1) / 2;
+    const int yCenter = (y0 + y1) / 2;
+    const int yLen = (y1 - y0);
     double xr = pct.getX() - m_cam.position().getX();
     double yr = pct.getY() - m_cam.position().getY();
     double zr = pct.getZ() - m_cam.position().getZ();
@@ -173,80 +178,76 @@ Point2D Space3D::projectPoint(const Point3D& pct, const int& xCenter, const int&
     return Point2D(round(xprim), round(yprim));
 }
 
-Section Space3D::projectSection(const Mesh& mesh, const int& xCenter, const int& yCenter, const int& xLen, const int& yLen) {
-    const int x0 = xCenter - xLen / 2;
-    const int x1 = xCenter + xLen / 2;
-    const int y0 = yCenter - yLen / 2;
-    const int y1 = yCenter + yLen / 2;
+Section Space3D::projectSection(const Mesh& mesh) {
     MyVector<Point2D> projectedPoints;
     projectedPoints.resize(mesh.size());
     for(size_t i = 0; i < mesh.size(); i++) {
-        projectedPoints[i] = projectPoint(mesh[i], xCenter, yCenter, xLen, yLen);
-        if (!insideWorkArea(projectedPoints[i], x0, y0, x1, y1)) {
-            projectedPoints[i] = Point2D(-100, -100);
-        }
+        projectedPoints[i] = projectPoint(mesh[i]);
     }
-    Point2D sectionCenterPoint = projectPoint(mesh.centerPoint(), xCenter, yCenter, xLen, yLen);
+    Point2D sectionCenterPoint = projectPoint(mesh.centerPoint());
     return Section(projectedPoints, sectionCenterPoint, mesh.adjacencyList());
 }
 
 Point2D Space3D::moveInsideWorkArea(const Point2D& P, const Point2D& Q, const int& xBorder, const int& yBorder) {
-    int x1 = P.getX();
-    int y1 = P.getY();
-    int x2 = Q.getX();
-    int y2 = Q.getY();
-    double m = 1. * (y2 - y1) / (x2 - x1);
-    if (y2 < yBorder) {
-        return Point2D((yBorder - y1) / m + x1, yBorder);
+    int xP = P.getX();
+    int yP = P.getY();
+    int xQ = Q.getX();
+    int yQ = Q.getY();
+    double m = 1. * (yQ - yP) / (xQ - xP);
+    if (yQ < yBorder) {
+        return Point2D((yBorder - yP) / m + xP, yBorder);
     }
-    if (x2 < xBorder) {
-        return Point2D(xBorder, m * (xBorder - x1) + y1);
+    if (xQ < xBorder) {
+        return Point2D(xBorder, m * (xBorder - xP) + yP);
     }
     return Q;
 }
 
 //proiecteaza fiecare mesh daca a fost updated
-void Space3D::render(const int& xCenter, const int& yCenter, const int& xLen, const int& yLen) {
+void Space3D::render() {
     for (size_t i = 0; i < size(); ++i) {
         if (m_updated[i]) {
-            m_sections[i] = projectSection(m_meshes[i], xCenter, yCenter, xLen, yLen);
+            m_sections[i] = projectSection(m_meshes[i]);
             m_updated[i] = false;
         }
     }
 }
 
-bool Space3D::insideWorkArea(const int& x, const int& y, const int& x0, const int& y0, const int& x1, const int& y1) const {
+bool Space3D::insideWorkArea(const int& x, const int& y) const {
     return x0 <= x && x <= x1 && y0 <= y && y <= y1;
 }
 
-bool Space3D::insideWorkArea(const Point2D& point, const int& x0, const int& y0, const int& x1, const int& y1) const {
-    return insideWorkArea(point.getX(), point.getY(), x0, y0, x1, y1);
+bool Space3D::insideWorkArea(const Point2D& point) const {
+    return insideWorkArea(point.getX(), point.getY());
 }
 
-void Space3D::getCommand(const int& x, const int& y, const int& x0, const int& y0, const int& x1, const int& y1) {
+
+//returns true if menu should redraw itself
+bool Space3D::getCommand(const int& x, const int& y) {
     int dump;
     getmouseclick(WM_LBUTTONUP, dump, dump);
     if (m_spinballButton.hitCollision(x, y)) {
         m_spinballSelected = !m_spinballSelected;
-        run(x0, y0, x1, y1);
-        return;
+        run();
+        return 0;
     }
     if (m_spinballSelected) {
         if (checkAxisRotation(x, y)) {
-            run(x0, y0, x1, y1);
-            return;
+            run();
+            return 0;
         }
     }
     for (size_t i = 0; i < size(); ++i) {
         if (m_sections[i].grabButtonCollision(x, y)) {
             selectMesh(i);
             int xDrag, yDrag;
-            if (isDragAndDrop(xDrag, yDrag, x0, y0, x1, y1) && !m_sections[i].grabButtonCollision(xDrag, yDrag)) {
-                dragAndDrop(xDrag, yDrag, x0, y0, x1, y1);
-                return;
+            if (isDragAndDrop(xDrag, yDrag) && !m_sections[i].grabButtonCollision(xDrag, yDrag)) {
+                dragAndDrop(xDrag, yDrag);
+                return 1;
             }
         }
     }
+    return 0;
 }
 
 void Space3D::getDrag(int& xDrag, int& yDrag) const {
@@ -254,7 +255,7 @@ void Space3D::getDrag(int& xDrag, int& yDrag) const {
     getmouseclick(WM_LBUTTONUP, xDrag, yDrag);
 }
 
-void Space3D::dragAndDrop(const int& xDrag, const int& yDrag, const int& x0, const int& y0, const int& x1, const int& y1) {
+void Space3D::dragAndDrop(const int& xDrag, const int& yDrag) {
     const double xCenter = (x0 + x1) / 2;
     const double yCenter = (y0 + y1) / 2;
     const int yLen = y1 - y0;
@@ -308,12 +309,12 @@ void Space3D::dragAndDrop(const int& xDrag, const int& yDrag, const int& x0, con
     //translatam
     m_meshes[m_selected].translate(tx - centerPoint.getX(), ty - centerPoint.getY(), tz - centerPoint.getZ());
     m_updated[m_selected] = true;
-    run(x0, y0, x1, y1);
+    run();
 }
 
-bool Space3D::isDragAndDrop(int& xDrag, int& yDrag, const int& x0, const int& y0, const int& x1, const int& y1) const {
+bool Space3D::isDragAndDrop(int& xDrag, int& yDrag) const {
     getDrag(xDrag, yDrag);
-    return insideWorkArea(xDrag, yDrag, x0 + 8, y0 + 8, x1, y1);
+    return x0 + 8 <= xDrag && xDrag <= x1 - 8 && y0 + 8 <= yDrag && yDrag <= y1 - 8;
 }
 
 void Space3D::highlightMesh() {
@@ -332,10 +333,10 @@ void Space3D::selectMesh(const size_t& index) {
 }
 
 //deseneaza toate mesh-urile proiectate + centrele
-void Space3D::draw(const int& xCenter, const int& yCenter, const int& xLen, const int& yLen) {
+void Space3D::draw() {
     setfillstyle(SOLID_FILL, themeColors[m_theme][PRIMARYCOLOR]);
-    bar(xCenter - xLen / 2, yCenter - yLen / 2, xCenter + xLen / 2, yCenter + yLen / 2);
-    render(xCenter, yCenter, xLen, yLen);
+    bar(x0, y0, x1, y1);
+    render();
     setlinestyle(SOLID_LINE, 0, 1);
     for (size_t i = 0; i < size(); ++i) {
         m_sections[i].draw(themeColors[m_theme][SECONDARYCOLOR], RED, RED);

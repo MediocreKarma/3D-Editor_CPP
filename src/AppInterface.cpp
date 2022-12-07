@@ -96,20 +96,6 @@ void AppInterface::run() {
     cube.addIndexConnections(4, {1, 2, 7});
     cube.addIndexConnections(5, {1, 3, 7});
     cube.addIndexConnections(6, {2, 3, 7});
-    /*cube.addEdge(Line3D(Point3D(-100,-100,100),Point3D(-100,-100,-100)));
-    cube.addEdge(Line3D(Point3D(-100,-100,-100),Point3D(100,-100,-100)));
-    cube.addEdge(Line3D(Point3D(100,-100,-100),Point3D(100,-100,100)));
-    cube.addEdge(Line3D(Point3D(100,-100,100),Point3D(-100,-100,100)));
-
-    cube.addEdge(Line3D(Point3D(-100,100,100),Point3D(-100,100,-100)));
-    cube.addEdge(Line3D(Point3D(-100,100,-100),Point3D(100,100,-100)));
-    cube.addEdge(Line3D(Point3D(100,100,-100),Point3D(100,100,100)));
-    cube.addEdge(Line3D(Point3D(100,100,100),Point3D(-100,100,100)));
-
-    cube.addEdge(Line3D(Point3D(-100,100,100),Point3D(-100,-100,100)));
-    cube.addEdge(Line3D(Point3D(-100,100,-100),Point3D(-100,-100,-100)));
-    cube.addEdge(Line3D(Point3D(100,100,-100),Point3D(100,-100,-100)));
-    cube.addEdge(Line3D(Point3D(100,100,100),Point3D(100,-100,100)));*/
     cube.updateCenterPoint();
     cube.translate(500, 0, 0);
     space.addMesh(cube);
@@ -121,7 +107,8 @@ void AppInterface::run() {
     space.addMesh(cube);
     cube.translate(0, 600, 0);
     space.addMesh(cube);
-    space.run(0, 27, m_appWidth, m_appHeight);
+    space.setCorners(0, 27, m_appWidth, m_appHeight);
+    space.run();
     Menu menu(m_theme);
     menu.drawMenu(0, 0, m_appWidth, 27);
     while (true) {
@@ -142,10 +129,12 @@ void AppInterface::run() {
                 else if (menu.openSpace()) {
                     openSpace3D(space);
                 }
-                space.run(0, 27, m_appWidth, m_appHeight);
+                space.run();
                 continue;
             }
-            space.getCommand(xClick, yClick, 0, 27, m_appWidth, m_appHeight);
+            if (space.getCommand(xClick, yClick)) {
+                menu.drawMenu(0, 0, m_appWidth, 27);
+            }
         }
     }
 }

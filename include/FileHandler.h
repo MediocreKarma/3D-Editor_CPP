@@ -11,7 +11,6 @@ class FileHandler {
         static const int WriteAreaBegin = 100;
         static const int WriteAreaEnd = 500;
 
-
         FileHandler();
         MyArray<char, 512> userSavePath();
         MyArray<char, 512> userOpenPath();
