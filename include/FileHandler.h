@@ -4,7 +4,6 @@
 #include <graphics.h>
 #include <winbgim.h>
 #include "AppTools.h"
-#include <conio.h>
 
 class FileHandler {
     public:
