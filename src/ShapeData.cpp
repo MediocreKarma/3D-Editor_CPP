@@ -158,8 +158,9 @@ void Point3D::setPoint(const Point3D& pct) {
 
 void Point3D::rotateOX(const Point3D& center, const double& alpha) {
     translate(-center.getX(), -center.getY(), -center.getZ());
-    double y_ = y * cos(alpha) - z * sin(alpha);
-    double z_ = y * sin(alpha) + z * cos(alpha);
+    double cosine = cos(alpha), sine = sin(alpha);
+    double y_ = y * cosine - z * sine;
+    double z_ = y * sine + z * cosine;
     y = y_;
     z = z_;
     translate(center.getX(), center.getY(), center.getZ());
@@ -167,8 +168,9 @@ void Point3D::rotateOX(const Point3D& center, const double& alpha) {
 
 void Point3D::rotateOY(const Point3D& center, const double& alpha) {
     translate(-center.getX(), -center.getY(), -center.getZ());
-    double x_ = x * cos(alpha) - z * sin(alpha);
-    double z_ = x * sin(alpha) + z * cos(alpha);
+    double cosine = cos(alpha), sine = sin(alpha);
+    double x_ = x * cosine - z * sine;
+    double z_ = x * sine + z * cosine;
     x = x_;
     z = z_;
     translate(center.getX(), center.getY(), center.getZ());
@@ -176,8 +178,9 @@ void Point3D::rotateOY(const Point3D& center, const double& alpha) {
 
 void Point3D::rotateOZ(const Point3D& center, const double& alpha) {
     translate(-center.getX(), -center.getY(), -center.getZ());
-    int x_ = x * cos(alpha) - y * sin(alpha);
-    int y_ = x * sin(alpha) + y * cos(alpha);
+    double cosine = cos(alpha), sine = sin(alpha);
+    int x_ = x * cosine - y * sine;
+    int y_ = x * sine + y * cosine;
     x = x_;
     y = y_;
     translate(center.getX(), center.getY(), center.getZ());
@@ -460,4 +463,40 @@ void Mesh::rotate(const double& angleX_, const double& angleY_, const double& an
     m_angleX += angleX_;
     m_angleY += angleY_;
     m_angleZ += angleZ_;
+}
+
+void Mesh::scaleEven(const double& scaleFactor) {
+    Point3D center = centerPoint();
+    int translateAmt = scaleFactor - 1;
+    for (size_t i = 0; i < m_points.size(); i++) {
+        m_points[i].translate(translateAmt * (m_points[i].getX() - center.getX()), translateAmt * (m_points[i].getY() - center.getY()), translateAmt * (m_points[i].getZ() - center.getZ()));
+    }
+}
+
+void Mesh::scaleAxis(bool isLocal, const double& scaleFactor, const size_t& axis) {
+    //as established: 0 - x, 1 - y, 2 - z.
+    //selectez axa sa nu mai fac ifuri ca mi e sila
+    MyArray<bool,3> axes;
+    axes.fill(0);
+    axes[axis] = 1;
+    Point3D center = centerPoint();
+    double translateAmt = scaleFactor - 1;
+
+    MyArray<double, 3> angles = {m_angleX, m_angleY, m_angleZ};
+
+    if (isLocal == true) {
+        rotate(-angles[0], -angles[1], -angles[2]);
+    }
+
+    for (size_t i = 0; i < m_points.size(); i++) {
+        m_points[i].translate(axes[0] * translateAmt * (m_points[i].getX() - center.getX()), axes[1] * translateAmt * (m_points[i].getY() - center.getY()), axes[2] * translateAmt * (m_points[i].getZ() - center.getZ()));
+    }
+
+    if (isLocal == true) {
+        rotate(angles[0], angles[1], angles[2]);
+    }
+}
+
+void Mesh::mirror(bool isLocal, const size_t& axis) {
+    scaleAxis(isLocal, -2, axis);
 }
