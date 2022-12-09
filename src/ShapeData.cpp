@@ -498,5 +498,5 @@ void Mesh::scaleAxis(bool isLocal, const double& scaleFactor, const size_t& axis
 }
 
 void Mesh::mirror(bool isLocal, const size_t& axis) {
-    scaleAxis(isLocal, -2, axis);
+    scaleAxis(isLocal, -1, axis);
 }
