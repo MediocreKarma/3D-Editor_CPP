@@ -29,6 +29,14 @@ void Label::clear(const int& barColor) const {
         xCenter + xLen / 2, yCenter + yLen / 2);
 }
 
+int Label::getXCenter() const {
+    return xCenter;
+}
+
+int Label::getYCenter() const {
+    return yCenter;
+}
+
 CircularLabel::CircularLabel() :
     xCenter(), yCenter(), radius() {}
 

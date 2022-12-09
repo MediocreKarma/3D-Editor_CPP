@@ -1,22 +1,37 @@
 #include "Space3D.h"
 #include <iostream>
 
-static const int PRIMARYCOLOR = 0;
-static const int SECONDARYCOLOR = 1;
-static const MyArray<MyArray<int, 2>, 2> themeColors = {
-    {WHITE, BLACK}, {BLACK, WHITE}
-};
-static const int NO_COLOR = -1;
-
 Space3D::Space3D(const double& maxRadius, const int& theme) :
     x0(), y0(), x1(), y1(), m_theme(theme), m_selected(-1), m_spinballSelected(false), m_meshes(), m_sections(), m_updated(), m_cam(maxRadius),
-    m_buttonOX(), m_buttonOY(), m_buttonOZ(), m_donutOX(), m_donutOY(), m_donutOZ(), m_spinballButton(), m_linkedFile{0} {}
+    m_buttonOX(), m_buttonOY(), m_buttonOZ(), m_donutOX(), m_donutOY(), m_donutOZ(), m_spinballButton(), m_arrowLeft(), m_arrowRight(),
+    m_arrowUp(), m_arrowDown(), m_arrowSpinLeft(), m_arrowSpinRight(), m_linkedFile{0} {
+}
 
 void Space3D::setCorners(const int& x0_, const int& y0_, const int& x1_, const int& y1_) {
     x0 = x0_;
     y0 = y0_;
     x1 = x1_;
     y1 = y1_;
+    setButtons();
+}
+
+void Space3D::setButtons() {
+    static const int LEN_BUTTON = 17;
+    const int xCenter = (x0 + x1) / 2;
+    const int yCenter = (y0 + y1) / 2;
+    m_arrowUp = Button(xCenter, y0 + LEN_BUTTON, 60, 2 * LEN_BUTTON);
+    m_arrowDown = Button(xCenter, y1 - LEN_BUTTON, 60, 2 * LEN_BUTTON);
+    m_arrowLeft = Button(x0 + LEN_BUTTON, yCenter, 2 * LEN_BUTTON, 60);
+    m_arrowRight = Button(x1 - LEN_BUTTON, yCenter, 2 * LEN_BUTTON, 60);
+    m_arrowSpinRight = Button(x0 + 25, y0 + 25, 50, 50);
+    m_arrowSpinLeft = Button(x0 + 25, y1 - 25, 50, 50);
+    m_spinballButton = Button(x1 - 75, y0 + 75, 140, 140);
+}
+
+void Space3D::swapPages() {
+    int page = getactivepage();
+    setvisualpage(page);
+    setactivepage(1 - page);
 }
 
 size_t Space3D::size() const {
@@ -60,17 +75,53 @@ void Space3D::fprint(FILE* fp) {
 //porneste desenarea pe o parte a ecranului
 void Space3D::run() {
     draw();
-    drawSpinball(x1 - 75, y0 + 75);
+    drawRotationArrows();
+    /*if (m_selected != -1) {
+        drawSpinball();
+        if (m_spinballSelected) {
+            showAngleOptions();
+        }
+    }*/
 }
 
-void Space3D::drawSpinball(const int& x, const int& y) {
-    m_spinballButton = Button(x, y, 140, 140);
-    m_spinballButton.drawLabel(themeColors[m_theme][PRIMARYCOLOR], themeColors[m_theme][SECONDARYCOLOR]);
+void Space3D::drawRotationArrows() {
+    const int BORDER_OFFSET = 5;
+    const int POSITION_OFFSET = 25;
+    const int xCenter = (x0 + x1) / 2;
+    const int yCenter = (y0 + y1) / 2;
+    setcolor(ColorSchemes::themeColors[m_theme][ColorSchemes::SECONDARYCOLOR]);
+    setlinestyle(SOLID_LINE, 0, 2);
+    m_arrowLeft.border(WHITE);
+    line (x0 + BORDER_OFFSET, yCenter, x0 + POSITION_OFFSET, yCenter - POSITION_OFFSET);
+    line (x0 + BORDER_OFFSET, yCenter, x0 + POSITION_OFFSET, yCenter + POSITION_OFFSET);
+    m_arrowRight.border(WHITE);
+    line (x1 - BORDER_OFFSET, yCenter, x1 - POSITION_OFFSET, yCenter - POSITION_OFFSET);
+    line (x1 - BORDER_OFFSET, yCenter, x1 - POSITION_OFFSET, yCenter + POSITION_OFFSET);
+    m_arrowUp.border(WHITE);
+    line(xCenter, y0 + BORDER_OFFSET, xCenter - POSITION_OFFSET, y0 + POSITION_OFFSET);
+    line(xCenter, y0 + BORDER_OFFSET, xCenter + POSITION_OFFSET, y0 + POSITION_OFFSET);
+    m_arrowDown.border(WHITE);
+    line(xCenter, y1 - BORDER_OFFSET, xCenter - POSITION_OFFSET, y1 - POSITION_OFFSET);
+    line(xCenter, y1 - BORDER_OFFSET, xCenter + POSITION_OFFSET, y1 - POSITION_OFFSET);
+    m_arrowSpinRight.border(WHITE);
+    ellipse(x0 + 25, y0 + 25, 90, 360, 15, 15);
+    line (x0 + 27, y0 + 11, x0 + 20, y0 + 4);
+    line (x0 + 27, y0 + 11, x0 + 20, y0 + 18);
+    m_arrowSpinLeft.border(WHITE);
+    ellipse(x0 + 25, y1 - 25, 180, 450, 15, 15);
+    line (x0 + 23, y1 - 39, x0 + 30, y1 - 46);
+    line (x0 + 23, y1 - 39, x0 + 30, y1 - 32);
+}
+
+void Space3D::drawSpinball() {
+    const int x = m_spinballButton.getXCenter();
+    const int y = m_spinballButton.getYCenter();
+    m_spinballButton.drawLabel(ColorSchemes::themeColors[m_theme][ColorSchemes::PRIMARYCOLOR], ColorSchemes::themeColors[m_theme][ColorSchemes::SECONDARYCOLOR]);
     setlinestyle(SOLID_LINE, 0, 2);
     setcolor(LIGHTRED);
-    CircularLabel labelOX = CircularLabel(x + 10 * cos(m_cam.angleX()), y + 60 * sin(m_cam.angleX()), 5);
-    CircularLabel labelOY = CircularLabel(x + 60 * cos(m_cam.angleY()), y + 60 * sin(m_cam.angleY()), 5);
-    CircularLabel labelOZ = CircularLabel(x + 60 * cos(m_cam.angleZ()), y + 10 * sin(m_cam.angleZ()), 5);
+    CircularLabel labelOX = CircularLabel(x + 10 * cos(m_meshes[m_selected].angleX()), y + 60 * sin(m_meshes[m_selected].angleX()), 5);
+    CircularLabel labelOY = CircularLabel(x + 60 * cos(m_meshes[m_selected].angleY()), y + 60 * sin(m_meshes[m_selected].angleY()), 5);
+    CircularLabel labelOZ = CircularLabel(x + 60 * cos(m_meshes[m_selected].angleZ()), y + 10 * sin(m_meshes[m_selected].angleZ()), 5);
     circle(x, y, 60);
     labelOY.drawLabel(LIGHTRED, LIGHTRED);
     setcolor(LIGHTGREEN);
@@ -79,55 +130,77 @@ void Space3D::drawSpinball(const int& x, const int& y) {
     setcolor(LIGHTBLUE);
     ellipse(x, y, 0, 360, 60, 10);
     labelOZ.drawLabel(LIGHTBLUE, LIGHTBLUE);
-    if (m_spinballSelected) {
-        showAngleOptions(x, y);
-    }
 }
 
-void Space3D::showAngleOptions(const int& x, const int& y) {
-    m_donutOX = DonutButton(x + 20, y + 120, 40, 20);
-    m_donutOX.drawLabel(NO_COLOR, LIGHTGREEN);
-    m_buttonOX = CircularButton(x + 20 + 40 * cos(m_cam.angleX()), y + 120 + 40 * sin(m_cam.angleX()), 7);
+void Space3D::showAngleOptions() {
+    m_donutOX.drawLabel(ColorSchemes::NO_COLOR, LIGHTGREEN);
     m_buttonOX.drawLabel(LIGHTGREEN, LIGHTGREEN);
-    m_donutOY = DonutButton(x + 20, y + 220, 40, 20);
-    m_donutOY.drawLabel(NO_COLOR, LIGHTRED);
-    m_buttonOY = CircularButton(x + 20 + 40 * cos(m_cam.angleY()), y + 220 + 40 * sin(m_cam.angleY()), 7);
+
+    m_donutOY.drawLabel(ColorSchemes::NO_COLOR, LIGHTRED);
     m_buttonOY.drawLabel(LIGHTRED, LIGHTRED);
-    m_donutOZ = DonutButton(x + 20, y + 320, 40, 20);
-    m_donutOZ.drawLabel(NO_COLOR, LIGHTBLUE);
-    m_buttonOZ = CircularButton(x + 20 + 40 * cos(m_cam.angleZ()), y + 320 + 40 * sin(m_cam.angleZ()), 7);
+
+    m_donutOZ.drawLabel(ColorSchemes::NO_COLOR, LIGHTBLUE);
     m_buttonOZ.drawLabel(LIGHTBLUE, LIGHTBLUE);
 }
 
 
 bool Space3D::checkAxisRotation(const int& x, const int& y) {
-    int xDrag, yDrag;
-    if (m_buttonOX.hitCollision(x, y)) {
-        getDrag(xDrag, yDrag);
-        if (m_donutOX.hitCollision(xDrag, yDrag)) {
-            double angle = findRotation(xDrag, yDrag, m_donutOX, m_buttonOX);
-            m_cam.modifyAngles(angle, 0, 0);
+    int dump;
+    getmouseclick(WM_LBUTTONUP, dump, dump);
+    const double Grad_1 = 0.015707963267949;
+    if (m_arrowDown.hitCollision(x, y)) {
+        while (!ismouseclick(WM_LBUTTONUP)) {
+            swapbuffers();
+            m_cam.modifyAngles(-Grad_1, 0, 0);
             m_updated.fill(true);
-            return true;
+            run();
         }
+        return true;
     }
-    if (m_buttonOY.hitCollision(x, y)) {
-        getDrag(xDrag, yDrag);
-        if (m_donutOY.hitCollision(xDrag, yDrag)) {
-            double angle = findRotation(xDrag, yDrag, m_donutOY, m_buttonOY);
-            m_cam.modifyAngles(0, angle, 0);
+    if (m_arrowUp.hitCollision(x, y)) {
+        while (!ismouseclick(WM_LBUTTONUP)) {
+            swapbuffers();
+            m_cam.modifyAngles(+Grad_1, 0, 0);
             m_updated.fill(true);
-            return true;
+            run();
         }
+        return true;
     }
-    if (m_buttonOZ.hitCollision(x, y)) {
-        getDrag(xDrag, yDrag);
-        if (m_donutOZ.hitCollision(xDrag, yDrag)) {
-            double angle = findRotation(xDrag, yDrag, m_donutOZ, m_buttonOZ);
-            m_cam.modifyAngles(0, 0, angle);
+    if (m_arrowLeft.hitCollision(x, y)) {
+        while (!ismouseclick(WM_LBUTTONUP)) {
+            swapbuffers();
+            m_cam.modifyAngles(0, 0, +Grad_1);
             m_updated.fill(true);
-            return true;
+            run();
         }
+        return true;
+    }
+    if (m_arrowRight.hitCollision(x, y)) {
+        while (!ismouseclick(WM_LBUTTONUP)) {
+            swapbuffers();
+            m_cam.modifyAngles(0, 0, -Grad_1);
+            m_updated.fill(true);
+            run();
+        }
+        return true;
+    }
+    if (m_arrowSpinLeft.hitCollision(x, y)) {
+        while (!ismouseclick(WM_LBUTTONUP)) {
+            swapbuffers();
+            m_cam.modifyAngles(0, +Grad_1, 0);
+            m_updated.fill(true);
+            run();
+        }
+        return true;
+    }
+    if (m_arrowSpinRight.hitCollision(x, y)) {
+        while (!ismouseclick(WM_LBUTTONUP)) {
+            swapbuffers();
+            m_cam.modifyAngles(0, -Grad_1, 0);
+            m_updated.fill(true);
+            run();
+        }
+        return true;
     }
     return false;
 }
@@ -160,14 +233,14 @@ Point2D Space3D::projectPoint(const Point3D& pct) const {
     const int xCenter = (x0 + x1) / 2;
     const int yCenter = (y0 + y1) / 2;
     const int yLen = (y1 - y0);
-    double xr = pct.getX() - m_cam.position().getX();
-    double yr = pct.getY() - m_cam.position().getY();
-    double zr = pct.getZ() - m_cam.position().getZ();
+    const int xr = pct.getX() - m_cam.position().getX();
+    const int yr = pct.getY() - m_cam.position().getY();
+    const int zr = pct.getZ() - m_cam.position().getZ();
     double aX = m_cam.angleX();
     double aY = m_cam.angleY();
     double aZ = m_cam.angleZ();
     double EZ = m_cam.EZ();
-    int dx = cos(aY) * (sin(aZ) * yr + cos(aZ) * xr ) - sin(aY) * zr;
+    int dx = cos(aY) * (sin(aZ) * yr + cos(aZ) * xr) - sin(aY) * zr;
     int dy = sin(aX) * (cos(aY) * zr + sin(aY) * (sin(aZ) * yr + cos(aZ) * xr)) + cos(aX) * (cos(aZ) * yr - sin(aZ) * xr);
     int dz = cos(aX) * (cos(aY) * zr + sin(aY) * (sin(aZ) * yr + cos(aZ) * xr)) - sin(aX) * (cos(aZ) * yr - sin(aZ) * xr);
     if (dy <= 0) {
@@ -175,7 +248,7 @@ Point2D Space3D::projectPoint(const Point3D& pct) const {
     }
     int xprim = EZ * dx * yLen / dy + xCenter;
     int yprim = EZ * dz * yLen / dy * -1 + yCenter;
-    return Point2D(round(xprim), round(yprim));
+    return Point2D(xprim, yprim);
 }
 
 Section Space3D::projectSection(const Mesh& mesh) {
@@ -226,16 +299,13 @@ bool Space3D::insideWorkArea(const Point2D& point) const {
 bool Space3D::getCommand(const int& x, const int& y) {
     int dump;
     getmouseclick(WM_LBUTTONUP, dump, dump);
-    if (m_spinballButton.hitCollision(x, y)) {
+   /* if (m_spinballButton.hitCollision(x, y)) {
         m_spinballSelected = !m_spinballSelected;
         run();
         return 0;
-    }
-    if (m_spinballSelected) {
-        if (checkAxisRotation(x, y)) {
-            run();
-            return 0;
-        }
+    }*/
+    if (checkAxisRotation(x, y)) {
+            return 1;
     }
     for (size_t i = 0; i < size(); ++i) {
         if (m_sections[i].grabButtonCollision(x, y)) {
@@ -329,17 +399,30 @@ void Space3D::highlightMesh() {
 
 void Space3D::selectMesh(const size_t& index) {
     m_selected = index;
+
+    const int x = m_spinballButton.getXCenter();
+    const int y = m_spinballButton.getYCenter();
+
+    m_donutOX = DonutButton(x + 20, y + 120, 40, 20);
+    m_buttonOX = CircularButton(x + 20 + 40 * cos(m_meshes[m_selected].angleX()), y + 120 + 40 * sin(m_cam.angleX()), 7);
+
+    m_donutOY = DonutButton(x + 20, y + 220, 40, 20);
+    m_buttonOY = CircularButton(x + 20 + 40 * cos(m_cam.angleY()), y + 220 + 40 * sin(m_cam.angleY()), 7);
+
+    m_donutOZ = DonutButton(x + 20, y + 320, 40, 20);
+    m_buttonOZ = CircularButton(x + 20 + 40 * cos(m_cam.angleZ()), y + 320 + 40 * sin(m_cam.angleZ()), 7);
+
     highlightMesh();
 }
 
 //deseneaza toate mesh-urile proiectate + centrele
 void Space3D::draw() {
-    setfillstyle(SOLID_FILL, themeColors[m_theme][PRIMARYCOLOR]);
+    setfillstyle(SOLID_FILL, ColorSchemes::themeColors[m_theme][ColorSchemes::PRIMARYCOLOR]);
     bar(x0, y0, x1, y1);
     render();
     setlinestyle(SOLID_LINE, 0, 1);
     for (size_t i = 0; i < size(); ++i) {
-        m_sections[i].draw(themeColors[m_theme][SECONDARYCOLOR], RED, RED);
+        m_sections[i].draw(ColorSchemes::themeColors[m_theme][ColorSchemes::SECONDARYCOLOR], RED, RED);
     }
 }
 

@@ -2,24 +2,26 @@
 #include <iostream>
 
 AppInterface::AppInterface(const int& appWidth, const int& appHeight, const int& theme, const int& languagePackage) :
-    m_appWidth(appWidth), m_appHeight(appHeight), m_theme(theme), m_languagePackage(languagePackage), m_fileGetter() {}
+    m_appWidth(appWidth), m_appHeight(appHeight), m_theme(theme), m_languagePackage(languagePackage) {}
 
 double AppInterface::maxRadius() const {
     return m_maxRadius;
 }
 
-void getClick(int& xClick, int& yClick) {
+void AppInterface::getClick(int& xClick, int& yClick) {
+    setmousequeuestatus(WM_LBUTTONDOWN);
+    while (!ismouseclick(WM_LBUTTONDOWN));
     getmouseclick(WM_LBUTTONDOWN, xClick, yClick);
 }
 
 void AppInterface::clearMouse() {
     int x, y;
     getmouseclick(WM_MOUSEMOVE, x, y);
-    //getmouseclick(WM_LBUTTONUP, x, y);
+    getmouseclick(WM_LBUTTONUP, x, y);
     //getmouseclick(WM_MOUSEMOVE, x, y);
 }
 
-void AppInterface::saveSpace3D(Space3D& space, const char& saveType) {
+/*void AppInterface::saveSpace3D(Space3D& space, const char& saveType) {
     if (space.isLinkedWithFile() && saveType != 2) {
         FILE* fp = fopen(space.getLinkedFileName().data(), "w");
         space.fprint(fp);
@@ -76,52 +78,29 @@ void AppInterface::openSpace3D(Space3D& space) {
     }
     fclose(fp);
 }
-
+*/
 void AppInterface::run() {
     initwindow(m_appWidth, m_appHeight, "Editor 3D");
-    Space3D space(maxRadius(), m_theme);
-    Mesh cube;
-    cube.addPoint(-100, -100, -100);
-    cube.addPoint(-100, -100, 100);
-    cube.addPoint(-100, 100, -100);
-    cube.addPoint(100, -100, -100);
-    cube.addPoint(-100, 100, 100);
-    cube.addPoint(100, -100, 100);
-    cube.addPoint(100, 100, -100);
-    cube.addPoint(100, 100, 100);
-    cube.addIndexConnections(0, {1, 2, 3});
-    cube.addIndexConnections(1, {0, 4, 5});
-    cube.addIndexConnections(2, {0, 4, 6});
-    cube.addIndexConnections(3, {0, 5, 6});
-    cube.addIndexConnections(4, {1, 2, 7});
-    cube.addIndexConnections(5, {1, 3, 7});
-    cube.addIndexConnections(6, {2, 3, 7});
-    cube.updateCenterPoint();
-    cube.translate(500, 0, 0);
-    space.addMesh(cube);
-    cube.translate(0, 600, 0);
-    space.addMesh(cube);
-    cube.translate(0, 600, 0);
-    space.addMesh(cube);
-    cube.translate(0, 600, 0);
-    space.addMesh(cube);
-    cube.translate(0, 600, 0);
-    space.addMesh(cube);
-    space.setCorners(0, 27, m_appWidth, m_appHeight);
-    space.run();
+    //setactivepage(0);
+    //setvisualpage(1);
     Menu menu(m_theme);
-    menu.drawMenu(0, 0, m_appWidth, 27);
+    menu.setBorder(0, 0, m_appWidth, 27);
+    menu.draw();
     while (true) {
-        if (ismouseclick(WM_MOUSEMOVE)) {
+        /*if (ismouseclick(WM_MOUSEMOVE)) {
             clearMouse();
         }
         else {
+            //setvisualpage(page);
+            //setactivepage(1 - page);
             int xClick, yClick;
             getClick(xClick, yClick);
             if (menu.getCommand(xClick, yClick)) {
+                page = 1 - page;
                 char saveType = menu.saveSpace();
                 if (menu.newSpace()) {
                     space = Space3D(maxRadius(), m_theme);
+                    space.setCorners(0, 27, m_appWidth, m_appHeight);
                 }
                 else if (saveType) {
                     saveSpace3D(space, saveType);
@@ -130,11 +109,19 @@ void AppInterface::run() {
                     openSpace3D(space);
                 }
                 space.run();
-                continue;
+
             }
-            if (space.getCommand(xClick, yClick)) {
-                menu.drawMenu(0, 0, m_appWidth, 27);
+            else if (space.getCommand(xClick, yClick)) {
+                page = 1 - page;
             }
+            menu.drawMenu();
+            space.run();
+        }*/
+        menu.draw();
+        int xClick, yClick;
+        getClick(xClick, yClick);
+        if (xClick != -1 && menu.getCommand(xClick, yClick)) {
+            std::cout << "here";
         }
     }
 }

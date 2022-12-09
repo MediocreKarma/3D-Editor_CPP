@@ -7,6 +7,9 @@
 #include "MyArray.h"
 #include <math.h>
 #include "Camera.h"
+#include "AppTools.h"
+
+class Menu;
 
 class Space3D
 {
@@ -45,16 +48,25 @@ class Space3D
         DonutButton m_donutOY;
         DonutButton m_donutOZ;
         Button m_spinballButton;
+        Button m_arrowLeft;
+        Button m_arrowRight;
+        Button m_arrowUp;
+        Button m_arrowDown;
+        Button m_arrowSpinLeft;
+        Button m_arrowSpinRight;
         MyArray<char, 512> m_linkedFile;
 
         size_t size() const;
+        void swapPages();
+        void setButtons();
+        void drawRotationArrows();
         void getDrag(int& xDrag, int& yDrag) const;
         void dragAndDrop(const int& xDrag, const int& yDrag);
         double findRotation(const int& xDrag, const int& yDrag, const DonutButton& angleDonut, CircularButton& button);
         bool checkAxisRotation(const int& x, const int& y);
         Point2D moveInsideWorkArea(const Point2D& P, const Point2D& Q, const int& xBorder, const int& yBorder);
-        void drawSpinball(const int& x, const int& y);
-        void showAngleOptions(const int& x, const int& y);
+        void drawSpinball();
+        void showAngleOptions();
         Point2D projectPoint(const Point3D& pct) const;
         Point3D normalisePoint(const Point3D& pct) const;
         Section projectSection(const Mesh& mesh);
