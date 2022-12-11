@@ -1,8 +1,6 @@
 #ifndef APPINTERFACE_H
 #define APPINTERFACE_H
 
-#include "FileHandler.h"
-#include "Space3D.h"
 #include <graphics.h>
 #include <winbgim.h>
 #include "Menu.h"
@@ -23,9 +21,9 @@ class AppInterface {
         int m_appHeight;
         int m_theme;
         int m_languagePackage;
-        FileHandler m_fileGetter;
 
         void clearMouse();
+        void getClick(int& xClick, int& yClick);
         void saveSpace3D(Space3D& space, const char& saveType);
         void openSpace3D(Space3D& space);
 };

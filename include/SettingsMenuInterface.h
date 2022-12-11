@@ -33,11 +33,6 @@ namespace SettingsMenuInterface
         {1920, 1080}, {1600, 900}, {1280, 720}, {1000, 750}, {800, 600}
     };
     //pt teme
-    static const int PRIMARYCOLOR = 0;
-    static const int SECONDARYCOLOR = 1;
-    static const MyArray<MyArray<int, 2>, THEME_SIZE> themeColors = {
-        {WHITE, BLACK}, {BLACK, WHITE}
-    };
     static const int FONT = 3;
     static const int FONT_SIZE = 1;
 

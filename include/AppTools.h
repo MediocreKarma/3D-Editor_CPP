@@ -2,8 +2,17 @@
 #define APPTOOLS_H
 
 #include "MyArray.h"
-#include "graphics.h"
-#include "winbgim.h"
+#include <graphics.h>
+#include <winbgim.h>
+
+namespace ColorSchemes {
+    static const int PRIMARYCOLOR = 0;
+    static const int SECONDARYCOLOR = 1;
+    static const MyArray<MyArray<int, 2>, 2> themeColors = {
+        {WHITE, BLACK}, {BLACK, WHITE}
+    };
+    static const int NO_COLOR = -1;
+}
 
 class Label {
     public:
@@ -12,6 +21,8 @@ class Label {
         void drawLabel(const int& fillColor, const int& outlineColor = BLACK) const;
         void border(const int& outlineColor) const;
         void clear(const int& barColor) const;
+        int getXCenter() const;
+        int getYCenter() const;
 
     protected:
         int xCenter;
@@ -114,9 +125,6 @@ class DropdownButton : public TextButton {
         }
 
         void showList(const int& font, const int& fontSize, const int& fillColor) {
-            if (isListVisible()) {
-                return;
-            }
             for (size_t i = 0; i < lenList; ++i) {
                 m_list[i].drawTextButton(font, fontSize, fillColor);
             }
@@ -124,9 +132,6 @@ class DropdownButton : public TextButton {
         }
 
         void hideList(const int& barColor) {
-            if (!isListVisible()) {
-                return;
-            }
             m_listVisibility = 0;
             if (barColor == -1) {
                 return;
@@ -146,6 +151,10 @@ class DropdownButton : public TextButton {
 
         bool isListVisible() const {
             return m_listVisibility;
+        }
+
+        void setVisibility(const bool& vis) {
+            m_listVisibility = vis;
         }
 
         void changeMain(const int& index, const int& font, const int& fontSize, const int& fillColor) {
