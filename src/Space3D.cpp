@@ -204,6 +204,19 @@ DOUBLE Space3D::findRotation(const int& xDrag, const int& yDrag, const DonutButt
     return atan2(yOnCircle - yCircle, xOnCircle - xCircle) - atan2(button.getY() - yCircle, button.getX() - xCircle);
 }
 
+Point3D Space3D::rotateByCamera(const Point3D& pct) const {
+    double xr = pct.getX();
+    double yr = pct.getY();
+    double zr = pct.getZ();
+    double aX = m_cam.angleX();
+    double aY = m_cam.angleY();
+    double aZ = m_cam.angleZ();
+    int dx = cos(aY) * (sin(aZ) * yr + cos(aZ) * xr) - sin(aY) * zr;
+    int dy = sin(aX) * (cos(aY) * zr + sin(aY) * (sin(aZ) * yr + cos(aZ) * xr)) + cos(aX) * (cos(aZ) * yr - sin(aZ) * xr);
+    int dz = cos(aX) * (cos(aY) * zr + sin(aY) * (sin(aZ) * yr + cos(aZ) * xr)) - sin(aX) * (cos(aZ) * yr - sin(aZ) * xr);
+    return Point3D(dx, dy, dz);
+}
+
 Point3D Space3D::normalisePoint(const Point3D& pct) const {
     double xr = pct.getX() - m_cam.position().getX();
     double yr = pct.getY() - m_cam.position().getY();
@@ -287,38 +300,51 @@ bool Space3D::insideWorkArea(const Point2D& point) const {
 
 bool Space3D::checkCamMovement(const char& c) {
     double distance = 50;
+
     if(c == 'a') {
-        m_cam.modifyPosition(-distance, 0, 0);
+        Point3D auxPoint = Point3D(-distance, 0, 0);
+        Point3D rotatedPoint = rotateByCamera(auxPoint);
+        m_cam.modifyPosition(rotatedPoint.getX(), -rotatedPoint.getY(), -rotatedPoint.getZ());
         m_updated.fill(true);
         menuHolder->draw();
         return 1;
     }
     if(c == 'd') {
-        m_cam.modifyPosition(distance, 0, 0);
-        m_updated.fill(true);
-        menuHolder->draw();
-        return 1;
-    }
-    if(c == 'w') {
-        m_cam.modifyPosition(0, distance, 0);
+        Point3D auxPoint = Point3D(distance, 0, 0);
+        Point3D rotatedPoint = rotateByCamera(auxPoint);
+        m_cam.modifyPosition(rotatedPoint.getX(), -rotatedPoint.getY(), -rotatedPoint.getZ());
         m_updated.fill(true);
         menuHolder->draw();
         return 1;
     }
     if(c == 's') {
-        m_cam.modifyPosition(0, -distance, 0);
+        Point3D auxPoint = Point3D(0, -distance, 0);
+        Point3D rotatedPoint = rotateByCamera(auxPoint);
+        m_cam.modifyPosition(-rotatedPoint.getX(), rotatedPoint.getY(), -rotatedPoint.getZ());
+        m_updated.fill(true);
+        menuHolder->draw();
+        return 1;
+    }
+    if(c == 'w') {
+        Point3D auxPoint = Point3D(0, distance, 0);
+        Point3D rotatedPoint = rotateByCamera(auxPoint);
+        m_cam.modifyPosition(-rotatedPoint.getX(), rotatedPoint.getY(), -rotatedPoint.getZ());
         m_updated.fill(true);
         menuHolder->draw();
         return 1;
     }
     if(c == 'e') {
-        m_cam.modifyPosition(0, 0, distance);
+        Point3D auxPoint = Point3D(0, 0, distance);
+        Point3D rotatedPoint = rotateByCamera(auxPoint);
+        m_cam.modifyPosition(0, 0, rotatedPoint.getZ());
         m_updated.fill(true);
         menuHolder->draw();
         return 1;
     }
     if(c == 'q') {
-        m_cam.modifyPosition(0, 0, -distance);
+        Point3D auxPoint = Point3D(0, 0, -distance);
+        Point3D rotatedPoint = rotateByCamera(auxPoint);
+        m_cam.modifyPosition(0, 0, rotatedPoint.getZ());
         m_updated.fill(true);
         menuHolder->draw();
         return 1;

@@ -74,6 +74,7 @@ class Space3D
         void drawSpinball();
         void showAngleOptions();
         Point2D projectPoint(const Point3D& pct) const;
+        Point3D rotateByCamera(const Point3D& pct) const;
         Point3D normalisePoint(const Point3D& pct) const;
         Section projectSection(const Mesh& mesh);
         void render();
