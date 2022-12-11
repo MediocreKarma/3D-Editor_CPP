@@ -121,7 +121,7 @@ void Menu::drawMenu() {
 
 void Menu::initSpace() {
     m_space = Space3D(-2500, m_theme);
-    m_space.setCorners(0, 27, 1280, 720);
+    m_space.setCorners(0, 27, 800, 600);
     m_space.menuHolder = this;
 }
 
@@ -159,3 +159,9 @@ bool Menu::getCommand(const int& x, const int& y) {
     return false;
 }
 
+bool Menu::getKeyCommand(const char& c) {
+    if (m_space.getKeyCommand(c)) {
+        return true;
+    }
+    return false;
+}

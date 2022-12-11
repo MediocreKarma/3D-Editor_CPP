@@ -8,9 +8,22 @@ double AppInterface::maxRadius() const {
     return m_maxRadius;
 }
 
-void AppInterface::getClick(int& xClick, int& yClick) {
+void AppInterface::getKeyPress(char& c) {
+    if(kbhit()) {
+        c = getch();
+    }
+
+}
+
+void AppInterface::getClick(int& xClick, int& yClick, Menu& menu) {
     setmousequeuestatus(WM_LBUTTONDOWN);
-    while (!ismouseclick(WM_LBUTTONDOWN));
+    while (!ismouseclick(WM_LBUTTONDOWN)) {
+        char c = 0;
+        getKeyPress(c);
+        if (c != 0 && menu.getKeyCommand(c)) {
+            break;
+        }
+    }
     getmouseclick(WM_LBUTTONDOWN, xClick, yClick);
 }
 
@@ -119,7 +132,7 @@ void AppInterface::run() {
         }*/
         menu.draw();
         int xClick, yClick;
-        getClick(xClick, yClick);
+        getClick(xClick, yClick, menu);
         if (xClick != -1 && menu.getCommand(xClick, yClick)) {
         }
     }

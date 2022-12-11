@@ -23,7 +23,8 @@ class AppInterface {
         int m_languagePackage;
 
         void clearMouse();
-        void getClick(int& xClick, int& yClick);
+        void getClick(int& xClick, int& yClick, Menu& menu);
+        void getKeyPress(char& c);
         void saveSpace3D(Space3D& space, const char& saveType);
         void openSpace3D(Space3D& space);
 };

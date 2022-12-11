@@ -12,6 +12,7 @@ class Menu {
         void clear();
         void draw();
         bool getCommand(const int& xClick, const int& yClick);
+        bool getKeyCommand(const char& c);
         void setBorder(const int& x1, const int& y1, const int& x2, const int& y2);
 
     private:

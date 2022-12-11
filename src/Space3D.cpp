@@ -285,6 +285,52 @@ bool Space3D::insideWorkArea(const Point2D& point) const {
     return insideWorkArea(point.getX(), point.getY());
 }
 
+bool Space3D::checkCamMovement(const char& c) {
+    double distance = 50;
+    if(c == 'a') {
+        m_cam.modifyPosition(-distance, 0, 0);
+        m_updated.fill(true);
+        menuHolder->draw();
+        return 1;
+    }
+    if(c == 'd') {
+        m_cam.modifyPosition(distance, 0, 0);
+        m_updated.fill(true);
+        menuHolder->draw();
+        return 1;
+    }
+    if(c == 'w') {
+        m_cam.modifyPosition(0, distance, 0);
+        m_updated.fill(true);
+        menuHolder->draw();
+        return 1;
+    }
+    if(c == 's') {
+        m_cam.modifyPosition(0, -distance, 0);
+        m_updated.fill(true);
+        menuHolder->draw();
+        return 1;
+    }
+    if(c == 'e') {
+        m_cam.modifyPosition(0, 0, distance);
+        m_updated.fill(true);
+        menuHolder->draw();
+        return 1;
+    }
+    if(c == 'q') {
+        m_cam.modifyPosition(0, 0, -distance);
+        m_updated.fill(true);
+        menuHolder->draw();
+        return 1;
+    }
+    return 0;
+}
+
+bool Space3D::getKeyCommand(const char& c) {
+    if(checkCamMovement(c)) {
+        return 1;
+    }
+}
 
 //returns true if menu should redraw itself
 bool Space3D::getCommand(const int& x, const int& y) {
@@ -293,6 +339,7 @@ bool Space3D::getCommand(const int& x, const int& y) {
         run();
         return 0;
     }*/
+
     if (checkAxisRotation(x, y)) {
             return 1;
     }

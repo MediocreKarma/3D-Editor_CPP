@@ -22,6 +22,12 @@ void Camera::modifyAngles(const double& angleX, const double& angleY, const doub
     moveAngle(m_angleX + angleX, m_angleY + angleY, m_angleZ + angleZ);
 }
 
+void Camera::modifyPosition(const double& posX, const double& posY, const double& posZ) {
+    m_point.setX(m_point.getX() + posX);
+    m_point.setY(m_point.getY() + posY);
+    m_point.setZ(m_point.getZ() + posZ);
+}
+
 Point3D Camera::position() const {
     return m_point;
 }
