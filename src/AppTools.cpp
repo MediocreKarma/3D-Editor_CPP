@@ -111,7 +111,7 @@ TextLabel::TextLabel(const int& xCenter_, const int& yCenter_, const int& xLen_,
     Label(xCenter_, yCenter_, xLen_, yLen_), m_text(text){}
 
 void TextLabel::drawText(const int& txtFont, const int& txtSize, const int& bkColor) {
-    settextstyle(txtFont, 0, txtSize);
+    //settextstyle(txtFont, 0, txtSize);
     setbkcolor(bkColor);
     outtextxy(xCenter - textwidth(m_text.data()) / 2, yCenter - textheight(m_text.data()) / 2, m_text.data());
 }
@@ -149,7 +149,7 @@ TextButton::TextButton(const int& xCenter_, const int& yCenter_, const int& xLen
     Button(xCenter_, yCenter_, xLen_, yLen_), m_text(p) {}
 
 void TextButton::drawText(const int& txtFont, const int& txtSize, const int& bkColor) {
-    settextstyle(txtFont, 0, txtSize);
+    //settextstyle(txtFont, 0, txtSize);
     setbkcolor(bkColor);
     outtextxy(xCenter - textwidth(m_text.data()) / 2, yCenter - textheight(m_text.data()) / 2, m_text.data());
 }

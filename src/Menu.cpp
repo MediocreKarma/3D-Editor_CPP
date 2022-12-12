@@ -3,7 +3,7 @@
 
 Menu::Menu(const int& theme, const int& appWidth, const int& appHeight) :
     x1(), y1(), x2(), y2(), m_appWidth(appWidth), m_appHeight(appHeight), m_theme(theme), m_fileButton(40, 13, 80, 26, "File", 120, 80), m_settingsButton(130, 13, 100, 26, "Settings"), m_helpButton(210, 13, 60, 26, "Help", 80, 80),
-    m_newSpaceFlag(false), m_saveSpaceFlag(false), m_openSpaceFlag(false), m_space(), m_fileGetter() {
+    m_space(), m_fileGetter() {
     m_fileButton.addOption("New");
     m_fileButton.addOption("Save");
     m_fileButton.addOption("Save as...");
@@ -60,17 +60,12 @@ void Menu::saveSpace3D(Space3D& space, const char& saveType) {
     }
     FILE* fp = fopen(savepath.data(), "w");
     if (!fp) {
-        MyArray<char, 32> errorMessage = "Bad file path!";
-        setbkcolor(LIGHTRED);
-        setcolor(BLACK);
-        outtextxy(m_appWidth / 2 - textwidth(errorMessage.data()) / 2, m_appHeight / 2 - textheight(errorMessage.data()) / 2, errorMessage.data());
-        Sleep(2000);
+        showerrorbox("Bad file path!");
     }
     else {
         space.fprint(fp);
         space.setLinkedFileName(savepath);
     }
-
     fclose(fp);
 }
 
@@ -83,18 +78,10 @@ void Menu::openSpace3D(Space3D& space) {
     }
     FILE* fp = fopen(openpath.data(), "r");
     if (!fp) {
-        MyArray<char, 32> errorMessage = "File not found!";
-        setbkcolor(LIGHTRED);
-        setcolor(BLACK);
-        outtextxy(m_appWidth / 2 - textwidth(errorMessage.data()) / 2, m_appHeight / 2 - textheight(errorMessage.data()) / 2, errorMessage.data());
-        Sleep(2000);
+        showerrorbox("File not found!");
     }
     else if (!space.fscan(fp)){
-        MyArray<char, 32> errorMessage = "Bad file!";
-        setbkcolor(LIGHTRED);
-        setcolor(BLACK);
-        outtextxy(m_appWidth / 2 - textwidth(errorMessage.data()) / 2, m_appHeight / 2 - textheight(errorMessage.data()) / 2, errorMessage.data());
-        Sleep(2000);
+        showerrorbox("Bad file!");
         fclose(fp);
     }
     else {
@@ -120,9 +107,8 @@ void Menu::drawMenu() {
 }
 
 void Menu::initSpace() {
-    m_space = Space3D(-2500, m_theme);
-    m_space.setCorners(0, 27, 800, 600);
-    m_space.menuHolder = this;
+    m_space = Space3D(-2500, m_theme, this);
+    m_space.setCorners(0, 27, m_appWidth, m_appHeight);
 }
 
 void Menu::draw() {
@@ -131,8 +117,10 @@ void Menu::draw() {
     swapbuffers();
 }
 
-//returns true if Space3D should redraw itself
 bool Menu::getCommand(const int& x, const int& y) {
+    if (x == -1 && getKeyCommand()) {
+        return true;
+    }
     if (m_fileButton.isListVisible()) {
         int pos = m_fileButton.listHitCollision(x, y);
         if (pos >= 0) {
@@ -159,8 +147,11 @@ bool Menu::getCommand(const int& x, const int& y) {
     return false;
 }
 
-bool Menu::getKeyCommand(const char& c) {
-    if (m_space.getKeyCommand(c)) {
+bool Menu::getKeyCommand() {
+    if (!kbhit()) {
+        return false;
+    }
+    if (m_space.getKeyCommand(getch())) {
         return true;
     }
     return false;

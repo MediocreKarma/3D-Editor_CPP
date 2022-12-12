@@ -12,7 +12,6 @@ class Menu {
         void clear();
         void draw();
         bool getCommand(const int& xClick, const int& yClick);
-        bool getKeyCommand(const char& c);
         void setBorder(const int& x1, const int& y1, const int& x2, const int& y2);
 
     private:
@@ -23,12 +22,10 @@ class Menu {
         DropdownButton<4> m_fileButton;
         TextButton m_settingsButton;
         DropdownButton<3> m_helpButton;
-        bool m_newSpaceFlag;
-        char m_saveSpaceFlag;
-        bool m_openSpaceFlag;
         Space3D m_space;
         FileHandler m_fileGetter;
 
+        bool getKeyCommand();
         void drawMenu();
         void initSpace();
         void swapPages();

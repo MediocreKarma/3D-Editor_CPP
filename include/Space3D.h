@@ -14,7 +14,7 @@ class Menu;
 class Space3D
 {
     public:
-        Space3D(const double& maxRadius = 2500, const int& theme = 0);
+        Space3D(const double& maxRadius = 2500, const int& theme = 0, Menu* menuHolder = nullptr);
         Space3D(MyVector<Mesh>& meshes, const double& maxRadius = 2500);
         void run();
         void addMesh(const Mesh& mesh);
@@ -29,7 +29,6 @@ class Space3D
         void setLinkedFileName(const MyArray<char, 512>& name);
         bool isLinkedWithFile();
         void setCorners(const int& x0_, const int& y0_, const int& x1_, const int& y1_);
-        Menu* menuHolder;
 
     private:
         int x0;
@@ -60,6 +59,7 @@ class Space3D
         Button m_arrowSpinLeft;
         Button m_arrowSpinRight;
         MyArray<char, 512> m_linkedFile;
+        Menu* m_menuHolder;
 
         size_t size() const;
         void swapPages();

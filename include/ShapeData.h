@@ -12,6 +12,7 @@ class Point2D {
     public:
         Point2D();
         Point2D(const int& x_, const int& y_);
+        Point2D(const double& x_, const double& y_);
         Point2D(const Point2D& pct);
         int getX() const;
         int getY() const;
@@ -68,6 +69,7 @@ class Point3D {
     public:
         Point3D();
         Point3D(const int& x_, const int& y_, const int& z_);
+        Point3D(const double& x_, const double& y_, const double& z_);
         Point3D(const Point3D& pct);
         int getX() const;
         int getY() const;

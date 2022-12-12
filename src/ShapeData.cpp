@@ -7,6 +7,9 @@ Point2D::Point2D() :
 Point2D::Point2D(const int& x_, const int& y_) :
     x(x_), y(y_) {}
 
+Point2D::Point2D(const double& x_, const double& y_) :
+    x(round(x_)), y(round(y_)) {}
+
 Point2D::Point2D(const Point2D& other) :
     x(other.x), y(other.y) {}
 
@@ -122,6 +125,9 @@ Point3D::Point3D() :
 
 Point3D::Point3D(const int& x_, const int& y_, const int& z_) :
     x(x_), y(y_), z(z_) {}
+
+Point3D::Point3D(const double& x_, const double& y_, const double& z_) :
+    x(round(x_)), y(round(y_)), z(round(z_)) {}
 
 Point3D::Point3D(const Point3D& other) :
     x(other.x), y(other.y), z(other.z) {}
@@ -304,7 +310,7 @@ void Mesh::updateCenterPoint() {
     for (size_t i = 0; i < size(); ++i) {
         auxPoint += m_points[i];
     }
-    m_centerPoint = Point3D(auxPoint.getX() / size(), auxPoint.getY() / size(), auxPoint.getZ() / size());
+    m_centerPoint = Point3D(auxPoint.getX() / (int)size(), auxPoint.getY() / (int)size(), auxPoint.getZ() / (int)size());
 }
 
 size_t Mesh::size() const {
@@ -476,8 +482,7 @@ void Mesh::scaleEven(const double& scaleFactor) {
 void Mesh::scaleAxis(bool isLocal, const double& scaleFactor, const size_t& axis) {
     //as established: 0 - x, 1 - y, 2 - z.
     //selectez axa sa nu mai fac ifuri ca mi e sila
-    MyArray<bool,3> axes;
-    axes.fill(0);
+    MyArray<bool, 3> axes = {false, false, false};
     axes[axis] = 1;
     Point3D center = centerPoint();
     double translateAmt = scaleFactor - 1;
