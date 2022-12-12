@@ -1,11 +1,22 @@
 #include "Space3D.h"
 #include "Menu.h"
+#include "ObjectCreator.h"
 #include <iostream>
+
+Space3D::Space3D() :
+    x0(), y0(), x1(), y1(), m_theme(), m_selected(-1), m_spinballSelected(false), m_fadedDrag(false), m_meshes(), m_draggedMesh(), m_sections(), m_draggedSection(),
+    m_updated(), m_cam(), m_buttonOX(), m_buttonOY(), m_buttonOZ(), m_donutOX(), m_donutOY(), m_donutOZ(), m_spinballButton(), m_arrowLeft(), m_arrowRight(),
+    m_arrowUp(), m_arrowDown(), m_arrowSpinLeft(), m_arrowSpinRight(), m_linkedFile{0}, m_menuHolder(nullptr), m_objCreatorHolder(nullptr) {}
 
 Space3D::Space3D(const double& maxRadius, const int& theme, Menu* menuHolder) :
     x0(), y0(), x1(), y1(), m_theme(theme), m_selected(-1), m_spinballSelected(false), m_fadedDrag(false), m_meshes(), m_draggedMesh(), m_sections(), m_draggedSection(),
     m_updated(), m_cam(maxRadius), m_buttonOX(), m_buttonOY(), m_buttonOZ(), m_donutOX(), m_donutOY(), m_donutOZ(), m_spinballButton(), m_arrowLeft(), m_arrowRight(),
-    m_arrowUp(), m_arrowDown(), m_arrowSpinLeft(), m_arrowSpinRight(), m_linkedFile{0}, m_menuHolder(menuHolder) {}
+    m_arrowUp(), m_arrowDown(), m_arrowSpinLeft(), m_arrowSpinRight(), m_linkedFile{0}, m_menuHolder(menuHolder), m_objCreatorHolder(nullptr) {}
+
+Space3D::Space3D(const double& maxRadius, const int& theme, ObjectCreator* objCreatorHolder) :
+    x0(), y0(), x1(), y1(), m_theme(theme), m_selected(-1), m_spinballSelected(false), m_fadedDrag(false), m_meshes(), m_draggedMesh(), m_sections(), m_draggedSection(),
+    m_updated(), m_cam(maxRadius), m_buttonOX(), m_buttonOY(), m_buttonOZ(), m_donutOX(), m_donutOY(), m_donutOZ(), m_spinballButton(), m_arrowLeft(), m_arrowRight(),
+    m_arrowUp(), m_arrowDown(), m_arrowSpinLeft(), m_arrowSpinRight(), m_linkedFile{0}, m_menuHolder(nullptr), m_objCreatorHolder(objCreatorHolder) {}
 
 void Space3D::setCorners(const int& x0_, const int& y0_, const int& x1_, const int& y1_) {
     x0 = x0_;
@@ -26,6 +37,15 @@ void Space3D::setButtons() {
     m_arrowSpinRight = Button(x0 + 25, y0 + 25, 50, 50);
     m_arrowSpinLeft = Button(x0 + 25, y1 - 25, 50, 50);
     m_spinballButton = Button(x1 - 75, y0 + 75, 140, 140);
+}
+
+void Space3D::callHandlerDrawer() {
+    if (m_menuHolder) {
+        m_menuHolder->draw();
+    }
+    else {
+        m_objCreatorHolder->draw();
+    }
 }
 
 size_t Space3D::size() const {
@@ -213,10 +233,9 @@ Point3D Space3D::rotateByCamera(const Point3D& pct) const {
     double aX = m_cam.angleX();
     double aY = m_cam.angleY();
     double aZ = m_cam.angleZ();
-
-    double dx = ( -sin(aX) * sin(aY) * sin(aZ) + cos(aZ) * cos(aY) ) * xr +  (-sin(aZ) * cos(aX)) * yr + (sin(aY) * cos(aZ) + sin(aX) * sin(aZ) * cos(aY)) * zr;
-    double dy =  (sin(aX) * sin(aY) * cos(aZ) + cos(aY) * sin(aZ)) * xr + (cos(aX) * cos(aZ)) * yr +  (sin(aY) * sin(aZ) - sin(aX) * cos(aZ) * cos(aY))* zr;
-    double dz =  (- sin(aY) * cos(aX)) * xr + sin(aX)  * yr + cos(aX) * cos(aY) * zr;
+    double dx = (-sin(aX) * sin(aY) * sin(aZ) + cos(aZ) * cos(aY)) * xr +  (-sin(aZ) * cos(aX)) * yr + (sin(aY) * cos(aZ) + sin(aX) * sin(aZ) * cos(aY)) * zr;
+    double dy = (sin(aX) * sin(aY) * cos(aZ) + cos(aY) * sin(aZ)) * xr + (cos(aX) * cos(aZ)) * yr +  (sin(aY) * sin(aZ) - sin(aX) * cos(aZ) * cos(aY))* zr;
+    double dz = -sin(aY) * cos(aX) * xr + sin(aX) * yr + cos(aX) * cos(aY) * zr;
     return Point3D(dx, dy, dz);
 }
 
@@ -227,11 +246,8 @@ Point3D Space3D::normalisePoint(const Point3D& pct) const {
     double aX = m_cam.angleX();
     double aY = m_cam.angleY();
     double aZ = m_cam.angleZ();
-
-    double dx = ( -sin(aX) * sin(aY) * sin(aZ) + cos(aZ) * cos(aY) ) * xr + (sin(aX) * sin(aY) * cos(aZ) + cos(aY) * sin(aZ)) * yr - sin(aY) * cos(aX) * zr;
-    //double dy = sin(aX) * (cos(aY) * zr + sin(aY) * (sin(aZ) * yr + cos(aZ) * xr)) + cos(aX) * (cos(aZ) * yr - sin(aZ) * xr);
-    double dy = (-sin(aZ) * cos(aX)) * xr + (cos(aX) * cos(aZ)) * yr + sin(aX) * zr;
-    //double dz = cos(aX) * (cos(aY) * zr + sin(aY) * (sin(aZ) * yr + cos(aZ) * xr)) - sin(aX) * (cos(aZ) * yr - sin(aZ) * xr);
+    double dx = (-sin(aX) * sin(aY) * sin(aZ) + cos(aZ) * cos(aY)) * xr + (sin(aX) * sin(aY) * cos(aZ) + cos(aY) * sin(aZ)) * yr - sin(aY) * cos(aX) * zr;
+    double dy = -sin(aZ) * cos(aX) * xr + (cos(aX) * cos(aZ)) * yr + sin(aX) * zr;
     double dz = (sin(aY) * cos(aZ) + sin(aX) * sin(aZ) * cos(aY)) * xr + (sin(aY) * sin(aZ) - sin(aX) * cos(aZ) * cos(aY)) * yr + cos(aX) * cos(aY) * zr;
     return Point3D(dx, dy, dz);
 }
@@ -247,10 +263,8 @@ Point2D Space3D::projectPoint(const Point3D& pct) const {
     double aY = m_cam.angleY();
     double aZ = m_cam.angleZ();
     double EZ = m_cam.EZ();
-    double dx = ( -sin(aX) * sin(aY) * sin(aZ) + cos(aZ) * cos(aY) ) * xr + (sin(aX) * sin(aY) * cos(aZ) + cos(aY) * sin(aZ)) * yr - sin(aY) * cos(aX) * zr;
-    //double dy = sin(aX) * (cos(aY) * zr + sin(aY) * (sin(aZ) * yr + cos(aZ) * xr)) + cos(aX) * (cos(aZ) * yr - sin(aZ) * xr);
-    double dy = (-sin(aZ) * cos(aX)) * xr + (cos(aX) * cos(aZ)) * yr + sin(aX) * zr;
-    //double dz = cos(aX) * (cos(aY) * zr + sin(aY) * (sin(aZ) * yr + cos(aZ) * xr)) - sin(aX) * (cos(aZ) * yr - sin(aZ) * xr);
+    double dx = (-sin(aX) * sin(aY) * sin(aZ) + cos(aZ) * cos(aY)) * xr + (sin(aX) * sin(aY) * cos(aZ) + cos(aY) * sin(aZ)) * yr - sin(aY) * cos(aX) * zr;
+    double dy = -sin(aZ) * cos(aX) * xr + (cos(aX) * cos(aZ)) * yr + sin(aX) * zr;
     double dz = (sin(aY) * cos(aZ) + sin(aX) * sin(aZ) * cos(aY)) * xr + (sin(aY) * sin(aZ) - sin(aX) * cos(aZ) * cos(aY)) * yr + cos(aX) * cos(aY) * zr;
     if (dy <= 0) {
         return Point2D(-100, -100);
@@ -261,10 +275,16 @@ Point2D Space3D::projectPoint(const Point3D& pct) const {
 }
 
 Section Space3D::projectSection(const Mesh& mesh) {
+    if (mesh.size() == 0) {
+        return Section(MyVector<Point2D>(), Point2D(-100, -100), mesh.adjacencyList());
+    }
     MyVector<Point2D> projectedPoints;
     projectedPoints.resize(mesh.size());
     for(size_t i = 0; i < mesh.size(); i++) {
         projectedPoints[i] = projectPoint(mesh[i]);
+    }
+    if (!m_menuHolder) {
+        return Section(projectedPoints, Point2D(-100, -100), mesh.adjacencyList());
     }
     Point2D sectionCenterPoint = projectPoint(mesh.centerPoint());
     return Section(projectedPoints, sectionCenterPoint, mesh.adjacencyList());
@@ -308,63 +328,38 @@ bool Space3D::insideWorkArea(const Point2D& point) const {
 
 bool Space3D::checkCamMovement(const char& c) {
     const int distance = 25;
-    if (c == 'a') {
-        Point3D auxPoint = Point3D(-distance, 0, 0);
-        Point3D rotatedPoint = rotateByCamera(auxPoint);
-        m_cam.modifyPosition(rotatedPoint.getX(), rotatedPoint.getY(), rotatedPoint.getZ());
-        m_updated.fill(true);
-        m_menuHolder->draw();
-        return 1;
+    Point3D auxPoint;
+    switch (c) {
+        case 'a':
+            auxPoint = Point3D(-distance, 0, 0);
+            break;
+        case 'd':
+            auxPoint = Point3D(distance, 0, 0);
+            break;
+        case 's':
+            auxPoint = Point3D(0, -distance, 0);
+            break;
+        case 'w':
+            auxPoint = Point3D(0, distance, 0);
+            break;
+        case 'e':
+            auxPoint = Point3D(0, 0, distance);
+            break;
+        case 'q':
+            auxPoint = Point3D(0, 0, -distance);
+            break;
+        default:
+            return 0;
     }
-    if (c == 'd') {
-        Point3D auxPoint = Point3D(distance, 0, 0);
-        Point3D rotatedPoint = rotateByCamera(auxPoint);
-        m_cam.modifyPosition(rotatedPoint.getX(), rotatedPoint.getY(), rotatedPoint.getZ());
-        m_updated.fill(true);
-        m_menuHolder->draw();
-        return 1;
-    }
-
-    if (c == 's') {
-        Point3D auxPoint = Point3D(0, -distance, 0);
-        Point3D rotatedPoint = rotateByCamera(auxPoint);
-        m_cam.modifyPosition(rotatedPoint.getX(), rotatedPoint.getY(), rotatedPoint.getZ());
-        m_updated.fill(true);
-        m_menuHolder->draw();
-        return 1;
-    }
-    if (c == 'w') {
-        Point3D auxPoint = Point3D(0, distance, 0);
-        Point3D rotatedPoint = rotateByCamera(auxPoint);
-        m_cam.modifyPosition(rotatedPoint.getX(), rotatedPoint.getY(), rotatedPoint.getZ());
-        m_updated.fill(true);
-        m_menuHolder->draw();
-        return 1;
-    }
-    if (c == 'e') {
-        Point3D auxPoint = Point3D(0, 0, distance);
-        Point3D rotatedPoint = rotateByCamera(auxPoint);
-        m_cam.modifyPosition(rotatedPoint.getX(), rotatedPoint.getY(), rotatedPoint.getZ());
-        m_updated.fill(true);
-        m_menuHolder->draw();
-        return 1;
-    }
-    if (c == 'q') {
-        Point3D auxPoint = Point3D(0, 0, -distance);
-        Point3D rotatedPoint = rotateByCamera(auxPoint);
-        m_cam.modifyPosition(rotatedPoint.getX(), rotatedPoint.getY(), rotatedPoint.getZ());
-        m_updated.fill(true);
-        m_menuHolder->draw();
-        return 1;
-    }
-    return 0;
+    Point3D rotatedPoint = rotateByCamera(auxPoint);
+    m_cam.modifyPosition(rotatedPoint.getX(), rotatedPoint.getY(), rotatedPoint.getZ());
+    m_updated.fill(true);
+    m_menuHolder->draw();
+    return 1;
 }
 
 bool Space3D::getKeyCommand(const char& c) {
-    if(checkCamMovement(c)) {
-        return 1;
-    }
-    return 0;
+    return checkCamMovement(c);
 }
 
 //returns true if menu should redraw itself
@@ -455,7 +450,6 @@ void Space3D::dragAndDrop(const int& xDrag, const int& yDrag, Mesh& mesh) {
     double aX = m_cam.angleX();
     double aY = m_cam.angleY();
     double aZ = m_cam.angleZ();
-
     double tx = ( -sin(aX) * sin(aY) * sin(aZ) + cos(aZ) * cos(aY) ) * dx2 +  (-sin(aZ) * cos(aX)) * dy2 + (sin(aY) * cos(aZ) + sin(aX) * sin(aZ) * cos(aY)) * dz2;
     double ty =  (sin(aX) * sin(aY) * cos(aZ) + cos(aY) * sin(aZ)) * dx2 + (cos(aX) * cos(aZ)) * dy2 +  (sin(aY) * sin(aZ) - sin(aX) * cos(aZ) * cos(aY))* dz2;
     double tz =  (- sin(aY) * cos(aX)) * dx2 + sin(aX)  * dy2 + cos(aX) * cos(aY) * dz2;
@@ -512,7 +506,7 @@ void Space3D::draw() {
     }
     if (m_fadedDrag) {
         m_fadedDrag = 0;
-        m_draggedSection.draw(RGB(150, 150, 150), -1, -1);
+        m_draggedSection.draw(RGB(150, 150, 150), ColorSchemes::NO_COLOR, ColorSchemes::NO_COLOR);
     }
 }
 
@@ -526,4 +520,12 @@ void Space3D::setLinkedFileName(const MyArray<char, 512>& name) {
 
 bool Space3D::isLinkedWithFile() {
     return m_linkedFile[0];
+}
+
+const Mesh& Space3D::meshAt(const size_t& index) const {
+    return m_meshes[index];
+}
+
+const Section& Space3D::sectionAt(const size_t& index) const {
+    return m_sections[index];
 }

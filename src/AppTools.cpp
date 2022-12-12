@@ -162,3 +162,7 @@ void TextButton::drawTextButton(const int& txtFont, const int& txtSize, const in
 const char* TextButton::getText() {
     return m_text.data();
 }
+
+void TextButton::modifyText(const MyArray<char, 32>& newText) {
+    m_text = newText;
+}

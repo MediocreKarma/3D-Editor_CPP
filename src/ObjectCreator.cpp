@@ -1,84 +1,201 @@
 #include "ObjectCreator.h"
+#include <iostream>
 
-Level::Level() :
-    m_points(), m_height() {}
+Layer::Layer(MyVector<MyVector<size_t>>* adjListPointer = nullptr) :
+    m_points(), m_pointButtons(), m_adjListPointer(adjListPointer), m_indices(), m_updated(), m_height() {}
 
-Level::Level(const MyVector<Point2D>& points, const int& height_) :
-    m_points(points), m_height(height_) {}
+Layer::Layer(const Layer& other) :
+    m_points(other.m_points), m_pointButtons(other.m_pointButtons), m_adjListPointer(other.m_adjListPointer), m_indices(other.m_indices), m_updated(other.m_updated), m_height(other.m_height) {}
 
-Point2D& Level::operator [] (const size_t& index) {
+Layer& Layer::operator = (const Layer& other) {
+    m_points = other.m_points;
+    m_pointButtons = other.m_pointButtons;
+    m_height = other.m_height;
+    m_adjListPointer = other.m_adjListPointer;
+    m_updated = other.m_updated;
+    m_indices = other.m_indices;
+    return *this;
+}
+
+Point2D& Layer::operator [] (const size_t& index) {
     return m_points[index];
 }
 
-int Level::height() const {
+int Layer::height() const {
     return m_height;
 }
 
-size_t Level::size() const {
+size_t Layer::size() const {
     return m_points.size();
 }
 
-void Level::changeHeight(const int& height_) {
+void Layer::changeHeight(const int& height_) {
     m_height = height_;
 }
 
-void Level::addPoint(const Point2D& point) {
+void Layer::addPoint(const Point2D& point, const size_t& adjListIndex) {
     m_points.push_back(point);
+    m_indices.push_back(adjListIndex);
+    m_updated.push_back(true);
 }
 
-void Level::removePoint(const size_t& index) {
+void Layer::removePoint(const size_t& adjListIndex) {
+    size_t index = size();
+    for (size_t i = 0; i < size(); ++i) {
+        if (m_indices[i] == adjListIndex) {
+            index = i;
+            break;
+        }
+    }
+    if (index == size()) {
+        return;
+    }
     for (size_t i = index + 1; i < size(); ++i) {
         m_points[i - 1] = m_points[i];
+        m_indices[i - 1] = m_indices[i];
+        m_pointButtons[i - 1] = m_pointButtons[i];
     }
     m_points.pop_back();
+    m_indices.pop_back();
+    m_pointButtons.pop_back();
 }
 
-ObjectCreator::ObjectCreator() :
-    m_levels(), m_points(), m_adjList(), m_cam(Point3D(0, -500, 0), 0.0, 0.0, 0.0), x0(0), y0(0), x1(800), y1(800) {}
+MyVector<CircularButton> Layer::renderButtons(const int& x0, const int& y0, const int& x1, const int& y1) {
+    const int xCenter = (x0 + x1) / 2;
+    const int yCenter = (y0 + y1) / 2;
+    MyVector<CircularButton> pointButtons(m_points.size());
+    for (size_t i = 0; i < m_points.size(); ++i) {
+        if (m_updated[i]) {
+            m_pointButtons[i] = CircularButton(xCenter + m_points[i].getX(), yCenter - m_points[i].getY(), 5);
+            m_updated[i] = false;
+        }
+    }
+    return pointButtons;
+}
 
-ObjectCreator::ObjectCreator(const Mesh& mesh) :
-    m_levels(), m_points(), m_adjList(mesh.adjacencyList()), m_cam(Point3D(0, -500, 0), 0.0, 0.0, 0.0), x0(0), y0(0), x1(800), y1(800) {
-    for (size_t i = 0; i < mesh.size(); ++i) {
-        m_points.push_back(projectPoint(mesh[i]));
+ObjectCreator::ObjectCreator(const int& theme) :
+    m_theme(theme), m_layers(), m_layerSelectButtons(), m_addLayerButton(), m_pointButtons(), m_adjList(), x0(0), y0(0), x1(1000), y1(825), m_workArea(-2500, theme, this), m_selectedLayer(-1) {
+    m_workArea.setCorners(0, 25, 800, 825);
+    m_workArea.addMesh(Mesh());
+}
+
+MyArray<char, 24> ObjectCreator::itoa(int x) {
+    MyArray<char, 24> text = {0};
+    bool isNegative = false;
+    if (x < 0) {
+        isNegative = true;
+        x = -x;
+    }
+    size_t i = 0;
+    do {
+        text[i++] = x % 10 + '0';
+    } while (x /= 10);
+    if (isNegative) {
+        text[i++] = '-';
+    }
+    for (size_t j = 0; j < i / 2; ++j) {
+        char aux = text[j];
+        text[j] = text[i - j - 1];
+        text[i - j - 1] = aux;
+    }
+    return text;
+}
+
+ObjectCreator::ObjectCreator(Mesh mesh, const int& theme) :
+    m_theme(theme), m_layers(), m_layerSelectButtons(), m_addLayerButton(), m_pointButtons(), m_adjList(mesh.adjacencyList()),
+    x0(0), y0(0), x1(1000), y1(825), m_workArea(-2500, theme, this), m_selectedLayer(-1) {
+    m_workArea.setCorners(25, 25, 800, 825);
+    mesh.translate(-mesh.centerPoint().getX(), -mesh.centerPoint().getY(), -mesh.centerPoint().getZ());
+    m_workArea.addMesh(mesh);
+    m_workArea.render();
+    const Section& sect = m_workArea.sectionAt(0);
+    m_pointButtons.resize(sect.size());
+    updateButtons();
+    for (size_t i = 0; i < sect.size(); ++i) {
         bool levelExists = false;
-        for (size_t j = 0; j < m_levels.size(); ++j) {
-            if (m_levels[i].height() == mesh[i].getZ()) {
+        for (size_t j = 0; j < m_layers.size(); ++j) {
+            if (m_layers[j].height() == mesh[i].getZ()) {
                 levelExists = true;
-                m_levels[i].addPoint(Point2D(mesh[i].getX(), mesh[i].getY()));
+                m_layers[j].addPoint(Point2D(mesh[i].getX(), mesh[i].getY()), i);
             }
         }
         if (!levelExists) {
-            m_levels.push_back(Level());
-            m_levels.back().changeHeight(mesh[i].getZ());
-            m_levels.back().addPoint(Point2D(mesh[i].getX(), mesh[i].getY()));
+            m_layers.push_back(Layer(&m_adjList));
+            m_layers.back().changeHeight(mesh[i].getZ());
+            m_layers.back().addPoint(Point2D(mesh[i].getX(), mesh[i].getY()), i);
         }
+    }
+    m_layerSelectButtons.reserve(m_layers.size());
+    for (size_t i = 0; i < m_layers.size(); ++i) {
+        MyArray<char, 32> layerLevel = "Layer Z: ";
+        MyArray<char, 24> zText = itoa(m_layers[i].height());
+        for (size_t j = 9; zText[j - 9]; ++j) {
+            layerLevel[j] = zText[j - 9];
+        }
+        m_layerSelectButtons.push_back(TextButton(900, 200 + i * 40, 200, 40, layerLevel.data()));
+    }
+    m_addLayerButton = Button(900, 200 + m_layers.size() * 40, 40, 40);
+}
+
+void ObjectCreator::drawSelectLayers() {
+    for (size_t i = 0; i < m_layerSelectButtons.size(); ++i) {
+        m_layerSelectButtons[i].drawTextButton(1, 3, RGB(160, 160, 160));
+    }
+    int x = m_addLayerButton.getXCenter();
+    int y = m_addLayerButton.getYCenter();
+    setcolor(ColorSchemes::themeColors[m_theme][ColorSchemes::SECONDARYCOLOR]);
+    line(x - 15, y, x + 15, y);
+    line(x, y - 15, x, y + 15);
+}
+
+void ObjectCreator::updateButtons() {
+    const Section& sect = m_workArea.sectionAt(0);
+    for (size_t i = 0; i < m_pointButtons.size(); ++i) {
+        m_pointButtons[i] = CircularButton(sect[i].getX(), sect[i].getY(), 5);
     }
 }
 
-Point2D ObjectCreator::projectPoint(const Point3D& pct) const {
-    const int xCenter = (x0 + x1) / 2;
-    const int yCenter = (y0 + y1) / 2;
-    const int yLen = (y1 - y0);
-    const int xr = pct.getX() - m_cam.position().getX();
-    const int yr = pct.getY() - m_cam.position().getY();
-    const int zr = pct.getZ() - m_cam.position().getZ();
-    double aX = m_cam.angleX();
-    double aY = m_cam.angleY();
-    double aZ = m_cam.angleZ();
-    double EZ = m_cam.EZ();
-    int dx = cos(aY) * (sin(aZ) * yr + cos(aZ) * xr) - sin(aY) * zr;
-    int dy = sin(aX) * (cos(aY) * zr + sin(aY) * (sin(aZ) * yr + cos(aZ) * xr)) + cos(aX) * (cos(aZ) * yr - sin(aZ) * xr);
-    int dz = cos(aX) * (cos(aY) * zr + sin(aY) * (sin(aZ) * yr + cos(aZ) * xr)) - sin(aX) * (cos(aZ) * yr - sin(aZ) * xr);
-    if (dy <= 0) {
-        return Point2D(-100, -100);
+void ObjectCreator::drawButtons() {
+    for (size_t i = 0; i < m_pointButtons.size(); ++i) {
+        m_pointButtons[i].drawLabel(LIGHTCYAN, LIGHTCYAN);
     }
-    int xprim = EZ * dx * yLen / dy + xCenter;
-    int yprim = EZ * dz * yLen / dy * -1 + yCenter;
-    return Point2D(xprim, yprim);
+}
+
+void ObjectCreator::draw() {
+    setfillstyle(SOLID_FILL, ColorSchemes::themeColors[m_theme][ColorSchemes::PRIMARYCOLOR]);
+    bar(25, 25, 825, 825);
+    if (m_selectedLayer == -1) {
+        m_workArea.run();
+        drawButtons();
+    }
+    else {
+        m_layers[m_selectedLayer].renderButtons(25, 25, 825, 825);
+    }
+    drawSelectLayers();
+    swapbuffers();
+}
+
+bool ObjectCreator::getCommand(const int& x, const int& y) {
+    for (size_t i = 0; i < m_layerSelectButtons.size(); ++i) {
+        if (m_layerSelectButtons[i].hitCollision(x, y)) {
+            m_selectedLayer = i;
+            return true;
+        }
+    }
+    return false;
 }
 
 Mesh ObjectCreator::run() {
-
-
+    initwindow(x1, y1, "Object creator", 300, 0);
+    setvisualpage(0);
+    setactivepage(1);
+    draw();
+    while (true) {
+        int x, y;
+        getmouseclick(WM_LBUTTONDOWN, x, y);
+        if (getCommand(x, y)) {
+            draw();
+        }
+    }
     return Mesh();
 }

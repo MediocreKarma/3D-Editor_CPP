@@ -105,6 +105,7 @@ class MyArray<char, m_size> {
         }
 
         MyArray(const char* p) {
+            fill(0);
             if (!p) {
                 m_data[0] = 0;
                 return;
@@ -130,11 +131,21 @@ class MyArray<char, m_size> {
             return m_size;
         }
 
+        void fill(const char& fillValue) {
+            for (size_t i = 0; i < m_size; ++i) {
+                m_data[i] = fillValue;
+            }
+        }
+
         char* data() {
             return m_data;
         }
 
         MyArray<char, m_size>& operator = (const char* p) {
+            fill(0);
+            if (!p) {
+                return *this;
+            }
             size_t i = 0;
             for (i = 0; p[i]; ++i) {
                 m_data[i] = p[i];

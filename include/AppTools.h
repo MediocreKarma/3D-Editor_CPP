@@ -100,6 +100,7 @@ class TextButton : public Button {
         TextButton(const int& xCenter, const int& yCenter, const int& xLen, const int& yLen, const char* p);
         void drawTextButton(const int& txtFont, const int& txtSize, const int& fillColor);
         const char* getText();
+        void modifyText(const MyArray<char, 32>& newText);
 
     protected:
         MyArray<char, 32> m_text;

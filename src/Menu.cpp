@@ -2,8 +2,8 @@
 #include <iostream>
 
 Menu::Menu(const int& theme, const int& appWidth, const int& appHeight) :
-    x1(), y1(), x2(), y2(), m_appWidth(appWidth), m_appHeight(appHeight), m_theme(theme), m_fileButton(40, 13, 80, 26, "File", 120, 80), m_settingsButton(130, 13, 100, 26, "Settings"), m_helpButton(210, 13, 60, 26, "Help", 80, 80),
-    m_space(), m_fileGetter() {
+    x1(), y1(), x2(), y2(), m_appWidth(appWidth), m_appHeight(appHeight), m_theme(theme), m_fileButton(40, 13, 80, 26, "File", 120, 80),
+    m_settingsButton(130, 13, 100, 26, "Settings"), m_helpButton(210, 13, 60, 26, "Help", 80, 80), m_space(), m_fileGetter() {
     m_fileButton.addOption("New");
     m_fileButton.addOption("Save");
     m_fileButton.addOption("Save as...");
@@ -140,6 +140,10 @@ bool Menu::getCommand(const int& x, const int& y) {
     if (m_fileButton.hitCollision(x, y)) {
         m_fileButton.setVisibility(!m_fileButton.isListVisible());
         return 1;
+    }
+    if (m_helpButton.hitCollision(x, y)) {
+        ObjectCreator objCreator(m_space.meshAt(0), m_theme);
+        Mesh newMesh = objCreator.run();
     }
     if (m_space.getCommand(x, y)) {
         return true;

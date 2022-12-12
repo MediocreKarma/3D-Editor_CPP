@@ -4,6 +4,7 @@
 #include "AppTools.h"
 #include "Space3D.h"
 #include "FileHandler.h"
+#include "ObjectCreator.h"
 
 class Menu {
     public:

@@ -11,14 +11,18 @@
 
 class Menu;
 
+class ObjectCreator;
+
 class Space3D
 {
     public:
-        Space3D(const double& maxRadius = 2500, const int& theme = 0, Menu* menuHolder = nullptr);
-        Space3D(MyVector<Mesh>& meshes, const double& maxRadius = 2500);
-        void run();
+        Space3D();
+        Space3D(const double& maxRadius, const int& theme, Menu* menuHolder);
+        Space3D(const double& maxRadius, const int& theme, ObjectCreator* objCreatorHolder);
         void addMesh(const Mesh& mesh);
+        void run();
         void draw();
+        void render();
         bool insideWorkArea(const int& x, const int& y) const;
         bool insideWorkArea(const Point2D& point) const;
         bool getCommand(const int& xClick, const int& yClick);
@@ -29,6 +33,8 @@ class Space3D
         void setLinkedFileName(const MyArray<char, 512>& name);
         bool isLinkedWithFile();
         void setCorners(const int& x0_, const int& y0_, const int& x1_, const int& y1_);
+        const Mesh& meshAt(const size_t& index) const;
+        const Section& sectionAt(const size_t& index) const;
 
     private:
         int x0;
@@ -60,9 +66,10 @@ class Space3D
         Button m_arrowSpinRight;
         MyArray<char, 512> m_linkedFile;
         Menu* m_menuHolder;
+        ObjectCreator* m_objCreatorHolder;
 
         size_t size() const;
-        void swapPages();
+        void callHandlerDrawer();
         void setButtons();
         void drawRotationArrows();
         void dragMesh();
@@ -77,7 +84,6 @@ class Space3D
         Point3D rotateByCamera(const Point3D& pct) const;
         Point3D normalisePoint(const Point3D& pct) const;
         Section projectSection(const Mesh& mesh);
-        void render();
         void rotateOX(Mesh& lines, const double& alpha);
         void rotateOY(Mesh& lines, const double& alpha);
         void rotateOZ(Mesh& lines, const double& alpha);
