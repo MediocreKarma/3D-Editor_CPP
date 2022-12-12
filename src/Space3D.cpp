@@ -205,15 +205,18 @@ DOUBLE Space3D::findRotation(const int& xDrag, const int& yDrag, const DonutButt
 }
 
 Point3D Space3D::rotateByCamera(const Point3D& pct) const {
+    //Folosit in cam movement; "deznormalizeaza" rotatia vectorilor canonici in relatie cu camera, pt a fi accurate in 3D
+    //si a parea practic ca se misca pe axele locale ale camerei
     double xr = pct.getX();
     double yr = pct.getY();
     double zr = pct.getZ();
     double aX = m_cam.angleX();
     double aY = m_cam.angleY();
     double aZ = m_cam.angleZ();
-    double dx = cos(aY) * (sin(aZ) * yr + cos(aZ) * xr) - sin(aY) * zr;
-    double dy = sin(aX) * (cos(aY) * zr + sin(aY) * (sin(aZ) * yr + cos(aZ) * xr)) + cos(aX) * (cos(aZ) * yr - sin(aZ) * xr);
-    double dz = cos(aX) * (cos(aY) * zr + sin(aY) * (sin(aZ) * yr + cos(aZ) * xr)) - sin(aX) * (cos(aZ) * yr - sin(aZ) * xr);
+
+    double dx = ( -sin(aX) * sin(aY) * sin(aZ) + cos(aZ) * cos(aY) ) * xr +  (-sin(aZ) * cos(aX)) * yr + (sin(aY) * cos(aZ) + sin(aX) * sin(aZ) * cos(aY)) * zr;
+    double dy =  (sin(aX) * sin(aY) * cos(aZ) + cos(aY) * sin(aZ)) * xr + (cos(aX) * cos(aZ)) * yr +  (sin(aY) * sin(aZ) - sin(aX) * cos(aZ) * cos(aY))* zr;
+    double dz =  (- sin(aY) * cos(aX)) * xr + sin(aX)  * yr + cos(aX) * cos(aY) * zr;
     return Point3D(dx, dy, dz);
 }
 
@@ -224,9 +227,12 @@ Point3D Space3D::normalisePoint(const Point3D& pct) const {
     double aX = m_cam.angleX();
     double aY = m_cam.angleY();
     double aZ = m_cam.angleZ();
-    double dx = cos(aY) * (sin(aZ) * yr + cos(aZ) * xr) - sin(aY) * zr;
-    double dy = sin(aX) * (cos(aY) * zr + sin(aY) * (sin(aZ) * yr + cos(aZ) * xr)) + cos(aX) * (cos(aZ) * yr - sin(aZ) * xr);
-    double dz = cos(aX) * (cos(aY) * zr + sin(aY) * (sin(aZ) * yr + cos(aZ) * xr)) - sin(aX) * (cos(aZ) * yr - sin(aZ) * xr);
+
+    double dx = ( -sin(aX) * sin(aY) * sin(aZ) + cos(aZ) * cos(aY) ) * xr + (sin(aX) * sin(aY) * cos(aZ) + cos(aY) * sin(aZ)) * yr - sin(aY) * cos(aX) * zr;
+    //double dy = sin(aX) * (cos(aY) * zr + sin(aY) * (sin(aZ) * yr + cos(aZ) * xr)) + cos(aX) * (cos(aZ) * yr - sin(aZ) * xr);
+    double dy = (-sin(aZ) * cos(aX)) * xr + (cos(aX) * cos(aZ)) * yr + sin(aX) * zr;
+    //double dz = cos(aX) * (cos(aY) * zr + sin(aY) * (sin(aZ) * yr + cos(aZ) * xr)) - sin(aX) * (cos(aZ) * yr - sin(aZ) * xr);
+    double dz = (sin(aY) * cos(aZ) + sin(aX) * sin(aZ) * cos(aY)) * xr + (sin(aY) * sin(aZ) - sin(aX) * cos(aZ) * cos(aY)) * yr + cos(aX) * cos(aY) * zr;
     return Point3D(dx, dy, dz);
 }
 
@@ -241,9 +247,11 @@ Point2D Space3D::projectPoint(const Point3D& pct) const {
     double aY = m_cam.angleY();
     double aZ = m_cam.angleZ();
     double EZ = m_cam.EZ();
-    double dx = cos(aY) * (sin(aZ) * yr + cos(aZ) * xr) - sin(aY) * zr;
-    double dy = sin(aX) * (cos(aY) * zr + sin(aY) * (sin(aZ) * yr + cos(aZ) * xr)) + cos(aX) * (cos(aZ) * yr - sin(aZ) * xr);
-    double dz = cos(aX) * (cos(aY) * zr + sin(aY) * (sin(aZ) * yr + cos(aZ) * xr)) - sin(aX) * (cos(aZ) * yr - sin(aZ) * xr);
+    double dx = ( -sin(aX) * sin(aY) * sin(aZ) + cos(aZ) * cos(aY) ) * xr + (sin(aX) * sin(aY) * cos(aZ) + cos(aY) * sin(aZ)) * yr - sin(aY) * cos(aX) * zr;
+    //double dy = sin(aX) * (cos(aY) * zr + sin(aY) * (sin(aZ) * yr + cos(aZ) * xr)) + cos(aX) * (cos(aZ) * yr - sin(aZ) * xr);
+    double dy = (-sin(aZ) * cos(aX)) * xr + (cos(aX) * cos(aZ)) * yr + sin(aX) * zr;
+    //double dz = cos(aX) * (cos(aY) * zr + sin(aY) * (sin(aZ) * yr + cos(aZ) * xr)) - sin(aX) * (cos(aZ) * yr - sin(aZ) * xr);
+    double dz = (sin(aY) * cos(aZ) + sin(aX) * sin(aZ) * cos(aY)) * xr + (sin(aY) * sin(aZ) - sin(aX) * cos(aZ) * cos(aY)) * yr + cos(aX) * cos(aY) * zr;
     if (dy <= 0) {
         return Point2D(-100, -100);
     }
@@ -303,7 +311,7 @@ bool Space3D::checkCamMovement(const char& c) {
     if (c == 'a') {
         Point3D auxPoint = Point3D(-distance, 0, 0);
         Point3D rotatedPoint = rotateByCamera(auxPoint);
-        m_cam.modifyPosition(rotatedPoint.getX(), -rotatedPoint.getY(), -rotatedPoint.getZ());
+        m_cam.modifyPosition(rotatedPoint.getX(), rotatedPoint.getY(), rotatedPoint.getZ());
         m_updated.fill(true);
         m_menuHolder->draw();
         return 1;
@@ -311,15 +319,16 @@ bool Space3D::checkCamMovement(const char& c) {
     if (c == 'd') {
         Point3D auxPoint = Point3D(distance, 0, 0);
         Point3D rotatedPoint = rotateByCamera(auxPoint);
-        m_cam.modifyPosition(rotatedPoint.getX(), -rotatedPoint.getY(), -rotatedPoint.getZ());
+        m_cam.modifyPosition(rotatedPoint.getX(), rotatedPoint.getY(), rotatedPoint.getZ());
         m_updated.fill(true);
         m_menuHolder->draw();
         return 1;
     }
+
     if (c == 's') {
         Point3D auxPoint = Point3D(0, -distance, 0);
         Point3D rotatedPoint = rotateByCamera(auxPoint);
-        m_cam.modifyPosition(-rotatedPoint.getX(), rotatedPoint.getY(), -rotatedPoint.getZ());
+        m_cam.modifyPosition(rotatedPoint.getX(), rotatedPoint.getY(), rotatedPoint.getZ());
         m_updated.fill(true);
         m_menuHolder->draw();
         return 1;
@@ -327,7 +336,7 @@ bool Space3D::checkCamMovement(const char& c) {
     if (c == 'w') {
         Point3D auxPoint = Point3D(0, distance, 0);
         Point3D rotatedPoint = rotateByCamera(auxPoint);
-        m_cam.modifyPosition(-rotatedPoint.getX(), rotatedPoint.getY(), -rotatedPoint.getZ());
+        m_cam.modifyPosition(rotatedPoint.getX(), rotatedPoint.getY(), rotatedPoint.getZ());
         m_updated.fill(true);
         m_menuHolder->draw();
         return 1;
@@ -335,7 +344,7 @@ bool Space3D::checkCamMovement(const char& c) {
     if (c == 'e') {
         Point3D auxPoint = Point3D(0, 0, distance);
         Point3D rotatedPoint = rotateByCamera(auxPoint);
-        m_cam.modifyPosition(0, 0, rotatedPoint.getZ());
+        m_cam.modifyPosition(rotatedPoint.getX(), rotatedPoint.getY(), rotatedPoint.getZ());
         m_updated.fill(true);
         m_menuHolder->draw();
         return 1;
@@ -343,7 +352,7 @@ bool Space3D::checkCamMovement(const char& c) {
     if (c == 'q') {
         Point3D auxPoint = Point3D(0, 0, -distance);
         Point3D rotatedPoint = rotateByCamera(auxPoint);
-        m_cam.modifyPosition(0, 0, rotatedPoint.getZ());
+        m_cam.modifyPosition(rotatedPoint.getX(), rotatedPoint.getY(), rotatedPoint.getZ());
         m_updated.fill(true);
         m_menuHolder->draw();
         return 1;
@@ -446,9 +455,10 @@ void Space3D::dragAndDrop(const int& xDrag, const int& yDrag, Mesh& mesh) {
     double aX = m_cam.angleX();
     double aY = m_cam.angleY();
     double aZ = m_cam.angleZ();
-    double tx = (cos(aY) * cos(aZ)) * dx2 + (sin(aX) * sin(aY) * cos(aZ) - cos(aX) * sin(aZ)) * dy2 + (cos(aX) * sin(aY)* cos(aZ) + sin(aX) * sin(aZ)) * dz2;
-    double ty = cos(aY) * sin(aZ) * dx2 + (sin(aX) * sin(aY) * sin(aZ) + cos(aX) * cos(aZ)) * dy2 + (cos(aX) * sin(aY) * sin(aZ) - sin(aX) * cos(aZ)) * dz2;
-    double tz = -1 * sin(aY) * dx2 + sin(aX) * cos(aY) * dy2 + cos(aX) * cos(aY) * dz2;
+
+    double tx = ( -sin(aX) * sin(aY) * sin(aZ) + cos(aZ) * cos(aY) ) * dx2 +  (-sin(aZ) * cos(aX)) * dy2 + (sin(aY) * cos(aZ) + sin(aX) * sin(aZ) * cos(aY)) * dz2;
+    double ty =  (sin(aX) * sin(aY) * cos(aZ) + cos(aY) * sin(aZ)) * dx2 + (cos(aX) * cos(aZ)) * dy2 +  (sin(aY) * sin(aZ) - sin(aX) * cos(aZ) * cos(aY))* dz2;
+    double tz =  (- sin(aY) * cos(aX)) * dx2 + sin(aX)  * dy2 + cos(aX) * cos(aY) * dz2;
 
     //..si acum il scoatem complet din sistemul de coordonate al camerei.
     tx = tx + m_cam.position().getX();
