@@ -39,6 +39,10 @@ void FileHandler::initOpenWindow() {
     clearText();
 }
 
+bool FileHandler::isClickInTextbox(const int& x, const int& y) {
+    return x >= WriteAreaBegin - 5 && x <= WriteAreaEnd + 5 && y >= m_height / 2 - 10 && y <=m_height / 2 + 10;
+}
+
 void FileHandler::clearText() {
     bar(WriteAreaBegin - 5 + 1, m_height / 2 - 10 + 1, WriteAreaEnd + 5, m_height / 2 + 10);
 }
@@ -56,13 +60,26 @@ bool FileHandler::checkWindowClose() {
     return false;
 }
 
+bool FileHandler::checkClickInTextbox() {
+    while (!kbhit()) {
+        if (ismouseclick(WM_LBUTTONDOWN)) {
+            int x, y;
+            getmouseclick(WM_LBUTTONDOWN, x, y);
+            if (isClickInTextbox(x, y)) {
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
 MyArray<char, 256> FileHandler::getFilename() {
     MyArray<char, 256> text = {0};
     size_t lenText = 0;
     displayCursor({0}, 0);
     size_t displayBegin = 0;
     size_t displayEnd = 0;
-    if (checkWindowClose()) {
+    if(checkWindowClose()) {
         closegraph(CURRENT_WINDOW);
         return {0};
     }
@@ -97,9 +114,25 @@ MyArray<char, 256> FileHandler::getFilename() {
             }
         }
         display(text, displayBegin, displayEnd);
-        if (checkWindowClose()) {
-            closegraph(CURRENT_WINDOW);
-            return {0};
+
+        //am bagat continuturile lu checkwindowclose aici
+        //ca n am stiut cum altfel sa bag si isclickintextbox
+        //mai sus am lasat la fel
+        //ca daca n ai nimic scris n are rost sa te joci cu cursoru
+        //trebe facuta o functie getClick care returneaza 0 sau 1 sau 2, cred
+
+        while (!kbhit()) {
+            if (ismouseclick(WM_LBUTTONDOWN)) {
+                int x, y;
+                getmouseclick(WM_LBUTTONDOWN, x, y);
+                if (m_xButton.hitCollision(x, y)) {
+                    closegraph(CURRENT_WINDOW);
+                    return {0};
+                }
+                else if (isClickInTextbox(x, y)) {
+                    changeIndexByClick(x, text, displayBegin, displayEnd);
+                }
+            }
         }
         ch = getch();
     }
@@ -107,8 +140,24 @@ MyArray<char, 256> FileHandler::getFilename() {
     return text;
 }
 
+void FileHandler::changeIndexByClick(const int& x, const MyArray<char, 256>& text, size_t& begin, size_t& end) {
+    if (x <= WriteAreaBegin) {
+        m_index = begin;
+    }
+    if (x >= WriteAreaBegin + textwidth(displayText(text, begin, end).data())) {
+        m_index = end;
+    }
+    for (size_t index = begin; index < end; index++) {
+        if (x <= WriteAreaBegin + textwidth(displayText(text, begin, index + 1).data())) {
+            m_index = index;
+            break;
+        }
+    }
+    display(text, begin, end);
+}
+
 void FileHandler::incrementBeginEnd(const MyArray<char, 256>& text, size_t& begin, size_t& end, const size_t& lenText) {
-    if (end < m_index) {
+    while (end < m_index) {
         ++end;
     }
     while (end < lenText && textwidth(displayText(text, begin, end).data()) <= WriteAreaEnd - WriteAreaBegin) {

@@ -141,6 +141,9 @@ bool Menu::getCommand(const int& x, const int& y) {
         m_fileButton.setVisibility(!m_fileButton.isListVisible());
         return 1;
     }
+    if (m_settingsButton.hitCollision(x, y)) {
+        SettingsMenuInterface::update();
+    }
     if (m_helpButton.hitCollision(x, y)) {
         ObjectCreator objCreator(m_space.meshAt(0), m_theme);
         Mesh newMesh = objCreator.run();

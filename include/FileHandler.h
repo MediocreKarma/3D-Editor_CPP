@@ -35,6 +35,10 @@ class FileHandler {
         MyArray<char, 512> correctPath(const MyArray<char, 256>& text);
         void addExtension(MyArray<char, 512>& text, size_t& len);
         bool checkWindowClose();
+        bool isClickInTextbox(const int& x, const int& y);
+        bool checkClickInTextbox();
+        void changeIndexByClick(const int& x, const MyArray<char, 256>& text, size_t& begin, size_t& end);
+
 };
 
 #endif // FILEHANDLER_H

@@ -99,6 +99,22 @@ void SettingsMenuInterface::run() {
     settingsMenu(themeButtons, flagButtons, startButton, ddButton);
 }
 
+void SettingsMenuInterface::update() {
+    int height = getmaxheight(), width = getmaxwidth();
+    initwindow(SETTINGS_WIDTH, SETTINGS_HEIGHT, "Settings", width / 2 - SETTINGS_WIDTH / 2, height / 2 - SETTINGS_HEIGHT / 2);
+    drawScreen();
+    setTextSettings();
+    checkSavedSettings();
+    MyArray<TextLabel, LABEL_SIZE> labels(initLabels());
+    MyArray<TextButton, TEXTBUTTON_SIZE> themeButtons(initThemeButtons());
+    MyArray<ImageButton, FLAG_SIZE> flagButtons(initImageButtons());
+    TextButton startButton(300, 350, 100, 50, "Start");
+    DropdownButton<DROPDOWN_SIZE> ddButton(buildDropdownButton());
+    drawLabels(labels);
+    outtextxy(0, 0, "Warning: this will wipe current space!");
+    settingsMenu(themeButtons, flagButtons, startButton, ddButton);
+}
+
 void SettingsMenuInterface::settingsMenu(MyArray<TextButton, TEXTBUTTON_SIZE>& themeButtons, MyArray<ImageButton, FLAG_SIZE>& flagButtons,
                                          TextButton& startButton,  DropdownButton<DROPDOWN_SIZE>& ddButton) {
     drawThemeButtons(themeButtons);
@@ -113,8 +129,8 @@ void SettingsMenuInterface::settingsMenu(MyArray<TextButton, TEXTBUTTON_SIZE>& t
         getmouseclick(WM_LBUTTONDOWN, x, y);
         if (startButton.hitCollision(x, y)) {
             saveSelection();
-            closegraph();
             AppInterface appHandler(resOptions[resolution][0], resOptions[resolution][1], theme, language);
+            closegraph();
             appHandler.run();
             return;
         }

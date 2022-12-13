@@ -36,6 +36,7 @@ namespace SettingsMenuInterface
     static const int FONT_SIZE = 1;
 
     void run();
+    void update();
     void checkSavedSettings();
     void saveSelection();
     void drawScreen();

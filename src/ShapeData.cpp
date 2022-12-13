@@ -167,30 +167,57 @@ void Point3D::setPoint(const Point3D& pct) {
 void Point3D::rotateOX(const Point3D& center, const double& alpha) {
     translate(-center.getX(), -center.getY(), -center.getZ());
     double cosine = cos(alpha), sine = sin(alpha);
-    double y_ = y * cosine - z * sine;
-    double z_ = y * sine + z * cosine;
-    y = y_;
-    z = z_;
+
+    double sum1 = sqrt(y*y + z*z);
+
+    double y_ = round(y * cosine) - round(z * sine);
+    double z_ = round(y * sine) + round(z * cosine);
+
+    double sum2 = sqrt(y_*y_ + z_*z_);
+
+    double tr = sum1 / sum2;
+    if(sum1 < 0.000001) tr = 1;
+
+    y = round(y_ * tr);
+    z = round(z_ * tr);
     translate(center.getX(), center.getY(), center.getZ());
 }
 
 void Point3D::rotateOY(const Point3D& center, const double& alpha) {
     translate(-center.getX(), -center.getY(), -center.getZ());
     double cosine = cos(alpha), sine = sin(alpha);
-    double x_ = x * cosine - z * sine;
-    double z_ = x * sine + z * cosine;
-    x = x_;
-    z = z_;
+
+    double sum1 = sqrt(x*x + z*z);
+
+    double x_ = round(x * cosine) - round(z * sine);
+    double z_ = round(x * sine) + round(z * cosine);
+
+    double sum2 = sqrt(x_*x_ + z_*z_);
+
+    double tr = sum1 / sum2;
+    if(sum1 < 0.000001) tr = 1;
+
+    x = round(x_ * tr);
+    z = round(z_ * tr);
     translate(center.getX(), center.getY(), center.getZ());
 }
 
 void Point3D::rotateOZ(const Point3D& center, const double& alpha) {
     translate(-center.getX(), -center.getY(), -center.getZ());
     double cosine = cos(alpha), sine = sin(alpha);
-    int x_ = x * cosine - y * sine;
-    int y_ = x * sine + y * cosine;
-    x = x_;
-    y = y_;
+
+    double sum1 = sqrt(x*x + y*y);
+
+    int x_ = round((x * cosine)) - round(y * sine);
+    int y_ = round((x * sine)) + round(y * cosine);
+
+    double sum2 = sqrt(x_*x_ + y_*y_);
+
+    double tr = sum1 / sum2;
+    if(sum1 < 0.000001) tr = 1;
+    x = round(x_ * tr);
+    y = round(y_ * tr);
+
     translate(center.getX(), center.getY(), center.getZ());
 }
 
