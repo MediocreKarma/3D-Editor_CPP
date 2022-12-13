@@ -1,5 +1,6 @@
 #include "Menu.h"
 #include <iostream>
+#include "SettingsMenuInterface.h"
 
 Menu::Menu(const int& theme, const int& appWidth, const int& appHeight) :
     x1(), y1(), x2(), y2(), m_appWidth(appWidth), m_appHeight(appHeight), m_theme(theme), m_fileButton(40, 13, 80, 26, "File", 120, 80),
