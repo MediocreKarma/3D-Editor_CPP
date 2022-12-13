@@ -36,6 +36,7 @@ class Space3D
         Mesh& meshAt(const size_t& index);
         Section& sectionAt(const size_t& index);
         void update();
+        void setTheme(const int& theme);
 
     private:
         int x0;

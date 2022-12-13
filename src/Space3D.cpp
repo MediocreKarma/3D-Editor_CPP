@@ -63,6 +63,10 @@ void Space3D::addMesh(const Mesh& mesh) {
     m_updated.push_back(true);
 }
 
+void Space3D::setTheme(const int& theme) {
+    m_theme = theme;
+}
+
 bool Space3D::fscan(FILE* fp) {
     size_t meshCount = 0;
     if (fscanf(fp, "Models: %u\n", &meshCount) != 1) {

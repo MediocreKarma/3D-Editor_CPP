@@ -4,7 +4,7 @@
 
 Menu::Menu(const int& theme, const int& appWidth, const int& appHeight) :
     x1(), y1(), x2(), y2(), m_appWidth(appWidth), m_appHeight(appHeight), m_theme(theme), m_fileButton(40, 13, 80, 26, "File", 120, 80),
-    m_settingsButton(130, 13, 100, 26, "Settings"), m_helpButton(210, 13, 60, 26, "Help", 80, 80), m_space(), m_fileGetter() {
+    m_settingsButton(130, 13, 100, 26, "Settings"), m_helpButton(210, 13, 60, 26, "Help", 80, 80), m_space(), m_fileGetter(), m_settingsMenuFlag(false) {
     m_fileButton.addOption("New");
     m_fileButton.addOption("Save");
     m_fileButton.addOption("Save as...");
@@ -37,6 +37,16 @@ Menu::Menu(const int& theme, const int& appWidth, const int& appHeight) :
     m_space.addMesh(cube);
     cube.translate(0, 600, 0);
     m_space.addMesh(cube);
+}
+
+void Menu::setSettings(const int& theme, const int& appWidth, const int& appHeight) {
+    m_theme = theme;
+    m_appWidth = appWidth;
+    m_appHeight = appHeight;
+    m_space.setCorners(0, 27, m_appWidth, m_appHeight);
+    m_space.setTheme(theme);
+    m_space.update();
+    m_space.render();
 }
 
 void Menu::setBorder(const int& x1_, const int& y1_, const int& x2_, const int& y2_) {
@@ -143,13 +153,23 @@ bool Menu::getCommand(const int& x, const int& y) {
         return 1;
     }
     if (m_settingsButton.hitCollision(x, y)) {
-        SettingsMenuInterface::update();
+        closegraph();
+        m_settingsMenuFlag = true;
+        return false;
     }
     if (m_helpButton.hitCollision(x, y)) {
         ObjectCreator objCreator(m_space.meshAt(0), m_theme);
         Mesh newMesh = objCreator.run();
     }
     if (m_space.getCommand(x, y)) {
+        return true;
+    }
+    return false;
+}
+
+bool Menu::returnToSettingsFlag() {
+    if (m_settingsMenuFlag) {
+        m_settingsMenuFlag = false;
         return true;
     }
     return false;

@@ -1,4 +1,5 @@
 #include "SettingsMenuInterface.h"
+#include <iostream>
 
 static int resolution = 2;
 static int theme = 0;
@@ -45,7 +46,6 @@ DropdownButton<SettingsMenuInterface::DROPDOWN_SIZE> SettingsMenuInterface::buil
     ddButton.addOption("1280x720");
     ddButton.addOption("1000x750");
     ddButton.addOption("800x600");
-    ddButton.changeMain(resolution, FONT, FONT_SIZE, BUTTON_COLOR);
     return ddButton;
 }
 
@@ -85,54 +85,51 @@ void SettingsMenuInterface::saveSelection() {
 }
 
 void SettingsMenuInterface::run() {
-    int height = getmaxheight(), width = getmaxwidth();
-    initwindow(SETTINGS_WIDTH, SETTINGS_HEIGHT, "Settings", width / 2 - SETTINGS_WIDTH / 2, height / 2 - SETTINGS_HEIGHT / 2);
-    drawScreen();
-    setTextSettings();
-    checkSavedSettings();
     MyArray<TextLabel, LABEL_SIZE> labels(initLabels());
     MyArray<TextButton, TEXTBUTTON_SIZE> themeButtons(initThemeButtons());
     MyArray<ImageButton, FLAG_SIZE> flagButtons(initImageButtons());
     TextButton startButton(300, 350, 100, 50, "Start");
     DropdownButton<DROPDOWN_SIZE> ddButton(buildDropdownButton());
-    drawLabels(labels);
-    settingsMenu(themeButtons, flagButtons, startButton, ddButton);
+    settingsMenu(themeButtons, flagButtons, startButton, ddButton, labels);
 }
 
-void SettingsMenuInterface::update() {
+void SettingsMenuInterface::initScreen() {
     int height = getmaxheight(), width = getmaxwidth();
     initwindow(SETTINGS_WIDTH, SETTINGS_HEIGHT, "Settings", width / 2 - SETTINGS_WIDTH / 2, height / 2 - SETTINGS_HEIGHT / 2);
     drawScreen();
     setTextSettings();
     checkSavedSettings();
-    MyArray<TextLabel, LABEL_SIZE> labels(initLabels());
-    MyArray<TextButton, TEXTBUTTON_SIZE> themeButtons(initThemeButtons());
-    MyArray<ImageButton, FLAG_SIZE> flagButtons(initImageButtons());
-    TextButton startButton(300, 350, 100, 50, "Start");
-    DropdownButton<DROPDOWN_SIZE> ddButton(buildDropdownButton());
-    drawLabels(labels);
-    outtextxy(0, 0, "Warning: this will wipe current space!");
-    settingsMenu(themeButtons, flagButtons, startButton, ddButton);
 }
 
-void SettingsMenuInterface::settingsMenu(MyArray<TextButton, TEXTBUTTON_SIZE>& themeButtons, MyArray<ImageButton, FLAG_SIZE>& flagButtons,
-                                         TextButton& startButton,  DropdownButton<DROPDOWN_SIZE>& ddButton) {
+void SettingsMenuInterface::draw(MyArray<TextButton, TEXTBUTTON_SIZE>& themeButtons, MyArray<ImageButton, FLAG_SIZE>& flagButtons,
+                                    TextButton& startButton,  DropdownButton<DROPDOWN_SIZE>& ddButton, MyArray<TextLabel, LABEL_SIZE>& labels) {
     drawThemeButtons(themeButtons);
     drawFlagButtons(flagButtons);
+    drawLabels(labels);
     startButton.drawTextButton(FONT, FONT_SIZE, BUTTON_COLOR);
     ddButton.drawTextButton(FONT, FONT_SIZE, BUTTON_COLOR);
     themeButtons[theme].border(HIGHLIGHT_COLOR);
     flagButtons[language].border(HIGHLIGHT_COLOR);
+    ddButton.changeMain(resolution, FONT, FONT_SIZE, BUTTON_COLOR);
+}
+
+
+void SettingsMenuInterface::settingsMenu(MyArray<TextButton, TEXTBUTTON_SIZE>& themeButtons, MyArray<ImageButton, FLAG_SIZE>& flagButtons,
+                                         TextButton& startButton,  DropdownButton<DROPDOWN_SIZE>& ddButton, MyArray<TextLabel, LABEL_SIZE>& labels) {
+    initScreen();
+    draw(themeButtons, flagButtons, startButton, ddButton, labels);
+    AppInterface appHandler;
     while (true) {
         while (!ismouseclick(WM_LBUTTONDOWN));
         int x, y;
         getmouseclick(WM_LBUTTONDOWN, x, y);
         if (startButton.hitCollision(x, y)) {
-            saveSelection();
-            AppInterface appHandler(resOptions[resolution][0], resOptions[resolution][1], theme, language);
             closegraph();
+            saveSelection();
+            appHandler.setSettings(resOptions[resolution][0], resOptions[resolution][1], theme, language);
             appHandler.run();
-            return;
+            initScreen();
+            draw(themeButtons, flagButtons, startButton, ddButton, labels);
         }
         for (size_t i = 0; i < themeButtons.size(); ++i) {
             if (themeButtons[i].hitCollision(x, y)) {

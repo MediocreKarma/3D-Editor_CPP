@@ -10,10 +10,11 @@ class Menu {
     public:
 
         Menu(const int& theme = 0, const int& appWidth = 1280, const int& appHeight = 720);
-        void clear();
+        void setSettings(const int& theme = 0, const int& appWidth = 1280, const int& appHeight = 720);
         void draw();
         bool getCommand(const int& xClick, const int& yClick);
         void setBorder(const int& x1, const int& y1, const int& x2, const int& y2);
+        bool returnToSettingsFlag();
 
     private:
         int x1, y1, x2, y2;
@@ -25,6 +26,7 @@ class Menu {
         DropdownButton<3> m_helpButton;
         Space3D m_space;
         FileHandler m_fileGetter;
+        bool m_settingsMenuFlag;
 
         bool getKeyCommand();
         void drawMenu();

@@ -50,7 +50,10 @@ namespace SettingsMenuInterface
     void drawLabels(MyArray<TextLabel, LABEL_SIZE>& labels);
     void drawFlagButtons(MyArray<ImageButton, FLAG_SIZE>& flagButtons);
     void settingsMenu(MyArray<TextButton, TEXTBUTTON_SIZE>& txtButtons, MyArray<ImageButton, FLAG_SIZE>& flagButtons,
-                      TextButton& startButton, DropdownButton<DROPDOWN_SIZE>& ddButton);
+                      TextButton& startButton, DropdownButton<DROPDOWN_SIZE>& ddButton, MyArray<TextLabel, LABEL_SIZE>& labels);
+    void initScreen();
+    void draw(MyArray<TextButton, TEXTBUTTON_SIZE>& themeButtons, MyArray<ImageButton, FLAG_SIZE>& flagButtons,
+                TextButton& startButton,  DropdownButton<DROPDOWN_SIZE>& ddButton, MyArray<TextLabel, LABEL_SIZE>& labels);
 }
 
 #endif // SETTINGSMENUINTERFACE_H
