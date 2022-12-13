@@ -118,8 +118,8 @@ void Menu::draw() {
 }
 
 bool Menu::getCommand(const int& x, const int& y) {
-    if (x == -1 && getKeyCommand()) {
-        return true;
+    if (x == -1) {
+        return m_space.getKeyCommand();
     }
     if (m_fileButton.isListVisible()) {
         int pos = m_fileButton.listHitCollision(x, y);
@@ -146,16 +146,6 @@ bool Menu::getCommand(const int& x, const int& y) {
         Mesh newMesh = objCreator.run();
     }
     if (m_space.getCommand(x, y)) {
-        return true;
-    }
-    return false;
-}
-
-bool Menu::getKeyCommand() {
-    if (!kbhit()) {
-        return false;
-    }
-    if (m_space.getKeyCommand(getch())) {
         return true;
     }
     return false;

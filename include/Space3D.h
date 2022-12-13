@@ -26,15 +26,16 @@ class Space3D
         bool insideWorkArea(const int& x, const int& y) const;
         bool insideWorkArea(const Point2D& point) const;
         bool getCommand(const int& xClick, const int& yClick);
-        bool getKeyCommand(const char& c);
+        bool getKeyCommand();
         bool fscan(FILE* fp);
         void fprint(FILE* fp);
         MyArray<char, 512> getLinkedFileName();
         void setLinkedFileName(const MyArray<char, 512>& name);
         bool isLinkedWithFile();
         void setCorners(const int& x0_, const int& y0_, const int& x1_, const int& y1_);
-        const Mesh& meshAt(const size_t& index) const;
-        const Section& sectionAt(const size_t& index) const;
+        Mesh& meshAt(const size_t& index);
+        Section& sectionAt(const size_t& index);
+        void update();
 
     private:
         int x0;
@@ -77,6 +78,7 @@ class Space3D
         double findRotation(const int& xDrag, const int& yDrag, const DonutButton& angleDonut, CircularButton& button);
         bool checkAxisRotation(const int& x, const int& y);
         bool checkCamMovement(const char& c);
+        bool checkObjectRotation(int x, int y);
         Point2D moveInsideWorkArea(const Point2D& P, const Point2D& Q, const int& xBorder, const int& yBorder);
         void drawSpinball();
         void showAngleOptions();

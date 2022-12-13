@@ -129,6 +129,7 @@ class Mesh {
         const Point3D& operator [] (const size_t& index) const;
         Mesh& operator = (const Mesh& other);
         MyVector<size_t> adjListAt(const size_t& index) const;
+        MyVector<MyVector<size_t>>& adjacencyListReference();
         const MyVector<MyVector<size_t>>& adjacencyList() const;
         void addIndexConnections(const size_t& index, const MyVector<size_t>& adjList);
         void translate(const int& xTranslate, const int& yTranslate, const int& zTranslate);

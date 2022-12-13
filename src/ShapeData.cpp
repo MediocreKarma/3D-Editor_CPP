@@ -1,6 +1,8 @@
 #include "ShapeData.h"
 #include <iostream>
 
+const double PI = 3.14159265359;
+
 Point2D::Point2D() :
     x(), y() {}
 
@@ -336,6 +338,10 @@ MyVector<size_t> Mesh::adjListAt(const size_t& index) const {
     return m_adjList[index];
 }
 
+MyVector<MyVector<size_t>>& Mesh::adjacencyListReference() {
+    return m_adjList;
+}
+
 const MyVector<MyVector<size_t>>& Mesh::adjacencyList() const {
     return m_adjList;
 }
@@ -454,7 +460,7 @@ double Mesh::angleZ() const {
 }
 
 void Mesh::rotate(const double& angleX_, const double& angleY_, const double& angleZ_) {
-    const double e = 0.000000001;
+    const double e = 0.0000000000001;
     for (size_t i = 0; i < size(); ++i) {
         if(abs(angleX_) > e) {
             m_points[i].rotateOX(centerPoint(), angleX_);
@@ -469,6 +475,9 @@ void Mesh::rotate(const double& angleX_, const double& angleY_, const double& an
     m_angleX += angleX_;
     m_angleY += angleY_;
     m_angleZ += angleZ_;
+    m_angleX = fmod(m_angleX, PI * 2);
+    m_angleY = fmod(m_angleY, PI * 2);
+    m_angleZ = fmod(m_angleZ, PI * 2);
 }
 
 void Mesh::scaleEven(const double& scaleFactor) {
