@@ -493,12 +493,12 @@ void Mesh::rotate(const double& angleX_, const double& angleY_, const double& an
     }
     if (fabs(angleY_) > e) {
         for (size_t i = 0; i < size(); ++i) {
-            m_points[i].rotateOY(centerPoint(), angleX_);
+            m_points[i].rotateOY(centerPoint(), angleY_);
         }
     }
     if (fabs(angleZ_) > e) {
         for (size_t i = 0; i < size(); ++i) {
-            m_points[i].rotateOZ(centerPoint(), angleX_);
+            m_points[i].rotateOZ(centerPoint(), angleZ_);
         }
     }
     m_angleX += angleX_;
