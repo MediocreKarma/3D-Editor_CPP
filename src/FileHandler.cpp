@@ -198,15 +198,15 @@ void FileHandler::insertIndex(MyArray<char, 256>& text, size_t& len, const char&
     ++m_index;
 }
 
-void FileHandler::displayCursor(const MyArray<char, displayableText + 1>& outText, const size_t& from) {
-    MyArray<char, displayableText + 1> textBeforeCursor = outText;
+void FileHandler::displayCursor(const MyArray<char, displayableText>& outText, const size_t& from) {
+    MyArray<char, displayableText> textBeforeCursor = outText;
     textBeforeCursor[m_index - from] = 0;
     int len = textwidth(textBeforeCursor.data());
     line(WriteAreaBegin + len, m_height / 2 - 10, WriteAreaBegin + len, m_height / 2 + 10);
 }
 
-MyArray<char, FileHandler::displayableText + 1> FileHandler::displayText(const MyArray<char, 256>& text, const size_t& from, const size_t& to) {
-    MyArray<char, displayableText + 1> outText = {0};
+MyArray<char, FileHandler::displayableText> FileHandler::displayText(const MyArray<char, 256>& text, const size_t& from, const size_t& to) {
+    MyArray<char, displayableText> outText = {0};
     for (size_t index = 0; index + from < to && text[index + from]; ++index) {
         outText[index] = text[index + from];
     }
@@ -215,7 +215,7 @@ MyArray<char, FileHandler::displayableText + 1> FileHandler::displayText(const M
 
 void FileHandler::display(const MyArray<char, 256>& text, const size_t& from, const size_t& to) {
     clearText();
-    MyArray<char, displayableText + 1> outText = displayText(text, from, to);
+    MyArray<char, displayableText> outText = displayText(text, from, to);
     outtextxy(WriteAreaBegin, m_height / 2 - textheight(outText.data()) / 2, outText.data());
     displayCursor(outText, from);
 }

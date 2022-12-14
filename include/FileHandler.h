@@ -27,8 +27,8 @@ class FileHandler {
         MyArray<char, 256> getFilename();
         void backspaceIndex(MyArray<char, 256>& text, size_t& len);
         void insertIndex(MyArray<char, 256>& text, size_t& len, const char& key);
-        MyArray<char, displayableText + 1> displayText(const MyArray<char, 256>& text, const size_t& from, const size_t& to);
-        void displayCursor(const MyArray<char, displayableText + 1>& outText, const size_t& from);
+        MyArray<char, displayableText> displayText(const MyArray<char, 256>& text, const size_t& from, const size_t& to);
+        void displayCursor(const MyArray<char, displayableText>& outText, const size_t& from);
         void decrementBeginEnd(const MyArray<char, 256>& text, size_t& begin, size_t& end);
         void incrementBeginEnd(const MyArray<char, 256>& text, size_t& begin, size_t& end, const size_t& lenText = 0);
         void display(const MyArray<char, 256>& text, const size_t& from, const size_t& to);

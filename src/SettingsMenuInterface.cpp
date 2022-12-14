@@ -113,7 +113,6 @@ void SettingsMenuInterface::draw(MyArray<TextButton, TEXTBUTTON_SIZE>& themeButt
     ddButton.changeMain(resolution, FONT, FONT_SIZE, BUTTON_COLOR);
 }
 
-
 void SettingsMenuInterface::settingsMenu(MyArray<TextButton, TEXTBUTTON_SIZE>& themeButtons, MyArray<ImageButton, FLAG_SIZE>& flagButtons,
                                          TextButton& startButton,  DropdownButton<DROPDOWN_SIZE>& ddButton, MyArray<TextLabel, LABEL_SIZE>& labels) {
     initScreen();

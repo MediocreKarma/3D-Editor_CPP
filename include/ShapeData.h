@@ -1,7 +1,7 @@
 #ifndef SHAPEDATA_H
 #define SHAPEDATA_H
 
-#include <math.h>
+#include <cmath>
 #include "MyVector.h"
 #include <graphics.h>
 #include <winbgim.h>
@@ -68,28 +68,27 @@ class Section {
 class Point3D {
     public:
         Point3D();
-        Point3D(const int& x_, const int& y_, const int& z_);
         Point3D(const double& x_, const double& y_, const double& z_);
         Point3D(const Point3D& pct);
-        int getX() const;
-        int getY() const;
-        int getZ() const;
-        void setX(const int& x_);
-        void setY(const int& y_);
-        void setZ(const int& z_);
+        double getX() const;
+        double getY() const;
+        double getZ() const;
+        void setX(const double& x_);
+        void setY(const double& y_);
+        void setZ(const double& z_);
         void setPoint(const Point3D& pct);
         void rotateOX(const Point3D& center, const double& alpha);
         void rotateOY(const Point3D& center, const double& alpha);
         void rotateOZ(const Point3D& center, const double& alpha);
-        void translate(const int& xTranslate, const int& yTranslate, const int& zTranslate);
+        void translate(const double& xTranslate, const double& yTranslate, const double& zTranslate);
         Point3D& operator += (const Point3D& other);
         void fprint(FILE* fp);
         bool fscan(FILE* fp);
 
     private:
-        int x;
-        int y;
-        int z;
+        double x;
+        double y;
+        double z;
 };
 
 class Line3D {
@@ -123,7 +122,7 @@ class Mesh {
 
         size_t size() const;
         void addPoint(const Point3D& point);
-        void addPoint(const int& x, const int& y, const int& z);
+        void addPoint(const double& x, const double& y, const double& z);
         void addEdge(const size_t& index1, const size_t& index2);
         Point3D& operator [] (const size_t& index);
         const Point3D& operator [] (const size_t& index) const;
@@ -132,7 +131,7 @@ class Mesh {
         MyVector<MyVector<size_t>>& adjacencyListReference();
         const MyVector<MyVector<size_t>>& adjacencyList() const;
         void addIndexConnections(const size_t& index, const MyVector<size_t>& adjList);
-        void translate(const int& xTranslate, const int& yTranslate, const int& zTranslate);
+        void translate(const double& xTranslate, const double& yTranslate, const double& zTranslate);
         Point3D centerPoint() const;
         void updateCenterPoint();
         void fprint(FILE* fp);

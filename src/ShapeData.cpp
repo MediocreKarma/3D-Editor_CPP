@@ -125,36 +125,33 @@ const Point2D& Section::operator [] (const size_t& index) const {
 Point3D::Point3D() :
     x(), y(), z() {}
 
-Point3D::Point3D(const int& x_, const int& y_, const int& z_) :
-    x(x_), y(y_), z(z_) {}
-
 Point3D::Point3D(const double& x_, const double& y_, const double& z_) :
-    x(round(x_)), y(round(y_)), z(round(z_)) {}
+    x(x_), y(y_), z(z_) {}
 
 Point3D::Point3D(const Point3D& other) :
     x(other.x), y(other.y), z(other.z) {}
 
-int Point3D::getX() const {
+double Point3D::getX() const {
     return x;
 }
 
-int Point3D::getY() const {
+double Point3D::getY() const {
     return y;
 }
 
-int Point3D::getZ() const {
+double Point3D::getZ() const {
     return z;
 }
 
-void Point3D::setX(const int& x_) {
+void Point3D::setX(const double& x_) {
     x = x_;
 }
 
-void Point3D::setY(const int& y_) {
+void Point3D::setY(const double& y_) {
     y = y_;
 }
 
-void Point3D::setZ(const int& z_) {
+void Point3D::setZ(const double& z_) {
     z = z_;
 }
 
@@ -176,10 +173,11 @@ void Point3D::rotateOX(const Point3D& center, const double& alpha) {
     double sum2 = sqrt(y_*y_ + z_*z_);
 
     double tr = sum1 / sum2;
-    if(sum1 < 0.000001) tr = 1;
-
-    y = round(y_ * tr);
-    z = round(z_ * tr);
+    if(sum1 < 0.000001) {
+        tr = 1;
+    }
+    y = y_ * tr;
+    z = z_ * tr;
     translate(center.getX(), center.getY(), center.getZ());
 }
 
@@ -228,18 +226,18 @@ Point3D& Point3D::operator += (const Point3D& other) {
     return *this;
 }
 
-void Point3D::translate(const int& xTranslate, const int& yTranslate, const int& zTranslate) {
+void Point3D::translate(const double& xTranslate, const double& yTranslate, const double& zTranslate) {
     x += xTranslate;
     y += yTranslate;
     z += zTranslate;
 }
 
 void Point3D::fprint(FILE* fp) {
-    fprintf(fp, "%i, %i, %i", x, y, z);
+    fprintf(fp, "%f, %f, %f", x, y, z);
 }
 
 bool Point3D::fscan(FILE* fp) {
-    if (fscanf(fp, "%i, %i, %i", &x, &y, &z) != 3) {
+    if (fscanf(fp, "%lf, %lf, %lf", &x, &y, &z) != 3) {
         x = y = z = 0;
         return false;
     }
@@ -389,7 +387,7 @@ void Mesh::addIndexConnections(const size_t& index, const MyVector<size_t>& list
     }
 }
 
-void Mesh::addPoint(const int& x, const int& y, const int& z) {
+void Mesh::addPoint(const double& x, const double& y, const double& z) {
     m_points.push_back(Point3D(x, y, z));
     m_adjList.push_back(MyVector<size_t>());
 }
@@ -409,7 +407,7 @@ void Mesh::addEdge(const size_t& index1, const size_t& index2) {
     m_adjList[index2].push_back(index1);
 }
 
-void Mesh::translate(const int& xTranslate, const int& yTranslate, const int& zTranslate) {
+void Mesh::translate(const double& xTranslate, const double& yTranslate, const double& zTranslate) {
     for (size_t i = 0; i < size(); ++i) {
         m_points[i].translate(xTranslate, yTranslate, zTranslate);
     }
@@ -488,21 +486,26 @@ double Mesh::angleZ() const {
 
 void Mesh::rotate(const double& angleX_, const double& angleY_, const double& angleZ_) {
     const double e = 0.0000000000001;
-    for (size_t i = 0; i < size(); ++i) {
-        if(abs(angleX_) > e) {
+    if (fabs(angleX_) > e) {
+        for (size_t i = 0; i < size(); ++i) {
             m_points[i].rotateOX(centerPoint(), angleX_);
         }
-        if(abs(angleY_) > e) {
-            m_points[i].rotateOY(centerPoint(), angleY_);
+    }
+    if (fabs(angleY_) > e) {
+        for (size_t i = 0; i < size(); ++i) {
+            m_points[i].rotateOY(centerPoint(), angleX_);
         }
-        if(abs(angleZ_) > e) {
-            m_points[i].rotateOZ(centerPoint(), angleZ_);
+    }
+    if (fabs(angleZ_) > e) {
+        for (size_t i = 0; i < size(); ++i) {
+            m_points[i].rotateOZ(centerPoint(), angleX_);
         }
     }
     m_angleX += angleX_;
     m_angleY += angleY_;
     m_angleZ += angleZ_;
     m_angleX = fmod(m_angleX, PI * 2);
+    std::cout << m_angleX << '\n';
     m_angleY = fmod(m_angleY, PI * 2);
     m_angleZ = fmod(m_angleZ, PI * 2);
 }
