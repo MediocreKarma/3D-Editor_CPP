@@ -165,19 +165,12 @@ void Point3D::rotateOX(const Point3D& center, const double& alpha) {
     translate(-center.getX(), -center.getY(), -center.getZ());
     double cosine = cos(alpha), sine = sin(alpha);
 
-    double sum1 = sqrt(y*y + z*z);
+    double y_ = y * cosine - z * sine;
+    double z_ = y * sine + z * cosine;
 
-    double y_ = round(y * cosine) - round(z * sine);
-    double z_ = round(y * sine) + round(z * cosine);
+    y = y_;
+    z = z_;
 
-    double sum2 = sqrt(y_*y_ + z_*z_);
-
-    double tr = sum1 / sum2;
-    if(sum1 < 0.000001) {
-        tr = 1;
-    }
-    y = y_ * tr;
-    z = z_ * tr;
     translate(center.getX(), center.getY(), center.getZ());
 }
 
@@ -185,18 +178,11 @@ void Point3D::rotateOY(const Point3D& center, const double& alpha) {
     translate(-center.getX(), -center.getY(), -center.getZ());
     double cosine = cos(alpha), sine = sin(alpha);
 
-    double sum1 = sqrt(x*x + z*z);
+    double x_ = x * cosine - z * sine;
+    double z_ = x * sine + z * cosine;
 
-    double x_ = round(x * cosine) - round(z * sine);
-    double z_ = round(x * sine) + round(z * cosine);
-
-    double sum2 = sqrt(x_*x_ + z_*z_);
-
-    double tr = sum1 / sum2;
-    if(sum1 < 0.000001) tr = 1;
-
-    x = round(x_ * tr);
-    z = round(z_ * tr);
+    x = x_;
+    z = z_;
     translate(center.getX(), center.getY(), center.getZ());
 }
 
@@ -204,17 +190,11 @@ void Point3D::rotateOZ(const Point3D& center, const double& alpha) {
     translate(-center.getX(), -center.getY(), -center.getZ());
     double cosine = cos(alpha), sine = sin(alpha);
 
-    double sum1 = sqrt(x*x + y*y);
+    double x_ = x * cosine - y * sine;
+    double y_ = x * sine + y * cosine;
 
-    int x_ = round((x * cosine)) - round(y * sine);
-    int y_ = round((x * sine)) + round(y * cosine);
-
-    double sum2 = sqrt(x_*x_ + y_*y_);
-
-    double tr = sum1 / sum2;
-    if(sum1 < 0.000001) tr = 1;
-    x = round(x_ * tr);
-    y = round(y_ * tr);
+    x = x_;
+    y = y_;
 
     translate(center.getX(), center.getY(), center.getZ());
 }
@@ -493,19 +473,18 @@ void Mesh::rotate(const double& angleX_, const double& angleY_, const double& an
     }
     if (fabs(angleY_) > e) {
         for (size_t i = 0; i < size(); ++i) {
-            m_points[i].rotateOY(centerPoint(), angleX_);
+            m_points[i].rotateOY(centerPoint(), angleY_);
         }
     }
     if (fabs(angleZ_) > e) {
         for (size_t i = 0; i < size(); ++i) {
-            m_points[i].rotateOZ(centerPoint(), angleX_);
+            m_points[i].rotateOZ(centerPoint(), angleZ_);
         }
     }
     m_angleX += angleX_;
     m_angleY += angleY_;
     m_angleZ += angleZ_;
     m_angleX = fmod(m_angleX, PI * 2);
-    std::cout << m_angleX << '\n';
     m_angleY = fmod(m_angleY, PI * 2);
     m_angleZ = fmod(m_angleZ, PI * 2);
 }
