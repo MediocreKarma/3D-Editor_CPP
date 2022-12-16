@@ -56,6 +56,14 @@ class MyArray
         iterator end() {
             return iterator(&m_data[m_size]);
         }
+    
+        const_iterator begin() const {
+            return cbegin();
+        }
+
+        const_iterator end() const {
+            return cend();
+        }
 
         const_iterator cbegin() const {
             return const_iterator(&m_data[0]);
