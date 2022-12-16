@@ -31,7 +31,10 @@ Line2D::Line2D() :
     P(), Q() {}
 
 Line2D::Line2D(const Point2D& P_, const Point2D& Q_) :
-    P(P_), Q(Q_){}
+    P(P_), Q(Q_) {}
+
+Line2D::Line2D(const int& x0, const int& y0, const int& x1, const int& y1) :
+    P(x0, y0), Q(x1, y1) {}
 
 Point2D Line2D::getP() {
     return P;
@@ -164,23 +167,18 @@ void Point3D::setPoint(const Point3D& pct) {
 void Point3D::rotateOX(const Point3D& center, const double& alpha) {
     translate(-center.getX(), -center.getY(), -center.getZ());
     double cosine = cos(alpha), sine = sin(alpha);
-
     double y_ = y * cosine - z * sine;
     double z_ = y * sine + z * cosine;
-
     y = y_;
     z = z_;
-
     translate(center.getX(), center.getY(), center.getZ());
 }
 
 void Point3D::rotateOY(const Point3D& center, const double& alpha) {
     translate(-center.getX(), -center.getY(), -center.getZ());
     double cosine = cos(alpha), sine = sin(alpha);
-
     double x_ = x * cosine - z * sine;
     double z_ = x * sine + z * cosine;
-
     x = x_;
     z = z_;
     translate(center.getX(), center.getY(), center.getZ());
@@ -189,13 +187,10 @@ void Point3D::rotateOY(const Point3D& center, const double& alpha) {
 void Point3D::rotateOZ(const Point3D& center, const double& alpha) {
     translate(-center.getX(), -center.getY(), -center.getZ());
     double cosine = cos(alpha), sine = sin(alpha);
-
     double x_ = x * cosine - y * sine;
     double y_ = x * sine + y * cosine;
-
     x = x_;
     y = y_;
-
     translate(center.getX(), center.getY(), center.getZ());
 }
 
@@ -351,6 +346,28 @@ const MyVector<MyVector<size_t>>& Mesh::adjacencyList() const {
     return m_adjList;
 }
 
+void Mesh::erase(const size_t& index) {
+    m_points.erase(m_points.begin() + index);
+    m_adjList.erase(m_adjList.begin() + index);
+    for (size_t i = 0; i < m_adjList.size(); ++i) {
+        for (size_t j = 0; j < m_adjList[i].size(); ++j) {
+            if (m_adjList[i][j] == index) {
+                for (size_t k = j + 1; j < m_adjList[i].size(); ++j) {
+                    m_adjList[i][k - 1] = m_adjList[i][k];
+                }
+                break;
+            }
+        }
+    }
+    for (MyVector<size_t>& listInfo : m_adjList) {
+        for (size_t& k : listInfo) {
+            if (k > index) {
+                --k;
+            }
+        }
+    }
+}
+
 void Mesh::addIndexConnections(const size_t& index, const MyVector<size_t>& listAtIndex) { // O(n^2) -> O(n) daca implementam hashset-uri :D
     for (size_t i = 0; i < listAtIndex.size(); ++i) {
         bool alreadyConnected = false;
@@ -380,6 +397,7 @@ void Mesh::addPoint(const Point3D& point) {
 void Mesh::addEdge(const size_t& index1, const size_t& index2) {
     for (size_t i = 0; i < m_adjList[index1].size(); ++i) {
         if (m_adjList[index1][i] == index2) {
+            std::cout << "here";
             return;
         }
     }

@@ -29,6 +29,7 @@ class Line2D {
     public:
         Line2D();
         Line2D(const Point2D& P_, const Point2D& Q_);
+        Line2D(const int& x0, const int& y0, const int& x1, const int& y1);
         Point2D getP();
         Point2D getQ();
         void draw();
@@ -121,6 +122,7 @@ class Mesh {
         Mesh(const Mesh& other);
 
         size_t size() const;
+        void erase(const size_t& index);
         void addPoint(const Point3D& point);
         void addPoint(const double& x, const double& y, const double& z);
         void addEdge(const size_t& index1, const size_t& index2);

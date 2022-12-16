@@ -4,11 +4,14 @@
 #include <cstddef>
 #include <initializer_list>
 #include <stdexcept>
+#include "MyIterators.h"
 
 template<class T>
-class MyVector
-{
+class MyVector {
     public:
+        using iterator = MyRandomAcessIterator<T>;
+        using const_iterator = MyRandomAcessIterator<const T>;
+
         MyVector() : m_vec(nullptr), m_size(0), m_capacity(2) {
             setCapacity(m_capacity);
         }
@@ -64,6 +67,30 @@ class MyVector
             }
         }
 
+        iterator begin() {
+            return iterator(&m_vec[0]);
+        }
+
+        iterator end() {
+            return iterator(&m_vec[m_size]);
+        }
+
+        const_iterator begin() const {
+            return cbegin();
+        }
+
+        const_iterator end() const {
+            return cend();
+        }
+
+        const_iterator cbegin() const {
+            return const_iterator(&m_vec[0]);
+        }
+
+        const_iterator cend() const {
+            return const_iterator(&m_vec[m_size]);
+        }
+
         void reserve(const size_t& reservedCapacity) {
             if (reservedCapacity < m_capacity) {
                 return;
@@ -89,6 +116,20 @@ class MyVector
 
         bool empty() const {
             return !m_size;
+        }
+
+        void erase(iterator it) {
+            if (it >= end()) {
+                throw std::out_of_range("beyond range");
+            }
+            if (it < begin()) {
+                throw std::out_of_range("below range");
+            }
+            iterator nxt = it + 1;
+            while (nxt != end()) {
+                *(it++) = *(nxt++);
+            }
+            pop_back();
         }
 
         void push_back(const T& element) {

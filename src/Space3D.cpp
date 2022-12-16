@@ -18,6 +18,31 @@ Space3D::Space3D(const double& maxRadius, const int& theme, ObjectCreator* objCr
     m_updated(), m_cam(maxRadius), m_buttonOX(), m_buttonOY(), m_buttonOZ(), m_donutOX(), m_donutOY(), m_donutOZ(), m_spinballButton(), m_arrowLeft(), m_arrowRight(),
     m_arrowUp(), m_arrowDown(), m_arrowSpinLeft(), m_arrowSpinRight(), m_linkedFile{0}, m_menuHolder(nullptr), m_objCreatorHolder(objCreatorHolder) {}
 
+Space3D::Space3D(const Space3D& sp) :
+    x0(sp.x0), y0(sp.y0), x1(sp.x1), y1(sp.y1), m_theme(sp.m_theme), m_selected(sp.m_selected), m_spinballSelected(sp.m_spinballSelected), m_fadedDrag(sp.m_fadedDrag),
+    m_meshes(sp.m_meshes), m_draggedMesh(sp.m_draggedMesh), m_sections(sp.m_sections), m_draggedSection(sp.m_draggedSection),
+    m_updated(sp.m_updated), m_cam(sp.m_cam), m_buttonOX(sp.m_buttonOX), m_buttonOY(sp.m_buttonOY), m_buttonOZ(sp.m_buttonOZ), m_donutOX(sp.m_donutOX), m_donutOY(sp.m_donutOY),
+    m_donutOZ(sp.m_donutOZ), m_spinballButton(sp.m_spinballButton), m_arrowLeft(sp.m_arrowLeft), m_arrowRight(sp.m_arrowRight),
+    m_arrowUp(sp.m_arrowUp), m_arrowDown(sp.m_arrowDown), m_arrowSpinLeft(sp.m_arrowSpinLeft), m_arrowSpinRight(sp.m_arrowSpinRight), m_linkedFile(sp.m_linkedFile),
+    m_menuHolder(sp.m_menuHolder), m_objCreatorHolder(sp.m_objCreatorHolder) {}
+
+Space3D& Space3D::operator = (const Space3D& sp) {
+    m_theme = sp.m_theme;
+    m_fadedDrag = sp.m_fadedDrag;
+    m_draggedMesh = sp.m_draggedMesh;
+    m_draggedSection = sp.m_draggedSection;
+    m_cam = sp.m_cam;
+    m_meshes = sp.m_meshes;
+    m_sections = sp.m_sections;
+    m_updated = sp.m_updated;
+    m_selected = sp.m_selected;
+    m_linkedFile = sp.m_linkedFile;
+    m_menuHolder = sp.m_menuHolder;
+    m_objCreatorHolder = sp.m_objCreatorHolder;
+    setCorners(sp.x0, sp.y0, sp.x1, sp.y1);
+    return *this;
+}
+
 void Space3D::setCorners(const int& x0_, const int& y0_, const int& x1_, const int& y1_) {
     x0 = x0_;
     y0 = y0_;
@@ -600,6 +625,14 @@ Mesh& Space3D::meshAt(const size_t& index) {
     return m_meshes[index];
 }
 
+const Mesh& Space3D::meshAt(const size_t& index) const {
+    return m_meshes[index];
+}
+
 Section& Space3D::sectionAt(const size_t& index) {
+    return m_sections[index];
+}
+
+const Section& Space3D::sectionAt(const size_t& index) const {
     return m_sections[index];
 }

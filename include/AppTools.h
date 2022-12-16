@@ -74,7 +74,7 @@ class TextLabel : public Label {
         void drawTextLabel(const int& txtFont, const int& txtSize, const int& fillColor);
     private:
         MyArray<char, 128> m_text;
-        void drawText(const int& txtFont, const int& txtSize, const int& fillColor);
+        void drawText(const int& /*txtFont*/, const int& /*txtSize*/, const int& fillColor);
 };
 
 class Button : public Label {
@@ -106,7 +106,7 @@ class TextButton : public Button {
         MyArray<char, 32> m_text;
 
     private:
-        void drawText(const int& txtFont, const int& txtSize, const int& fillColor);
+        void drawText(const int& /*txtFont*/, const int& /*txtSize*/, const int& fillColor);
 };
 
 template<size_t lenList>

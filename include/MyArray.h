@@ -4,11 +4,16 @@
 #include <cstddef>
 #include <initializer_list>
 #include <stdexcept>
+#include "MyIterators.h"
 
 template<class T, size_t m_size>
 class MyArray
 {
     public:
+
+        using iterator = MyRandomAcessIterator<T>;
+        using const_iterator = MyRandomAcessIterator<const T>;
+
         MyArray() = default;
 
         MyArray(const MyArray<T, m_size>& other) {
@@ -42,6 +47,22 @@ class MyArray
 
         size_t size() const {
             return m_size;
+        }
+
+        iterator begin() {
+            return iterator(&m_data[0]);
+        }
+
+        iterator end() {
+            return iterator(&m_data[m_size]);
+        }
+
+        const_iterator cbegin() const {
+            return const_iterator(&m_data[0]);
+        }
+
+        const_iterator cend() const {
+            return const_iterator(&m_data[m_size]);
         }
 
         T* data() {
