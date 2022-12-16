@@ -7,6 +7,7 @@
 #include <winbgim.h>
 #include "AppTools.h"
 #include <cstdio>
+#include "Quaternion.h"
 
 class Point2D {
     public:
@@ -71,6 +72,7 @@ class Point3D {
         Point3D();
         Point3D(const double& x_, const double& y_, const double& z_);
         Point3D(const Point3D& pct);
+        Point3D(const MyArray<double, 3>& arr);
         double getX() const;
         double getY() const;
         double getZ() const;
@@ -78,9 +80,12 @@ class Point3D {
         void setY(const double& y_);
         void setZ(const double& z_);
         void setPoint(const Point3D& pct);
+        MyArray<double, 3> toArray() const;
         void rotateOX(const Point3D& center, const double& alpha);
         void rotateOY(const Point3D& center, const double& alpha);
         void rotateOZ(const Point3D& center, const double& alpha);
+        Point3D rotateByAxisVector(const double& angle, const MyArray<double, 3>& axis);
+        Point3D rotateByUnitQuat(const Quaternion& quat);
         void translate(const double& xTranslate, const double& yTranslate, const double& zTranslate);
         Point3D& operator += (const Point3D& other);
         void fprint(FILE* fp);

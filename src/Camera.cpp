@@ -1,25 +1,18 @@
 #include "Camera.h"
-
+#include <iostream>
 static const double PI = 3.141592653589793238462;
 
 Camera::Camera(const int& maxRadius) :
-    m_point(0, maxRadius, 0), m_angleX(0.), m_angleY(0.), m_angleZ(0.), m_EZ(1.) {}
+    m_point(0, maxRadius, 0), m_EZ(1.), m_quat() {}
 
-Camera::Camera(const Point3D& point, const double& angleX_, const double& angleY_, const double& angleZ_, const double& EZ_) :
-    m_point(point), m_angleX(angleX_), m_angleY(angleY_), m_angleZ(angleZ_), m_EZ(EZ_) {}
+Camera::Camera(const Point3D& point, const double& EZ_) :
+    m_point(point), m_quat() {}
+
+Camera::Camera(const Point3D& point, const Quaternion& quat) :
+    m_point(point), m_quat(quat) {}
 
 void Camera::movePosition(const Point3D& newPosition) {
     m_point = newPosition;
-}
-
-void Camera::moveAngle(const double& angleX, const double& angleY, const double& angleZ) {
-    m_angleX = fmod(angleX, 2 * PI);
-    m_angleY = fmod(angleY, 2 * PI);
-    m_angleZ = fmod(angleZ, 2 * PI);
-}
-
-void Camera::modifyAngles(const double& angleX, const double& angleY, const double& angleZ) {
-    moveAngle(m_angleX + angleX, m_angleY + angleY, m_angleZ + angleZ);
 }
 
 void Camera::modifyPosition(const double& posX, const double& posY, const double& posZ) {
@@ -28,20 +21,29 @@ void Camera::modifyPosition(const double& posX, const double& posY, const double
     m_point.setZ(m_point.getZ() + posZ);
 }
 
+void Camera::rotateOnAxis(const size_t& axis, const double& angle) {
+    //quaternion rotations are counterclockwise, we'll treat angle as negative
+    //0 for x (1, 0, 0), 1 for y (0, 1, 0), 2 for z(0, 0, 1).
+    //we set the canonical vector
+    MyArray<double, 3> canonicalVector;
+    canonicalVector.fill(0);
+    canonicalVector[axis] = 1;
+
+    //we rotate it, aka make it local to the camera
+    MyArray<double, 3> rotatedLocalAxis = Point3D(canonicalVector).rotateByUnitQuat(m_quat).toArray();
+
+    Quaternion axisAngleRotation(angle, rotatedLocalAxis);
+    axisAngleRotation.convertToUnitQ();
+    axisAngleRotation *= m_quat;
+    m_quat = axisAngleRotation;
+}
+
 Point3D Camera::position() const {
     return m_point;
 }
 
-double Camera::angleX() const {
-    return m_angleX;
-}
-
-double Camera::angleY() const {
-    return m_angleY;
-}
-
-double Camera::angleZ() const {
-    return m_angleZ;
+Quaternion Camera::quat() const {
+    return m_quat;
 }
 
 double Camera::EZ() const {
@@ -53,7 +55,7 @@ bool Camera::fscan(FILE* fp) {
     if (!m_point.fscan(fp)) {
         return false;
     }
-    if (fscanf(fp, "\n%lf, %lf, %lf, %lf", &m_angleX, &m_angleY, &m_angleZ, &m_EZ) != 4) {
+    if (fscanf(fp, "\n%lf, %lf, %lf, %lf, %lf", &m_quat[0], &m_quat[1], &m_quat[2], &m_quat[3], &m_EZ) != 5) {
         return false;
     }
     return true;
@@ -62,5 +64,5 @@ bool Camera::fscan(FILE* fp) {
 void Camera::fprint(FILE* fp) {
     fprintf(fp, "Camera:\n");
     m_point.fprint(fp);
-    fprintf(fp, "\n%f, %f, %f, %f", m_angleX, m_angleY, m_angleZ, m_EZ);
+    fprintf(fp, "\n%f, %f, %f, %f, %f", m_quat[0], m_quat[1], m_quat[2], m_quat[3], m_EZ);
 }

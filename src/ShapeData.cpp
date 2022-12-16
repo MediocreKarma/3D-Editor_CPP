@@ -1,7 +1,8 @@
 #include "ShapeData.h"
+#include "Quaternion.h"
 #include <iostream>
-
 const double PI = 3.14159265359;
+const double err = 0.000000000000000000000;
 
 Point2D::Point2D() :
     x(), y() {}
@@ -134,6 +135,19 @@ Point3D::Point3D(const double& x_, const double& y_, const double& z_) :
 Point3D::Point3D(const Point3D& other) :
     x(other.x), y(other.y), z(other.z) {}
 
+Point3D::Point3D(const MyArray<double, 3>& arr) :
+    x(arr[0]), y(arr[1]), z(arr[2]) {
+        /*if (fabs(x) < err) {
+            x = 0;
+        }
+        if (fabs(y) < err) {
+            y = 0;
+        }
+        if (fabs(z) < err) {
+            z = 0;
+        }*/
+    }
+
 double Point3D::getX() const {
     return x;
 }
@@ -164,6 +178,10 @@ void Point3D::setPoint(const Point3D& pct) {
     z = pct.getZ();
 }
 
+MyArray<double, 3> Point3D::toArray() const {
+    return MyArray<double,3>({x, y, z});
+}
+
 void Point3D::rotateOX(const Point3D& center, const double& alpha) {
     translate(-center.getX(), -center.getY(), -center.getZ());
     double cosine = cos(alpha), sine = sin(alpha);
@@ -192,6 +210,25 @@ void Point3D::rotateOZ(const Point3D& center, const double& alpha) {
     x = x_;
     y = y_;
     translate(center.getX(), center.getY(), center.getZ());
+}
+
+Point3D Point3D::rotateByAxisVector(const double& angle, const MyArray<double, 3>& axis) {
+    //takes axis (can be local or global), rotates around it
+    Quaternion pointQuat(0, toArray());
+    Quaternion axisQuat(0, axis);
+    axisQuat.normalize();
+    Quaternion rotationQuat(-angle, axisQuat.complex());
+    rotationQuat.convertToUnitQ();
+    Quaternion rotInverse = rotationQuat.inverse();
+    Quaternion rotatedPoint = rotationQuat * pointQuat * rotInverse;
+    return Point3D(rotatedPoint.complex());
+}
+
+Point3D Point3D::rotateByUnitQuat(const Quaternion& quat) {
+    Quaternion pointQuat(0, toArray());
+    Quaternion aux(quat);
+    Quaternion rotatedPct = Quaternion(aux * pointQuat * aux.inverse());
+    return Point3D(rotatedPct.complex());
 }
 
 Point3D& Point3D::operator += (const Point3D& other) {

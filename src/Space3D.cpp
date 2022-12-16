@@ -1,7 +1,7 @@
 #include "Space3D.h"
 #include "Menu.h"
 #include "ObjectCreator.h"
-#include <iostream>
+#include "Quaternion.h"
 
 Space3D::Space3D() :
     x0(), y0(), x1(), y1(), m_theme(), m_selected(-1), m_spinballSelected(false), m_fadedDrag(false), m_meshes(), m_draggedMesh(), m_sections(), m_draggedSection(),
@@ -196,173 +196,6 @@ void Space3D::showAngleOptions() {
 }
 
 
-bool Space3D::checkAxisRotation(const int& x, const int& y) {
-    const double Grad_1 = 0.0078539816339745;
-    clearmouseclick(WM_LBUTTONUP);
-    if (m_arrowDown.hitCollision(x, y)) {
-        while (!ismouseclick(WM_LBUTTONUP)) {
-            m_cam.modifyAngles(-Grad_1, 0, 0);
-            m_updated.fill(true);
-            callHandlerDrawer();
-        }
-        return true;
-    }
-    if (m_arrowUp.hitCollision(x, y)) {
-        while (!ismouseclick(WM_LBUTTONUP)) {
-            m_cam.modifyAngles(+Grad_1, 0, 0);
-            m_updated.fill(true);
-            callHandlerDrawer();
-        }
-        return true;
-    }
-    if (m_arrowLeft.hitCollision(x, y)) {
-        while (!ismouseclick(WM_LBUTTONUP)) {
-            m_cam.modifyAngles(0, 0, +Grad_1);
-            m_updated.fill(true);
-            callHandlerDrawer();
-        }
-        return true;
-    }
-    if (m_arrowRight.hitCollision(x, y)) {
-        while (!ismouseclick(WM_LBUTTONUP)) {
-            m_cam.modifyAngles(0, 0, -Grad_1);
-            m_updated.fill(true);
-            callHandlerDrawer();
-        }
-        return true;
-    }
-    if (m_arrowSpinLeft.hitCollision(x, y)) {
-        while (!ismouseclick(WM_LBUTTONUP)) {
-            m_cam.modifyAngles(0, +Grad_1, 0);
-            m_updated.fill(true);
-            callHandlerDrawer();
-        }
-        return true;
-    }
-    if (m_arrowSpinRight.hitCollision(x, y)) {
-        while (!ismouseclick(WM_LBUTTONUP)) {
-            m_cam.modifyAngles(0, -Grad_1, 0);
-            m_updated.fill(true);
-            callHandlerDrawer();
-        }
-        return true;
-    }
-    return false;
-}
-
-double Space3D::findRotation(const int& xDrag, const int& yDrag, const DonutButton& angleDonut, CircularButton& button) {
-    int xCircle = angleDonut.getX();
-    int yCircle = angleDonut.getY();
-    int xDiff = xDrag - angleDonut.getX();
-    int yDiff = yDrag - angleDonut.getY();
-    double magV = sqrt(xDiff * xDiff + yDiff * yDiff);
-    int xOnCircle = xCircle + xDiff / magV * angleDonut.getRadius();
-    int yOnCircle = yCircle + yDiff / magV * angleDonut.getRadius();
-    return atan2(yOnCircle - yCircle, xOnCircle - xCircle) - atan2(button.getY() - yCircle, button.getX() - xCircle);
-}
-
-Point3D Space3D::rotateByCamera(const Point3D& pct) const {
-    //Folosit in cam movement; "deznormalizeaza" rotatia vectorilor canonici in relatie cu camera, pt a fi accurate in 3D
-    //si a parea practic ca se misca pe axele locale ale camerei
-    double xr = pct.getX();
-    double yr = pct.getY();
-    double zr = pct.getZ();
-    double aX = m_cam.angleX();
-    double aY = m_cam.angleY();
-    double aZ = m_cam.angleZ();
-    double dx = (-sin(aX) * sin(aY) * sin(aZ) + cos(aZ) * cos(aY)) * xr +  (-sin(aZ) * cos(aX)) * yr + (sin(aY) * cos(aZ) + sin(aX) * sin(aZ) * cos(aY)) * zr;
-    double dy = (sin(aX) * sin(aY) * cos(aZ) + cos(aY) * sin(aZ)) * xr + (cos(aX) * cos(aZ)) * yr +  (sin(aY) * sin(aZ) - sin(aX) * cos(aZ) * cos(aY))* zr;
-    double dz = -sin(aY) * cos(aX) * xr + sin(aX) * yr + cos(aX) * cos(aY) * zr;
-    return Point3D(dx, dy, dz);
-}
-
-Point3D Space3D::normalisePoint(const Point3D& pct) const {
-    double xr = pct.getX() - m_cam.position().getX();
-    double yr = pct.getY() - m_cam.position().getY();
-    double zr = pct.getZ() - m_cam.position().getZ();
-    double aX = m_cam.angleX();
-    double aY = m_cam.angleY();
-    double aZ = m_cam.angleZ();
-    double dx = (-sin(aX) * sin(aY) * sin(aZ) + cos(aZ) * cos(aY)) * xr + (sin(aX) * sin(aY) * cos(aZ) + cos(aY) * sin(aZ)) * yr - sin(aY) * cos(aX) * zr;
-    double dy = -sin(aZ) * cos(aX) * xr + (cos(aX) * cos(aZ)) * yr + sin(aX) * zr;
-    double dz = (sin(aY) * cos(aZ) + sin(aX) * sin(aZ) * cos(aY)) * xr + (sin(aY) * sin(aZ) - sin(aX) * cos(aZ) * cos(aY)) * yr + cos(aX) * cos(aY) * zr;
-    return Point3D(dx, dy, dz);
-}
-
-Point2D Space3D::projectPoint(const Point3D& pct) const {
-    const int xCenter = (x0 + x1) / 2;
-    const int yCenter = (y0 + y1) / 2;
-    const int yLen = (y1 - y0);
-    const int xr = pct.getX() - m_cam.position().getX();
-    const int yr = pct.getY() - m_cam.position().getY();
-    const int zr = pct.getZ() - m_cam.position().getZ();
-    double aX = m_cam.angleX();
-    double aY = m_cam.angleY();
-    double aZ = m_cam.angleZ();
-    double EZ = m_cam.EZ();
-    double dx = (-sin(aX) * sin(aY) * sin(aZ) + cos(aZ) * cos(aY)) * xr + (sin(aX) * sin(aY) * cos(aZ) + cos(aY) * sin(aZ)) * yr - sin(aY) * cos(aX) * zr;
-    double dy = -sin(aZ) * cos(aX) * xr + (cos(aX) * cos(aZ)) * yr + sin(aX) * zr;
-    double dz = (sin(aY) * cos(aZ) + sin(aX) * sin(aZ) * cos(aY)) * xr + (sin(aY) * sin(aZ) - sin(aX) * cos(aZ) * cos(aY)) * yr + cos(aX) * cos(aY) * zr;
-    if (dy <= 0) {
-        return Point2D(-100, -100);
-    }
-    double xprim = EZ * dx * yLen / dy + xCenter;
-    double yprim = EZ * dz * yLen / dy * -1 + yCenter;
-    return Point2D(xprim, yprim);
-}
-
-Section Space3D::projectSection(const Mesh& mesh) {
-    if (mesh.size() == 0) {
-        return Section(MyVector<Point2D>(), Point2D(-100, -100), mesh.adjacencyList());
-    }
-    MyVector<Point2D> projectedPoints;
-    projectedPoints.resize(mesh.size());
-    for(size_t i = 0; i < mesh.size(); i++) {
-        projectedPoints[i] = projectPoint(mesh[i]);
-    }
-    if (!m_menuHolder) {
-        return Section(projectedPoints, Point2D(-100, -100), mesh.adjacencyList());
-    }
-    Point2D sectionCenterPoint = projectPoint(mesh.centerPoint());
-    return Section(projectedPoints, sectionCenterPoint, mesh.adjacencyList());
-}
-
-Point2D Space3D::moveInsideWorkArea(const Point2D& P, const Point2D& Q, const int& xBorder, const int& yBorder) {
-    int xP = P.getX();
-    int yP = P.getY();
-    int xQ = Q.getX();
-    int yQ = Q.getY();
-    double m = 1. * (yQ - yP) / (xQ - xP);
-    if (yQ < yBorder) {
-        return Point2D((yBorder - yP) / m + xP, (double)yBorder);
-    }
-    if (xQ < xBorder) {
-        return Point2D((double)xBorder, m * (xBorder - xP) + yP);
-    }
-    return Q;
-}
-
-//proiecteaza fiecare mesh daca a fost updated
-void Space3D::render() {
-    for (size_t i = 0; i < size(); ++i) {
-        if (m_updated[i]) {
-            m_sections[i] = projectSection(m_meshes[i]);
-            m_updated[i] = false;
-        }
-    }
-    if (m_fadedDrag) {
-        m_draggedSection = projectSection(m_draggedMesh);
-    }
-}
-
-bool Space3D::insideWorkArea(const int& x, const int& y) const {
-    return x0 <= x && x <= x1 && y0 <= y && y <= y1;
-}
-
-bool Space3D::insideWorkArea(const Point2D& point) const {
-    return insideWorkArea(point.getX(), point.getY());
-}
-
 bool Space3D::checkCamMovement(const char& c) {
     const int distance = 25;
     Point3D auxPoint;
@@ -455,6 +288,178 @@ bool Space3D::checkObjectRotation(int x, int y) {
     }
     return false;
 }
+
+bool Space3D::checkAxisRotation(const int& x, const int& y) {
+    const double Grad_1 = 0.0078539816339745;
+    clearmouseclick(WM_LBUTTONUP);
+    if (m_arrowDown.hitCollision(x, y)) {
+        while (!ismouseclick(WM_LBUTTONUP)) {
+            m_cam.rotateOnAxis(0, -Grad_1);
+            m_updated.fill(true);
+            callHandlerDrawer();
+        }
+        return true;
+    }
+    if (m_arrowUp.hitCollision(x, y)) {
+        while (!ismouseclick(WM_LBUTTONUP)) {
+            m_cam.rotateOnAxis(0, Grad_1);
+            m_updated.fill(true);
+            callHandlerDrawer();
+        }
+        return true;
+    }
+    if (m_arrowLeft.hitCollision(x, y)) {
+        while (!ismouseclick(WM_LBUTTONUP)) {
+            m_cam.rotateOnAxis(2, Grad_1);
+            m_updated.fill(true);
+            callHandlerDrawer();
+        }
+        return true;
+    }
+    if (m_arrowRight.hitCollision(x, y)) {
+        while (!ismouseclick(WM_LBUTTONUP)) {
+            m_cam.rotateOnAxis(2, -Grad_1);
+            m_updated.fill(true);
+            callHandlerDrawer();
+        }
+        return true;
+    }
+    if (m_arrowSpinLeft.hitCollision(x, y)) {
+        while (!ismouseclick(WM_LBUTTONUP)) {
+            m_cam.rotateOnAxis(1, Grad_1);
+            m_updated.fill(true);
+            callHandlerDrawer();
+        }
+        return true;
+    }
+    if (m_arrowSpinRight.hitCollision(x, y)) {
+        while (!ismouseclick(WM_LBUTTONUP)) {
+            m_cam.rotateOnAxis(1, -Grad_1);
+            m_updated.fill(true);
+            callHandlerDrawer();
+        }
+        return true;
+    }
+    return false;
+}
+
+double Space3D::findRotation(const int& xDrag, const int& yDrag, const DonutButton& angleDonut, CircularButton& button) {
+    int xCircle = angleDonut.getX();
+    int yCircle = angleDonut.getY();
+    int xDiff = xDrag - angleDonut.getX();
+    int yDiff = yDrag - angleDonut.getY();
+    double magV = sqrt(xDiff * xDiff + yDiff * yDiff);
+    int xOnCircle = xCircle + xDiff / magV * angleDonut.getRadius();
+    int yOnCircle = yCircle + yDiff / magV * angleDonut.getRadius();
+    return atan2(yOnCircle - yCircle, xOnCircle - xCircle) - atan2(button.getY() - yCircle, button.getX() - xCircle);
+}
+
+Point3D Space3D::rotateByCamera(const Point3D& pct) const {
+    //Folosit in cam movement; "deznormalizeaza" rotatia vectorilor canonici in relatie cu camera, pt a fi accurate in 3D
+    //si a parea practic ca se misca pe axele locale ale camerei
+    double xr = pct.getX();
+    double yr = pct.getY();
+    double zr = pct.getZ();
+
+    Point3D aux = Point3D(xr, yr, zr).rotateByUnitQuat(m_cam.quat());
+    double dx = aux.getX();
+    double dy = aux.getY();
+    double dz = aux.getZ();
+    return Point3D(dx, dy, dz);
+}
+
+Point3D Space3D::normalisePoint(const Point3D& pct) const {
+    double xr = pct.getX() - m_cam.position().getX();
+    double yr = pct.getY() - m_cam.position().getY();
+    double zr = pct.getZ() - m_cam.position().getZ();
+
+    Point3D aux = Point3D(xr, yr, zr).rotateByUnitQuat(m_cam.quat().inverse());
+    double dx = aux.getX();
+    double dy = aux.getY();
+    double dz = aux.getZ();
+
+    return Point3D(dx, dy, dz);
+}
+
+Point2D Space3D::projectPoint(const Point3D& pct) const {
+    const int xCenter = (x0 + x1) / 2;
+    const int yCenter = (y0 + y1) / 2;
+    const int yLen = (y1 - y0);
+    const int xr = pct.getX() - m_cam.position().getX();
+    const int yr = pct.getY() - m_cam.position().getY();
+    const int zr = pct.getZ() - m_cam.position().getZ();
+    double EZ = m_cam.EZ();
+    /*double dx = (-sin(aX) * sin(aY) * sin(aZ) + cos(aZ) * cos(aY)) * xr + (sin(aX) * sin(aY) * cos(aZ) + cos(aY) * sin(aZ)) * yr - sin(aY) * cos(aX) * zr;
+    double dy = -sin(aZ) * cos(aX) * xr + (cos(aX) * cos(aZ)) * yr + sin(aX) * zr;
+    double dz = (sin(aY) * cos(aZ) + sin(aX) * sin(aZ) * cos(aY)) * xr + (sin(aY) * sin(aZ) - sin(aX) * cos(aZ) * cos(aY)) * yr + cos(aX) * cos(aY) * zr;*/
+
+    Quaternion quat(m_cam.quat());
+
+    Point3D aux = Point3D(xr, yr, zr).rotateByUnitQuat(m_cam.quat().inverse());
+    double dx = aux.getX();
+    double dy = aux.getY();
+    double dz = aux.getZ();
+
+    if (dy <= 0) {
+        return Point2D(-100, -100);
+    }
+    double xprim = EZ * dx * yLen / dy + xCenter;
+    double yprim = EZ * dz * yLen / dy * -1 + yCenter;
+    return Point2D(xprim, yprim);
+}
+
+Section Space3D::projectSection(const Mesh& mesh) {
+    if (mesh.size() == 0) {
+        return Section(MyVector<Point2D>(), Point2D(-100, -100), mesh.adjacencyList());
+    }
+    MyVector<Point2D> projectedPoints;
+    projectedPoints.resize(mesh.size());
+    for(size_t i = 0; i < mesh.size(); i++) {
+        projectedPoints[i] = projectPoint(mesh[i]);
+    }
+    if (!m_menuHolder) {
+        return Section(projectedPoints, Point2D(-100, -100), mesh.adjacencyList());
+    }
+    Point2D sectionCenterPoint = projectPoint(mesh.centerPoint());
+    return Section(projectedPoints, sectionCenterPoint, mesh.adjacencyList());
+}
+
+Point2D Space3D::moveInsideWorkArea(const Point2D& P, const Point2D& Q, const int& xBorder, const int& yBorder) {
+    int xP = P.getX();
+    int yP = P.getY();
+    int xQ = Q.getX();
+    int yQ = Q.getY();
+    double m = 1. * (yQ - yP) / (xQ - xP);
+    if (yQ < yBorder) {
+        return Point2D((yBorder - yP) / m + xP, (double)yBorder);
+    }
+    if (xQ < xBorder) {
+        return Point2D((double)xBorder, m * (xBorder - xP) + yP);
+    }
+    return Q;
+}
+
+//proiecteaza fiecare mesh daca a fost updated
+void Space3D::render() {
+    for (size_t i = 0; i < size(); ++i) {
+        if (m_updated[i]) {
+            m_sections[i] = projectSection(m_meshes[i]);
+            m_updated[i] = false;
+        }
+    }
+    if (m_fadedDrag) {
+        m_draggedSection = projectSection(m_draggedMesh);
+    }
+}
+
+bool Space3D::insideWorkArea(const int& x, const int& y) const {
+    return x0 <= x && x <= x1 && y0 <= y && y <= y1;
+}
+
+bool Space3D::insideWorkArea(const Point2D& point) const {
+    return insideWorkArea(point.getX(), point.getY());
+}
+
 
 bool Space3D::getKeyCommand() {
     if (!kbhit()) {
@@ -552,12 +557,15 @@ void Space3D::dragAndDrop(const int& xDrag, const int& yDrag, Mesh& mesh) {
     double dz2 = dz1 + (by2 - by1) * dy2 / EZ;
 
     //Aici inversam rotatia camerei...
-    double aX = m_cam.angleX();
-    double aY = m_cam.angleY();
-    double aZ = m_cam.angleZ();
-    double tx = ( -sin(aX) * sin(aY) * sin(aZ) + cos(aZ) * cos(aY) ) * dx2 +  (-sin(aZ) * cos(aX)) * dy2 + (sin(aY) * cos(aZ) + sin(aX) * sin(aZ) * cos(aY)) * dz2;
+
+    /*double tx = ( -sin(aX) * sin(aY) * sin(aZ) + cos(aZ) * cos(aY) ) * dx2 +  (-sin(aZ) * cos(aX)) * dy2 + (sin(aY) * cos(aZ) + sin(aX) * sin(aZ) * cos(aY)) * dz2;
     double ty =  (sin(aX) * sin(aY) * cos(aZ) + cos(aY) * sin(aZ)) * dx2 + (cos(aX) * cos(aZ)) * dy2 +  (sin(aY) * sin(aZ) - sin(aX) * cos(aZ) * cos(aY))* dz2;
     double tz =  (- sin(aY) * cos(aX)) * dx2 + sin(aX)  * dy2 + cos(aX) * cos(aY) * dz2;
+*/
+    Point3D aux = Point3D(dx2, dy2, dz2).rotateByUnitQuat(m_cam.quat());
+    double tx = aux.getX();
+    double ty = aux.getY();
+    double tz = aux.getZ();
 
     //..si acum il scoatem complet din sistemul de coordonate al camerei.
     tx = tx + m_cam.position().getX();
