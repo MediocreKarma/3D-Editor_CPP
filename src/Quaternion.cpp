@@ -2,6 +2,8 @@
 #include <iostream>
 #include <math.h>
 
+const double pi = 3.1415926535897;
+
 Quaternion::Quaternion() :
     m_data() {
         m_data.fill(0);
@@ -19,6 +21,27 @@ Quaternion::Quaternion(const Quaternion& other) :
 
 Quaternion::Quaternion(const double& real, const double& i, const double& j, const double& k) :
     m_data({real, i, j, k}) {}
+
+Quaternion::Quaternion(const double& heading, const double& attitude, const double& bank) {
+    //disclaimer: nu stiu ce i asta
+    double w,x,y,z;
+    double c1 = cos(heading/2);
+    double s1 = sin(heading/2);
+    double c2 = cos(attitude/2);
+    double s2 = sin(attitude/2);
+    double c3 = cos(bank/2);
+    double s3 = sin(bank/2);
+    double c1c2 = c1*c2;
+    double s1s2 = s1*s2;
+    w =c1c2*c3 - s1s2*s3;
+  	x =c1c2*s3 + s1s2*c3;
+	y =s1*c2*c3 + c1*s2*s3;
+	z =c1*s2*c3 - s1*c2*s3;
+	m_data[0] = w;
+	m_data[1] = x;
+	m_data[2] = y;
+	m_data[3] = z;
+}
 
 double Quaternion::real() const {
     return m_data[0];
@@ -147,4 +170,30 @@ void Quaternion::display() {
         std::cout<<m_data[i]<<" ";
     }
     std::cout<<"\n";
+}
+
+MyArray<double, 3> Quaternion::toEuler() const {
+    //disclaimer: nici asta nu stiu ce e
+    double qw = m_data[0], qx = m_data[1], qy = m_data[2], qz = m_data[3];
+    double heading, attitude, bank;
+    double test = qx*qy + qz*qw;
+	if (test > 0.499) { // singularity at north pole
+		heading = 2 * atan2(qx,qw);
+		attitude = pi/2;
+		bank = 0;
+		return MyArray<double, 3>({heading, attitude, bank});
+	}
+	if (test < -0.499) { // singularity at south pole
+		heading = -2 * atan2(qx,qw);
+		attitude = - pi/2;
+		bank = 0;
+		return MyArray<double, 3>({heading, attitude, bank});
+	}
+    double sqx = qx*qx;
+    double sqy = qy*qy;
+    double sqz = qz*qz;
+    heading = atan2(2*qy*qw-2*qx*qz , 1 - 2*sqy - 2*sqz);
+	attitude = asin(2*test);
+	bank = atan2(2*qx*qw-2*qy*qz , 1 - 2*sqx - 2*sqz);
+	return MyArray<double, 3>({heading, attitude, bank});
 }

@@ -156,13 +156,13 @@ void Space3D::drawRotationArrows() {
     line(xCenter, y1 - BORDER_OFFSET, xCenter - POSITION_OFFSET, y1 - POSITION_OFFSET);
     line(xCenter, y1 - BORDER_OFFSET, xCenter + POSITION_OFFSET, y1 - POSITION_OFFSET);
     //m_arrowSpinRight.border(WHITE);
-    ellipse(x0 + 25, y0 + 25, 90, 360, 15, 15);
+    /*ellipse(x0 + 25, y0 + 25, 90, 360, 15, 15);
     line(x0 + 27, y0 + 11, x0 + 20, y0 + 4);
     line(x0 + 27, y0 + 11, x0 + 20, y0 + 18);
     //m_arrowSpinLeft.border(WHITE);
     ellipse(x0 + 25, y1 - 25, 180, 450, 15, 15);
     line (x0 + 23, y1 - 39, x0 + 30, y1 - 46);
-    line (x0 + 23, y1 - 39, x0 + 30, y1 - 32);
+    line (x0 + 23, y1 - 39, x0 + 30, y1 - 32);*/
 }
 
 void Space3D::drawSpinball() {
@@ -324,7 +324,7 @@ bool Space3D::checkAxisRotation(const int& x, const int& y) {
         }
         return true;
     }
-    if (m_arrowSpinLeft.hitCollision(x, y)) {
+    /*if (m_arrowSpinLeft.hitCollision(x, y)) {
         while (!ismouseclick(WM_LBUTTONUP)) {
             m_cam.rotateOnAxis(1, Grad_1);
             m_updated.fill(true);
@@ -339,7 +339,7 @@ bool Space3D::checkAxisRotation(const int& x, const int& y) {
             callHandlerDrawer();
         }
         return true;
-    }
+    }*/
     return false;
 }
 

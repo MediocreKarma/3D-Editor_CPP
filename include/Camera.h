@@ -18,6 +18,7 @@ class Camera {
         void modifyAngles(const double& angleX, const double& angleY, const double& angleZ);
         void moveAngle(const double& angleX, const double& angleY, const double& angleZ);
         void rotateOnAxis(const size_t& axis, const double& angle);
+        void rotateByUnitQuat(const Quaternion& quat);
         void movePosition(const Point3D& newPosition);
         bool fscan(FILE* fp);
         void fprint(FILE* fp);

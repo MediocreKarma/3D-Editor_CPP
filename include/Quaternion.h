@@ -14,7 +14,9 @@ class Quaternion
         Quaternion(const TVector4& data);
         Quaternion(const Quaternion& other);
         Quaternion(const double& real, const double& i, const double& j, const double& k);
+        Quaternion(const double& heading, const double& attitude, const double& bank);
         Quaternion& operator=(const Quaternion& rhs);
+        MyArray<double, 3> toEuler() const;
         void display(); //for debugging
         double real() const;
         TVector3 complex() const;

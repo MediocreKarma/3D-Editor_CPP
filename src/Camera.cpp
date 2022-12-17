@@ -29,13 +29,18 @@ void Camera::rotateOnAxis(const size_t& axis, const double& angle) {
     canonicalVector.fill(0);
     canonicalVector[axis] = 1;
 
-    //we rotate it, aka make it local to the camera
     MyArray<double, 3> rotatedLocalAxis = Point3D(canonicalVector).rotateByUnitQuat(m_quat).toArray();
-
+    if(axis == 2) rotatedLocalAxis = canonicalVector;
     Quaternion axisAngleRotation(angle, rotatedLocalAxis);
     axisAngleRotation.convertToUnitQ();
     axisAngleRotation *= m_quat;
     m_quat = axisAngleRotation;
+}
+
+void Camera::rotateByUnitQuat(const Quaternion& quat) {
+    Quaternion aux(quat);
+    aux *= m_quat;
+    m_quat = aux;
 }
 
 Point3D Camera::position() const {
