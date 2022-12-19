@@ -37,6 +37,7 @@ Menu::Menu(const int& theme, const int& appWidth, const int& appHeight) :
     m_space.addMesh(cube);
     cube.translate(0, 600, 0);
     m_space.addMesh(cube);
+
 }
 
 void Menu::setSettings(const int& theme, const int& appWidth, const int& appHeight) {
@@ -158,7 +159,9 @@ bool Menu::getCommand(const int& x, const int& y) {
         return false;
     }
     if (m_helpButton.hitCollision(x, y)) {
-        ObjectCreator objCreator(m_space.meshAt(0), m_theme);
+        Mesh aux = m_space.meshAt(0);
+        aux.resetRotation();
+        ObjectCreator objCreator(aux, m_theme);
         Mesh newMesh = objCreator.run();
     }
     if (m_space.getCommand(x, y)) {

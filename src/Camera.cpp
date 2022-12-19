@@ -22,9 +22,6 @@ void Camera::modifyPosition(const double& posX, const double& posY, const double
 }
 
 void Camera::rotateOnAxis(const size_t& axis, const double& angle) {
-    //quaternion rotations are counterclockwise, we'll treat angle as negative
-    //0 for x (1, 0, 0), 1 for y (0, 1, 0), 2 for z(0, 0, 1).
-    //we set the canonical vector
     MyArray<double, 3> canonicalVector;
     canonicalVector.fill(0);
     canonicalVector[axis] = 1;

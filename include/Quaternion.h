@@ -27,7 +27,7 @@ class Quaternion
         Quaternion multiply(const Quaternion& q) const;
         void operator*=(const Quaternion& q);
         void operator*=(const double& scalar);
-        Quaternion operator*(const Quaternion& q);
+        Quaternion operator*(const Quaternion& q) const;
         void setReal(const double& real);
         void setComplex(const TVector3& complex);
         void setCoord(const size_t& index, const double& value);

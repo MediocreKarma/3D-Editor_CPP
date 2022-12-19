@@ -93,7 +93,7 @@ void Quaternion::operator*=(const Quaternion& q) {
     (*this) = multiply(q);
 }
 
-Quaternion Quaternion::operator*(const Quaternion& q) {
+Quaternion Quaternion::operator*(const Quaternion& q) const {
     Quaternion aux((*this));
     aux*=q;
     return aux;
@@ -161,7 +161,9 @@ Quaternion Quaternion::inverse() {
     abs = 1/abs;
     Quaternion conj = conjugate();
 
-    conj*=abs;
+    if(abs != 1) {
+        conj*=abs;
+    }
     return conj;
 }
 void Quaternion::display() {
@@ -175,25 +177,8 @@ void Quaternion::display() {
 MyArray<double, 3> Quaternion::toEuler() const {
     //disclaimer: nici asta nu stiu ce e
     double qw = m_data[0], qx = m_data[1], qy = m_data[2], qz = m_data[3];
-    double heading, attitude, bank;
-    double test = qx*qy + qz*qw;
-	if (test > 0.499) { // singularity at north pole
-		heading = 2 * atan2(qx,qw);
-		attitude = pi/2;
-		bank = 0;
-		return MyArray<double, 3>({heading, attitude, bank});
-	}
-	if (test < -0.499) { // singularity at south pole
-		heading = -2 * atan2(qx,qw);
-		attitude = - pi/2;
-		bank = 0;
-		return MyArray<double, 3>({heading, attitude, bank});
-	}
-    double sqx = qx*qx;
-    double sqy = qy*qy;
-    double sqz = qz*qz;
-    heading = atan2(2*qy*qw-2*qx*qz , 1 - 2*sqy - 2*sqz);
-	attitude = asin(2*test);
-	bank = atan2(2*qx*qw-2*qy*qz , 1 - 2*sqx - 2*sqz);
-	return MyArray<double, 3>({heading, attitude, bank});
+    double yaw = atan2(2.0*(qy*qz + qw*qx), qw*qw - qx*qx - qy*qy + qz*qz);
+    double pitch = asin(-2.0*(qx*qz - qw*qy));
+    double roll = atan2(2.0*(qx*qy + qw*qz), qw*qw + qx*qx - qy*qy - qz*qz);
+    return MyArray<double, 3>({yaw, pitch, roll});
 }

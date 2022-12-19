@@ -144,18 +144,23 @@ class Mesh {
         void fprint(FILE* fp);
         bool fscan(FILE* fp);
         void rotate(const double& angleX, const double& angleY, const double& angleZ);
+        void rotateOnAxis(const Point3D& center, const Point3D& axis, const double& angle);
+        void rotateDisplayAngle(const double& angleX_, const double& angleY_, const double& angleZ_);
         void scaleEven(const double& scaleFactor);
         void scaleAxis(bool isLocal, const double& scaleFactor, const size_t& axis);
         void mirror(bool isLocal, const size_t& axis);
         double angleX() const;
         double angleY() const;
         double angleZ() const;
+        Quaternion quat() const;
+        void resetRotation();
 
     private:
         MyVector<Point3D> m_points;
         MyVector<MyVector<size_t>> m_adjList;
         Point3D m_centerPoint;
         double m_angleX, m_angleY, m_angleZ;
+        Quaternion m_quat;
 };
 
 #endif // SHAPEDATA_H
