@@ -268,7 +268,7 @@ bool Space3D::checkObjectRotation(int x, int y) {
                 double rotation = findRotation(xDrag, yDrag, m_donutOX, m_buttonOX);
                 m_meshes[m_selected].rotate(rotation, 0, 0);
                 tempAngle += rotation;
-                selectMesh(m_selected);
+                m_meshes[m_selected].rotateDisplayAngle();
                 m_updated[m_selected] = true;
                 m_buttonOX.move(xSpinball + 40 * cos(tempAngle), ySpinball + 120 + 40 * sin(tempAngle));
                 callHandlerDrawer();
@@ -296,7 +296,7 @@ bool Space3D::checkObjectRotation(int x, int y) {
                 double rotation = findRotation(xDrag, yDrag, m_donutOY, m_buttonOY);
                 m_meshes[m_selected].rotate(0, rotation, 0);
                 tempAngle += rotation;
-                selectMesh(m_selected);
+                m_meshes[m_selected].rotateDisplayAngle();
                 m_updated[m_selected] = true;
                 m_buttonOY.move(xSpinball + 40 * cos(tempAngle), ySpinball + 220 + 40 * sin(tempAngle));
                 callHandlerDrawer();
@@ -324,7 +324,7 @@ bool Space3D::checkObjectRotation(int x, int y) {
                 double rotation = findRotation(xDrag, yDrag, m_donutOZ, m_buttonOZ);
                 m_meshes[m_selected].rotate(0, 0, rotation);
                 tempAngle += rotation;
-                selectMesh(m_selected);
+                m_meshes[m_selected].rotateDisplayAngle();
                 m_updated[m_selected] = true;
                 m_buttonOZ.move(xSpinball + 40 * cos(tempAngle), ySpinball + 320 + 40 * sin(tempAngle));
                 callHandlerDrawer();
@@ -651,10 +651,9 @@ void Space3D::selectMesh(const size_t& index) {
     const int y = m_spinballButton.getYCenter();
 
     m_buttonOX = CircularButton(x + 40, y + 120, 7);
-
     m_buttonOY = CircularButton(x + 40, y + 220, 7);
-
     m_buttonOZ = CircularButton(x + 40, y + 320, 7);
+    m_meshes[m_selected].rotateDisplayAngle();
 }
 
 //deseneaza toate mesh-urile proiectate + centrele

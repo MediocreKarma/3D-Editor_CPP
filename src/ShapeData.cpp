@@ -448,7 +448,7 @@ Point3D Mesh::centerPoint() const {
 
 void Mesh::fprint(FILE* fp) {
     fprintf(fp, "Mesh: %u\n", size());
-    fprintf(fp, "%f %f %f %f\n", &m_quat[0], &m_quat[1], &m_quat[2], &m_quat[3]);
+    fprintf(fp, "%f %f %f %f\n", m_quat[0], m_quat[1], m_quat[2], m_quat[3]);
     for (size_t i = 0; i < size(); ++i) {
         m_points[i].fprint(fp);
         fprintf(fp, "\n");
@@ -512,13 +512,11 @@ double Mesh::angleZ() const {
     return m_angleZ;
 }
 
-void Mesh::rotateDisplayAngle(const double& angleX_, const double& angleY_, const double& angleZ_) {
-    m_angleX += angleX_;
-    m_angleY += angleY_;
-    m_angleZ += angleZ_;
-    m_angleX = fmod(m_angleX, PI * 2);
-    m_angleY = fmod(m_angleY, PI * 2);
-    m_angleZ = fmod(m_angleZ, PI * 2);
+void Mesh::rotateDisplayAngle() {
+    MyArray<double, 3> eulerAngles = m_quat.toEuler();
+    m_angleX = eulerAngles[0];
+    m_angleY = eulerAngles[1];
+    m_angleZ = eulerAngles[2];
 }
 
 void Mesh::rotate(const double& angleX_, const double& angleY_, const double& angleZ_) {
@@ -537,12 +535,6 @@ void Mesh::rotate(const double& angleX_, const double& angleY_, const double& an
     if (fabs(angleZ_) > e) {
         rotateOnAxis(centerPoint(), Point3D(0, 0, 1), angleZ_);
     }
-    m_angleX += angleX_;
-    m_angleY += angleY_;
-    m_angleZ += angleZ_;
-    m_angleX = fmod(m_angleX, PI * 2);
-    m_angleY = fmod(m_angleY, PI * 2);
-    m_angleZ = fmod(m_angleZ, PI * 2);
 }
 
 void Mesh::rotateOnAxis(const Point3D& center, const Point3D& axis, const double& angle) {
@@ -557,10 +549,7 @@ void Mesh::rotateOnAxis(const Point3D& center, const Point3D& axis, const double
     }
     rotationQuat*=m_quat;
     m_quat = rotationQuat;
-    MyArray<double, 3> eulerAngles = m_quat.toEuler();
-    m_angleX = eulerAngles[0];
-    m_angleY = eulerAngles[1];
-    m_angleZ = eulerAngles[2];
+
     translate(center.getX(), center.getY(), center.getZ());
 }
 

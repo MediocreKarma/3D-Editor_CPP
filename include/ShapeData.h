@@ -145,7 +145,7 @@ class Mesh {
         bool fscan(FILE* fp);
         void rotate(const double& angleX, const double& angleY, const double& angleZ);
         void rotateOnAxis(const Point3D& center, const Point3D& axis, const double& angle);
-        void rotateDisplayAngle(const double& angleX_, const double& angleY_, const double& angleZ_);
+        void rotateDisplayAngle();
         void scaleEven(const double& scaleFactor);
         void scaleAxis(bool isLocal, const double& scaleFactor, const size_t& axis);
         void mirror(bool isLocal, const size_t& axis);
