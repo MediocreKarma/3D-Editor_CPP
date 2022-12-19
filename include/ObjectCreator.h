@@ -65,6 +65,7 @@ class ObjectCreator {
         Space3D m_workArea;
         Mesh* m_workMesh;
         int m_selectedLayer;
+        int m_hovered;
         Line2D m_assistLine;
 
         void init();
@@ -72,14 +73,18 @@ class ObjectCreator {
         void pointMover(const size_t& index);
         void pointConnector(const size_t& index);
         void pointDeleter(const size_t& index);
+        void pointAdder(const int& x, const int& y);
         void drawSelectLayers();
         void updateButtons();
         void drawButtons();
         void drawLayerView();
         void toolButtonsInit();
         void drawToolButtons();
-        MyArray<char, 24> itoa(int x);
-        bool getCommand(const int& x, const int& y);
+        void drawPointData();
+        MyArray<char, 32> itoa(int x, const char* prefix = nullptr);
+        bool getCommand();
+        bool getHoverCommand();
+        bool getHoverCommand(const int& x, const int& y);
         void toolOperationOnPoint(const size_t& index);
 };
 
