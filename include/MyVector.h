@@ -119,17 +119,30 @@ class MyVector {
         }
 
         void erase(iterator it) {
-            if (it >= end()) {
-                throw std::out_of_range("beyond range");
-            }
-            if (it < begin()) {
-                throw std::out_of_range("below range");
+            if (outOfBounds(it)) {
+                throw std::out_of_range("out of range");
             }
             iterator nxt = it + 1;
             while (nxt != end()) {
                 *(it++) = *(nxt++);
             }
             pop_back();
+        }
+
+        void insert(iterator it, const T& val) {
+            if (it == end()) {
+                push_back(val);
+                return;
+            }
+            if (outOfBounds(it)) {
+                throw std::out_of_range("out of range");
+            }
+            int pos = it - begin();
+            push_back(back());
+            for (int i = size() - 2; i > pos; --i) {
+                m_vec[i] = m_vec[i - 1];
+            }
+            m_vec[pos] = val;
         }
 
         void push_back(const T& element) {
@@ -172,10 +185,16 @@ class MyVector {
         }
 
         T& operator [] (const size_t& index) {
+            if (outOfBounds(index)) {
+                throw std::out_of_range("out of range");
+            }
             return m_vec[index];
         }
 
         const T& operator [] (const size_t& index) const {
+            if (outOfBounds(index)) {
+                throw std::out_of_range("out of range");
+            }
             return m_vec[index];
         }
 
@@ -200,6 +219,18 @@ class MyVector {
             delete[] m_vec;
             m_capacity = newCapacity;
             m_vec = newVec;
+        }
+
+        bool outOfBounds(const size_t& index) const {
+            return m_size <= index;
+        }
+
+        bool outOfBounds(iterator& it) {
+            return it < begin() && end() <= it;
+        }
+
+        bool outOfBounds(const_iterator& it) const {
+            return it < cbegin() && cend() <= it;
         }
 };
 
