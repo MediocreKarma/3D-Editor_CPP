@@ -22,7 +22,8 @@ Quaternion::Quaternion(const Quaternion& other) :
 Quaternion::Quaternion(const double& real, const double& i, const double& j, const double& k) :
     m_data({real, i, j, k}) {}
 
-Quaternion::Quaternion(const double& heading, const double& attitude, const double& bank) {
+Quaternion::Quaternion(const double& heading, const double& attitude, const double& bank) :
+    m_data() {
     //disclaimer: nu stiu ce i asta
     double w,x,y,z;
     double c1 = cos(heading/2);
@@ -112,10 +113,8 @@ double Quaternion::norm() const {
 }
 
 void Quaternion::normalize() {
-    if(norm() != 0) {
-        //std::cout<<"norm: "<<norm()<<"\n";
+    if(fabs(norm()) >= 0.0000000000001) {
         double value = 1/norm();
-        //std::cout<<"value to multiply by: "<<value<<"\n";
         (*this)*=value;
     }
 }
@@ -160,10 +159,7 @@ Quaternion Quaternion::inverse() {
     abs*=abs;
     abs = 1/abs;
     Quaternion conj = conjugate();
-
-    if(abs != 1) {
-        conj*=abs;
-    }
+    conj*=abs;
     return conj;
 }
 void Quaternion::display() {

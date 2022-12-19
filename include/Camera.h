@@ -27,7 +27,6 @@ class Camera {
 
     private:
         Point3D m_point;
-        double m_angleX, m_angleY, m_angleZ;
         double m_EZ;
         Quaternion m_quat;
 };

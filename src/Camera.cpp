@@ -6,10 +6,10 @@ Camera::Camera(const int& maxRadius) :
     m_point(0, maxRadius, 0), m_EZ(1.), m_quat() {}
 
 Camera::Camera(const Point3D& point, const double& EZ_) :
-    m_point(point), m_quat() {}
+    m_point(point), m_EZ(EZ_), m_quat() {}
 
 Camera::Camera(const Point3D& point, const Quaternion& quat) :
-    m_point(point), m_quat(quat) {}
+    m_point(point), m_EZ(1), m_quat(quat) {}
 
 void Camera::movePosition(const Point3D& newPosition) {
     m_point = newPosition;

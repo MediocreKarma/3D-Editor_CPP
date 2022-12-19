@@ -293,21 +293,6 @@ double Line3D::getLength() const{
     return sqrt(dx*dx + dy*dy + dz*dz);
 }
 
-void Line3D::rotateOX(const Point3D& center, const double& angle) {
-    /*P.rotateOX(center, angle);
-    Q.rotateOX(center, angle);*/
-}
-
-void Line3D::rotateOY(const Point3D& center, const double& angle) {
-    /*P.rotateOY(center, angle);
-    Q.rotateOY(center, angle);*/
-}
-
-void Line3D::rotateOZ(const Point3D& center, const double& angle) {
-    /*P.rotateOZ(center, angle);
-    Q.rotateOZ(center, angle);*/
-}
-
 bool Line3D::fscan(FILE* fp) {
     if (!P.fscan(fp)) {
         return false;
