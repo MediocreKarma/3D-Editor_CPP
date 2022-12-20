@@ -122,6 +122,7 @@ void Menu::drawMenu() {
 }
 
 void Menu::initSpace() {
+    m_space = Space3D(-2500, m_theme, this);
     m_space.setCorners(0, 27, m_appWidth, m_appHeight);
 }
 

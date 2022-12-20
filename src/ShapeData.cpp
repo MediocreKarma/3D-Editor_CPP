@@ -579,12 +579,18 @@ Quaternion Mesh::quat() const {
 void Mesh::resetRotation() {
     MyArray<double, 3> aux = Point3D(centerPoint()).toArray();
     translate(-aux[0], -aux[1], -aux[2]);
-    for (size_t i = 0; i < size(); i++) {
-        m_points[i] = m_points[i].rotateByUnitQuat(m_quat.inverse());
-        //TODO: approximate m_points[i] (valori de ex. 99.99...9, 100.00...01 etc)
-        //care apar din faptul ca noi aplicam rotatii pe puncte la fiecare data
-        //cand defapt punctele originale ar fi 100 curat, sau whatever
-        //(asta pt ca cateodata sunt jagged edges in objCreator. cred ca de la asta)
+    const double e = 0.000000001;
+    for (Point3D& pct : m_points) {
+        pct = pct.rotateByUnitQuat(m_quat.inverse());
+        if (fabs(pct.getX() - round(pct.getX())) < e) {
+            pct.setX((int)round(pct.getX()));
+        }
+        if (fabs(pct.getY() - round(pct.getY())) < e) {
+            pct.setY((int)round(pct.getY()));
+        }
+        if (fabs(pct.getZ() - round(pct.getZ())) < e) {
+            pct.setZ((int)round(pct.getZ()));
+        }
     }
     m_angleX = 0;
     m_angleY = 0;

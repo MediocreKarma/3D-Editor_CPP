@@ -5,6 +5,7 @@ FileHandler::FileHandler() :
     m_width(600), m_height(300), txtBox(100, 500, 150, BLACK, WHITE, 256), m_xButton(575, 25, 50, 50, "media\\xButton.jpg") {}
 
 void FileHandler::initSaveWindow() {
+    txtBox = TextInputBox(100, 500, 150, BLACK, WHITE, 256);
     initwindow(m_width, m_height, "Save space", getmaxwidth() / 2 - m_width / 2, getmaxheight() / 2 - m_height / 2, false, false);
     setfillstyle(SOLID_FILL, LIGHTGRAY);
     bar(0, 0, m_width, m_height);
@@ -21,6 +22,7 @@ void FileHandler::initSaveWindow() {
 }
 
 void FileHandler::initOpenWindow() {
+    txtBox = TextInputBox(100, 500, 150, BLACK, WHITE, 256);
     initwindow(m_width, m_height, "Open space", getmaxwidth() / 2 - m_width / 2, getmaxheight() / 2 - m_height / 2, false, false);
     setfillstyle(SOLID_FILL, LIGHTGRAY);
     bar(0, 0, m_width, m_height);
