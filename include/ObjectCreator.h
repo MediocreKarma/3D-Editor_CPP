@@ -82,9 +82,10 @@ class ObjectCreator {
         void drawToolButtons();
         void drawPointData();
         MyArray<char, 32> itoa(int x, const char* prefix = nullptr);
-        bool getCommand();
+        bool getClickCommand();
         bool getHoverCommand();
         bool getHoverCommand(const int& x, const int& y);
+        bool getDoubleClickCommand();
         void toolOperationOnPoint(const size_t& index);
 };
 

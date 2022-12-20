@@ -142,8 +142,8 @@ void Quaternion::convertToUnitQ() {
     double angle = m_data[0];
     Quaternion vector(0, complex());
     vector.normalize();
-    vector*=sin(angle/2);
-    setReal(cos(angle/2));
+    vector *= sin(angle / 2);
+    setReal(cos(angle / 2));
     setComplex(vector.complex());
 }
 
@@ -156,15 +156,15 @@ Quaternion Quaternion::conjugate() {
 
 Quaternion Quaternion::inverse() {
     double abs = norm();
-    abs*=abs;
-    abs = 1/abs;
+    abs *= abs;
+    abs = 1 / abs;
     Quaternion conj = conjugate();
-    conj*=abs;
+    conj *= abs;
     return conj;
 }
 void Quaternion::display() {
     //for debugging
-    for(size_t i = 0; i<4; i++) {
+    for(size_t i = 0; i < 4; i++) {
         std::cout<<m_data[i]<<" ";
     }
     std::cout<<"\n";

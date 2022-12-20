@@ -395,7 +395,7 @@ void ObjectCreator::toolOperationOnPoint(const size_t& index) {
     }
 }
 
-bool ObjectCreator::getCommand() {
+bool ObjectCreator::getClickCommand() {
     int x, y;
     getmouseclick(WM_LBUTTONDOWN, x, y);
     if (x == -1) {
@@ -467,13 +467,22 @@ bool ObjectCreator::getHoverCommand() {
     return getHoverCommand(xHov, yHov);
 }
 
+bool ObjectCreator::getDoubleClickCommand() {
+    int x, y;
+    getmouseclick(WM_LBUTTONDBLCLK, x, y);
+    if (x == -1) {
+        return false;
+    }
+    return false;
+}
+
 Mesh ObjectCreator::run() {
     initwindow(x1, y1, "Object creator", 300, 25);
     setvisualpage(0);
     setactivepage(1);
     draw();
     while (true) {
-        if (getCommand() || getHoverCommand()) {
+        if (getClickCommand() || getHoverCommand() || getDoubleClickCommand()) {
             draw();
         }
     }

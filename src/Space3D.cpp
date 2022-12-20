@@ -31,19 +31,17 @@ Space3D::Space3D(const Space3D& sp) :
 
 Space3D& Space3D::operator = (const Space3D& sp) {
     m_theme = sp.m_theme;
-    m_fadedDrag = sp.m_fadedDrag;
-    m_draggedMesh = sp.m_draggedMesh;
+    m_fadedDrag = false;
     m_draggedSection = sp.m_draggedSection;
     m_cam = sp.m_cam;
     m_meshes = sp.m_meshes;
-    m_sections = sp.m_sections;
-    m_updated = sp.m_updated;
     m_selected = sp.m_selected;
+    m_updated = MyVector<bool>(sp.size(), true);
     m_linkedFile = sp.m_linkedFile;
     m_menuHolder = sp.m_menuHolder;
     m_objCreatorHolder = sp.m_objCreatorHolder;
-    setCorners(sp.x0, sp.y0, sp.x1, sp.y1);
     m_objRotateDrag = 0;
+    setCorners(sp.x0, sp.y0, sp.x1, sp.y1);
     return *this;
 }
 

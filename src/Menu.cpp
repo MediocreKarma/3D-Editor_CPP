@@ -4,7 +4,7 @@
 
 Menu::Menu(const int& theme, const int& appWidth, const int& appHeight) :
     x1(), y1(), x2(), y2(), m_appWidth(appWidth), m_appHeight(appHeight), m_theme(theme), m_fileButton(40, 13, 80, 26, "File", 120, 80),
-    m_settingsButton(130, 13, 100, 26, "Settings"), m_helpButton(210, 13, 60, 26, "Help", 80, 80), m_space(), m_fileGetter(), m_settingsMenuFlag(false) {
+    m_settingsButton(130, 13, 100, 26, "Settings"), m_helpButton(210, 13, 60, 26, "Help", 80, 80), m_space(-2500, m_theme, this), m_fileGetter(), m_settingsMenuFlag(false) {
     m_fileButton.addOption("New");
     m_fileButton.addOption("Save");
     m_fileButton.addOption("Save as...");
@@ -89,14 +89,17 @@ void Menu::openSpace3D(Space3D& space) {
         return;
     }
     FILE* fp = fopen(openpath.data(), "r");
+    Space3D tempSpace(-2500, m_theme, this);
+    tempSpace.setCorners(0, 27, m_appWidth, m_appHeight);
     if (!fp) {
         showerrorbox("File not found!");
     }
-    else if (!space.fscan(fp)){
+    else if (!tempSpace.fscan(fp)){
         showerrorbox("Bad file!");
         fclose(fp);
     }
     else {
+        space = tempSpace;
         space.setLinkedFileName(openpath);
     }
     fclose(fp);
@@ -119,7 +122,6 @@ void Menu::drawMenu() {
 }
 
 void Menu::initSpace() {
-    m_space = Space3D(-2500, m_theme, this);
     m_space.setCorners(0, 27, m_appWidth, m_appHeight);
 }
 

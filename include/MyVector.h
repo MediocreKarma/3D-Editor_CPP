@@ -43,6 +43,22 @@ class MyVector {
             resize(vecSize);
         }
 
+        MyVector(iterator it1, iterator it2) : m_vec(nullptr), m_size(0), m_capacity(0) {
+            resize(it2 - it1);
+            size_t i = 0;
+            while (it1 != it2) {
+                m_vec[i++] = *(it1++);
+            }
+        }
+
+        MyVector(const_iterator it1, const_iterator it2) : m_vec(nullptr), m_size(0), m_capacity(0) {
+            resize(it2 - it1);
+            size_t i = 0;
+            while (it1 != it2) {
+                m_vec[i++] = *(it1++);
+            }
+        }
+
         ~MyVector() {
             delete[] m_vec;
         }

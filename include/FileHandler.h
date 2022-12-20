@@ -4,10 +4,11 @@
 #include <graphics.h>
 #include <winbgim.h>
 #include "AppTools.h"
+#include "TextInput.h"
+#include "MyVector.h"
 
 class FileHandler {
     public:
-        static const int displayableText = 100;
         static const int WriteAreaBegin = 100;
         static const int WriteAreaEnd = 500;
 
@@ -18,26 +19,18 @@ class FileHandler {
     private:
         int m_width;
         int m_height;
-        size_t m_index;
+        TextInputBox txtBox;
         ImageButton m_xButton;
 
         void initSaveWindow();
         void initOpenWindow();
         void clearText();
-        MyArray<char, 256> getFilename();
-        void backspaceIndex(MyArray<char, 256>& text, size_t& len);
-        void insertIndex(MyArray<char, 256>& text, size_t& len, const char& key);
-        MyArray<char, displayableText> displayText(const MyArray<char, 256>& text, const size_t& from, const size_t& to);
-        void displayCursor(const MyArray<char, displayableText>& outText, const size_t& from);
-        void decrementBeginEnd(const MyArray<char, 256>& text, size_t& begin, size_t& end);
-        void incrementBeginEnd(const MyArray<char, 256>& text, size_t& begin, size_t& end, const size_t& lenText = 0);
-        void display(const MyArray<char, 256>& text, const size_t& from, const size_t& to);
         MyArray<char, 512> correctPath(const MyArray<char, 256>& text);
         void addExtension(MyArray<char, 512>& text, size_t& len);
         bool checkWindowClose();
         bool isClickInTextbox(const int& x, const int& y);
         bool checkClickInTextbox();
-        void changeIndexByClick(const int& x, const MyArray<char, 256>& text, size_t& begin, size_t& end);
+        void changeIndexByClick(const int& x, const MyArray<char, 256>& text, size_t& m_displayBegin, size_t& end);
 
 };
 
