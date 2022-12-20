@@ -137,7 +137,7 @@ Point3D::Point3D(const Point3D& other) :
 
 Point3D::Point3D(const MyArray<double, 3>& arr) :
     x(arr[0]), y(arr[1]), z(arr[2]) {
-        /*if (fabs(x) < err) {
+       /*if (fabs(x) < err) {
             x = 0;
         }
         if (fabs(y) < err) {
@@ -505,11 +505,6 @@ void Mesh::rotateDisplayAngle() {
 }
 
 void Mesh::rotate(const double& angleX_, const double& angleY_, const double& angleZ_) {
-    //vom modifica in rotire pe axe globale (sau locale mai tarziu).
-    //nu stiu ce facem totusi cu unghiurile
-    //n am reusit sa mi dau seama cum functioneaza butoanele tale
-    //ca altfel as fi facut eu modificarile pe care voiam sa le fac
-
     const double e = 0.0000000000001;
     if (fabs(angleX_) > e) {
         rotateOnAxis(centerPoint(), Point3D(1, 0, 0), angleX_);
@@ -547,7 +542,6 @@ void Mesh::scaleEven(const double& scaleFactor) {
 }
 
 void Mesh::scaleAxis(bool isLocal, const double& scaleFactor, const size_t& axis) {
-    //TODO: adapt to quaternions
     MyArray<bool, 3> axes = {false, false, false};
     axes[axis] = 1;
     Point3D center = centerPoint();
@@ -579,12 +573,19 @@ Quaternion Mesh::quat() const {
 void Mesh::resetRotation() {
     MyArray<double, 3> aux = Point3D(centerPoint()).toArray();
     translate(-aux[0], -aux[1], -aux[2]);
-    for (size_t i = 0; i < size(); i++) {
-        m_points[i] = m_points[i].rotateByUnitQuat(m_quat.inverse());
-        //TODO: approximate m_points[i] (valori de ex. 99.99...9, 100.00...01 etc)
-        //care apar din faptul ca noi aplicam rotatii pe puncte la fiecare data
-        //cand defapt punctele originale ar fi 100 curat, sau whatever
-        //(asta pt ca cateodata sunt jagged edges in objCreator. cred ca de la asta)
+    const double e = 0.000000001;
+    //e destul de maricel dar merita, cred, ca oricum nu prea o sa avem val double highly specific pt obiecte nerotite
+    for (Point3D& pct : m_points) {
+        pct = pct.rotateByUnitQuat(m_quat.inverse());
+        if (fabs(pct.getX() - round(pct.getX())) < e) {
+            pct.setX((int)round(pct.getX()));
+        }
+        if (fabs(pct.getY() - round(pct.getY())) < e) {
+            pct.setY((int)round(pct.getY()));
+        }
+        if (fabs(pct.getZ() - round(pct.getZ())) < e) {
+            pct.setZ((int)round(pct.getZ()));
+        }
     }
     m_angleX = 0;
     m_angleY = 0;
