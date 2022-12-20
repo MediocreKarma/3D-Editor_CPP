@@ -98,7 +98,7 @@ class TextButton : public Button {
     public:
         TextButton();
         TextButton(const int& xCenter, const int& yCenter, const int& xLen, const int& yLen, const char* p);
-        void drawTextButton(const int& txtFont, const int& txtSize, const int& fillColor);
+        void drawTextButton(const int& txtFont, const int& txtSize, const int& fillColor, const bool& centerText = true);
         const char* getText();
         void modifyText(const MyArray<char, 32>& newText);
 
@@ -106,7 +106,7 @@ class TextButton : public Button {
         MyArray<char, 32> m_text;
 
     private:
-        void drawText(const int& /*txtFont*/, const int& /*txtSize*/, const int& fillColor);
+        void drawText(const int& /*txtFont*/, const int& /*txtSize*/, const int& fillColor, const bool& centerText = true);
 };
 
 template<size_t lenList>

@@ -7,10 +7,8 @@
 #include "MyIterators.h"
 
 template<class T, size_t m_size>
-class MyArray
-{
+class MyArray {
     public:
-
         using iterator = MyRandomAcessIterator<T>;
         using const_iterator = MyRandomAcessIterator<const T>;
 
@@ -49,6 +47,20 @@ class MyArray
             return m_size;
         }
 
+        MyArray(iterator beginIt, iterator endIt) {
+            size_t i = 0;
+            while (beginIt != endIt) {
+                m_data[i++] = *(beginIt + 1);
+            }
+        }
+
+        MyArray(const_iterator beginIt, const_iterator endIt) {
+            size_t i = 0;
+            while (beginIt != endIt) {
+                m_data[i++] = *(beginIt + 1);
+            }
+        }
+
         iterator begin() {
             return iterator(&m_data[0]);
         }
@@ -56,7 +68,7 @@ class MyArray
         iterator end() {
             return iterator(&m_data[m_size]);
         }
-    
+
         const_iterator begin() const {
             return cbegin();
         }
@@ -112,6 +124,9 @@ class MyArray
 template<size_t m_size>
 class MyArray<char, m_size> {
     public:
+        using iterator = MyRandomAcessIterator<char>;
+        using const_iterator = MyRandomAcessIterator<const char>;
+
         MyArray() = default;
 
         MyArray(const MyArray<char, m_size>& other) {
@@ -146,6 +161,22 @@ class MyArray<char, m_size> {
             m_data[i] = 0;
         }
 
+        MyArray(iterator beginIt, iterator endIt) {
+            fill(0);
+            size_t i = 0;
+            while (beginIt != endIt) {
+                m_data[i++] = *(beginIt + 1);
+            }
+        }
+
+        MyArray(const_iterator beginIt, const_iterator endIt) {
+            fill(0);
+            size_t i = 0;
+            while (beginIt != endIt) {
+                m_data[i++] = *(beginIt + 1);
+            }
+        }
+
         MyArray<char, m_size>& operator = (const MyArray<char, m_size>& rhs) {
             if (this == &rhs) {
                     return *this; // handle self assignment
@@ -154,6 +185,30 @@ class MyArray<char, m_size> {
                 m_data[i] = rhs[i];
             }
             return *this;
+        }
+
+        iterator begin() {
+            return iterator(&m_data[0]);
+        }
+
+        iterator end() {
+            return iterator(&m_data[m_size]);
+        }
+
+        const_iterator begin() const {
+            return cbegin();
+        }
+
+        const_iterator end() const {
+            return cend();
+        }
+
+        const_iterator cbegin() const {
+            return const_iterator(&m_data[0]);
+        }
+
+        const_iterator cend() const {
+            return const_iterator(&m_data[m_size]);
         }
 
         size_t size() const {

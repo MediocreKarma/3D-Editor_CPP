@@ -1,6 +1,7 @@
 #include "MyIterators.h"
 
-MyIterators::MyIterators()
+/*MyIterators::MyIterators()
 {
     //ctor
 }
+*/

@@ -1,25 +1,28 @@
 #include "Space3D.h"
 #include "Menu.h"
 #include "ObjectCreator.h"
-#include <iostream>
+#include "Quaternion.h"
+#include<iostream>
+
+const double pi = 3.141926535897;
 
 Space3D::Space3D() :
-    x0(), y0(), x1(), y1(), m_theme(), m_selected(-1), m_spinballSelected(false), m_fadedDrag(false), m_meshes(), m_draggedMesh(), m_sections(), m_draggedSection(),
+    x0(), y0(), x1(), y1(), m_theme(), m_selected(-1), m_spinballSelected(false), m_fadedDrag(false),  m_objRotateDrag(false), m_meshes(), m_draggedMesh(), m_sections(), m_draggedSection(),
     m_updated(), m_cam(), m_buttonOX(), m_buttonOY(), m_buttonOZ(), m_donutOX(), m_donutOY(), m_donutOZ(), m_spinballButton(), m_arrowLeft(), m_arrowRight(),
     m_arrowUp(), m_arrowDown(), m_arrowSpinLeft(), m_arrowSpinRight(), m_linkedFile{0}, m_menuHolder(nullptr), m_objCreatorHolder(nullptr) {}
 
 Space3D::Space3D(const double& maxRadius, const int& theme, Menu* menuHolder) :
-    x0(), y0(), x1(), y1(), m_theme(theme), m_selected(-1), m_spinballSelected(false), m_fadedDrag(false), m_meshes(), m_draggedMesh(), m_sections(), m_draggedSection(),
+    x0(), y0(), x1(), y1(), m_theme(theme), m_selected(-1), m_spinballSelected(false), m_fadedDrag(false),  m_objRotateDrag(false), m_meshes(), m_draggedMesh(), m_sections(), m_draggedSection(),
     m_updated(), m_cam(maxRadius), m_buttonOX(), m_buttonOY(), m_buttonOZ(), m_donutOX(), m_donutOY(), m_donutOZ(), m_spinballButton(), m_arrowLeft(), m_arrowRight(),
     m_arrowUp(), m_arrowDown(), m_arrowSpinLeft(), m_arrowSpinRight(), m_linkedFile{0}, m_menuHolder(menuHolder), m_objCreatorHolder(nullptr) {}
 
 Space3D::Space3D(const double& maxRadius, const int& theme, ObjectCreator* objCreatorHolder) :
-    x0(), y0(), x1(), y1(), m_theme(theme), m_selected(-1), m_spinballSelected(false), m_fadedDrag(false), m_meshes(), m_draggedMesh(), m_sections(), m_draggedSection(),
+    x0(), y0(), x1(), y1(), m_theme(theme), m_selected(-1), m_spinballSelected(false), m_fadedDrag(false), m_objRotateDrag(false), m_meshes(), m_draggedMesh(), m_sections(), m_draggedSection(),
     m_updated(), m_cam(maxRadius), m_buttonOX(), m_buttonOY(), m_buttonOZ(), m_donutOX(), m_donutOY(), m_donutOZ(), m_spinballButton(), m_arrowLeft(), m_arrowRight(),
-    m_arrowUp(), m_arrowDown(), m_arrowSpinLeft(), m_arrowSpinRight(), m_linkedFile{0}, m_menuHolder(nullptr), m_objCreatorHolder(objCreatorHolder) {}
+    m_arrowUp(), m_arrowDown(), m_arrowSpinLeft(), m_arrowSpinRight(), m_linkedFile{0}, m_menuHolder(nullptr), m_objCreatorHolder(objCreatorHolder){}
 
 Space3D::Space3D(const Space3D& sp) :
-    x0(sp.x0), y0(sp.y0), x1(sp.x1), y1(sp.y1), m_theme(sp.m_theme), m_selected(sp.m_selected), m_spinballSelected(sp.m_spinballSelected), m_fadedDrag(sp.m_fadedDrag),
+    x0(sp.x0), y0(sp.y0), x1(sp.x1), y1(sp.y1), m_theme(sp.m_theme), m_selected(sp.m_selected), m_spinballSelected(sp.m_spinballSelected), m_fadedDrag(sp.m_fadedDrag),  m_objRotateDrag(false),
     m_meshes(sp.m_meshes), m_draggedMesh(sp.m_draggedMesh), m_sections(sp.m_sections), m_draggedSection(sp.m_draggedSection),
     m_updated(sp.m_updated), m_cam(sp.m_cam), m_buttonOX(sp.m_buttonOX), m_buttonOY(sp.m_buttonOY), m_buttonOZ(sp.m_buttonOZ), m_donutOX(sp.m_donutOX), m_donutOY(sp.m_donutOY),
     m_donutOZ(sp.m_donutOZ), m_spinballButton(sp.m_spinballButton), m_arrowLeft(sp.m_arrowLeft), m_arrowRight(sp.m_arrowRight),
@@ -28,17 +31,16 @@ Space3D::Space3D(const Space3D& sp) :
 
 Space3D& Space3D::operator = (const Space3D& sp) {
     m_theme = sp.m_theme;
-    m_fadedDrag = sp.m_fadedDrag;
-    m_draggedMesh = sp.m_draggedMesh;
+    m_fadedDrag = false;
     m_draggedSection = sp.m_draggedSection;
     m_cam = sp.m_cam;
     m_meshes = sp.m_meshes;
-    m_sections = sp.m_sections;
-    m_updated = sp.m_updated;
     m_selected = sp.m_selected;
+    m_updated = MyVector<bool>(sp.size(), true);
     m_linkedFile = sp.m_linkedFile;
     m_menuHolder = sp.m_menuHolder;
     m_objCreatorHolder = sp.m_objCreatorHolder;
+    m_objRotateDrag = 0;
     setCorners(sp.x0, sp.y0, sp.x1, sp.y1);
     return *this;
 }
@@ -64,9 +66,9 @@ void Space3D::setButtons() {
     m_spinballButton = Button(x1 - 75, y0 + 75, 140, 140);
     const int xSpinballCenter = m_spinballButton.getXCenter();
     const int ySpinballCenter = m_spinballButton.getYCenter();
-    m_donutOX = DonutButton(xSpinballCenter + 20, ySpinballCenter + 120, 40, 20);
-    m_donutOY = DonutButton(xSpinballCenter + 20, ySpinballCenter + 220, 40, 20);
-    m_donutOZ = DonutButton(xSpinballCenter + 20, ySpinballCenter + 320, 40, 20);
+    m_donutOX = DonutButton(xSpinballCenter, ySpinballCenter + 120, 40, 20);
+    m_donutOY = DonutButton(xSpinballCenter, ySpinballCenter + 220, 40, 20);
+    m_donutOZ = DonutButton(xSpinballCenter, ySpinballCenter + 320, 40, 20);
 }
 
 void Space3D::callHandlerDrawer() {
@@ -128,6 +130,9 @@ void Space3D::run() {
         drawSpinball();
         if (m_spinballSelected) {
             showAngleOptions();
+            if(m_objRotateDrag) {
+                drawAngleButtons();
+            }
         }
     }
 }
@@ -156,13 +161,13 @@ void Space3D::drawRotationArrows() {
     line(xCenter, y1 - BORDER_OFFSET, xCenter - POSITION_OFFSET, y1 - POSITION_OFFSET);
     line(xCenter, y1 - BORDER_OFFSET, xCenter + POSITION_OFFSET, y1 - POSITION_OFFSET);
     //m_arrowSpinRight.border(WHITE);
-    ellipse(x0 + 25, y0 + 25, 90, 360, 15, 15);
+    /*ellipse(x0 + 25, y0 + 25, 90, 360, 15, 15);
     line(x0 + 27, y0 + 11, x0 + 20, y0 + 4);
     line(x0 + 27, y0 + 11, x0 + 20, y0 + 18);
     //m_arrowSpinLeft.border(WHITE);
     ellipse(x0 + 25, y1 - 25, 180, 450, 15, 15);
     line (x0 + 23, y1 - 39, x0 + 30, y1 - 46);
-    line (x0 + 23, y1 - 39, x0 + 30, y1 - 32);
+    line (x0 + 23, y1 - 39, x0 + 30, y1 - 32);*/
 }
 
 void Space3D::drawSpinball() {
@@ -171,6 +176,9 @@ void Space3D::drawSpinball() {
     m_spinballButton.drawLabel(ColorSchemes::themeColors[m_theme][ColorSchemes::PRIMARYCOLOR], ColorSchemes::themeColors[m_theme][ColorSchemes::SECONDARYCOLOR]);
     setlinestyle(SOLID_LINE, 0, 2);
     setcolor(LIGHTRED);
+    //Am lasat in space3D angleX, angleY si angleZ - solely for displaying purposes
+    //Transforma quaternionul curent in unghiuri Euler: yaw, pitch, roll
+    //cu metoda toEuler din Quaternion
     CircularLabel labelOX = CircularLabel(x + 10 * cos(m_meshes[m_selected].angleX()), y + 60 * sin(m_meshes[m_selected].angleX()), 5);
     CircularLabel labelOY = CircularLabel(x + 60 * cos(m_meshes[m_selected].angleY()), y + 60 * sin(m_meshes[m_selected].angleY()), 5);
     CircularLabel labelOZ = CircularLabel(x + 60 * cos(m_meshes[m_selected].angleZ()), y + 10 * sin(m_meshes[m_selected].angleZ()), 5);
@@ -186,22 +194,158 @@ void Space3D::drawSpinball() {
 
 void Space3D::showAngleOptions() {
     m_donutOX.drawLabel(ColorSchemes::NO_COLOR, LIGHTGREEN);
-    m_buttonOX.drawLabel(LIGHTGREEN, LIGHTGREEN);
-
     m_donutOY.drawLabel(ColorSchemes::NO_COLOR, LIGHTRED);
-    m_buttonOY.drawLabel(LIGHTRED, LIGHTRED);
-
     m_donutOZ.drawLabel(ColorSchemes::NO_COLOR, LIGHTBLUE);
-    m_buttonOZ.drawLabel(LIGHTBLUE, LIGHTBLUE);
 }
 
+void Space3D::drawAngleButtons() {
+    switch(m_objRotateDrag) {
+        case 1:
+            m_buttonOX.drawLabel(LIGHTGREEN, LIGHTGREEN);
+            break;
+        case 2:
+            m_buttonOY.drawLabel(LIGHTRED, LIGHTRED);
+            break;
+        case 3:
+            m_buttonOZ.drawLabel(LIGHTBLUE, LIGHTBLUE);
+            break;
+        default:
+            return;
+    }
+}
+
+bool Space3D::checkCamMovement(const char& c) {
+    const int distance = 25;
+    Point3D auxPoint;
+    switch (c) {
+        case 'a':
+            auxPoint = Point3D(-distance, 0, 0);
+            break;
+        case 'd':
+            auxPoint = Point3D(distance, 0, 0);
+            break;
+        case 's':
+            auxPoint = Point3D(0, -distance, 0);
+            break;
+        case 'w':
+            auxPoint = Point3D(0, distance, 0);
+            break;
+        case 'e':
+            auxPoint = Point3D(0, 0, distance);
+            break;
+        case 'q':
+            auxPoint = Point3D(0, 0, -distance);
+            break;
+        default:
+            return 0;
+    }
+    Point3D rotatedPoint = rotateByCamera(auxPoint);
+    m_cam.modifyPosition(rotatedPoint.getX(), rotatedPoint.getY(), rotatedPoint.getZ());
+    m_updated.fill(true);
+    callHandlerDrawer();
+    return 1;
+}
+
+bool Space3D::checkObjectRotation(int x, int y) {
+    double tempAngle = 0;
+
+    const int xSpinball = m_spinballButton.getXCenter();
+    const int ySpinball = m_spinballButton.getYCenter();
+
+   if (m_donutOX.hitCollision(x, y)) {
+        m_objRotateDrag = 1;
+        double rotation1 = findRotation(x, y, m_donutOX, m_buttonOX);
+        tempAngle += rotation1;
+        m_buttonOX.move(xSpinball + 40 * cos(tempAngle), ySpinball + 120 + 40 * sin(tempAngle));
+        int xDrag, yDrag;
+        getmouseclick(WM_LBUTTONUP, xDrag, yDrag);
+        int dragDiff = sqrt((xDrag - x) * (xDrag - x) + (yDrag - y) * (yDrag - y));
+        while (!ismouseclick(WM_LBUTTONUP)) {
+            getmouseclick(WM_MOUSEMOVE, xDrag, yDrag);
+            if (m_donutOX.hitCollision(xDrag, yDrag) && dragDiff >= 5) {
+                double rotation = findRotation(xDrag, yDrag, m_donutOX, m_buttonOX);
+                m_meshes[m_selected].rotate(rotation, 0, 0);
+                tempAngle += rotation;
+                m_meshes[m_selected].rotateDisplayAngle();
+                m_updated[m_selected] = true;
+                m_buttonOX.move(xSpinball + 40 * cos(tempAngle), ySpinball + 120 + 40 * sin(tempAngle));
+                callHandlerDrawer();
+                x = xDrag;
+                y = yDrag;
+            }
+            dragDiff = sqrt((xDrag - x) * (xDrag - x) + (yDrag - y) * (yDrag - y));
+        }
+        selectMesh(m_selected);
+        callHandlerDrawer();
+        m_objRotateDrag = 0;
+        return true;
+    }
+    if (m_donutOY.hitCollision(x, y)) {
+        m_objRotateDrag = 2;
+        double rotation1 = findRotation(x, y, m_donutOY, m_buttonOY);
+        tempAngle += rotation1;
+        m_buttonOY.move(xSpinball + 40 * cos(tempAngle), ySpinball + 220 + 40 * sin(tempAngle));
+        int xDrag, yDrag;
+        getmouseclick(WM_LBUTTONUP, xDrag, yDrag);
+        int dragDiff = sqrt((xDrag - x) * (xDrag - x) + (yDrag - y) * (yDrag - y));
+        while (!ismouseclick(WM_LBUTTONUP)) {
+            getmouseclick(WM_MOUSEMOVE, xDrag, yDrag);
+            if (m_donutOY.hitCollision(xDrag, yDrag) && dragDiff >= 5) {
+                double rotation = findRotation(xDrag, yDrag, m_donutOY, m_buttonOY);
+                m_meshes[m_selected].rotate(0, rotation, 0);
+                tempAngle += rotation;
+                m_meshes[m_selected].rotateDisplayAngle();
+                m_updated[m_selected] = true;
+                m_buttonOY.move(xSpinball + 40 * cos(tempAngle), ySpinball + 220 + 40 * sin(tempAngle));
+                callHandlerDrawer();
+                x = xDrag;
+                y = yDrag;
+            }
+            dragDiff = sqrt((xDrag - x) * (xDrag - x) + (yDrag - y) * (yDrag - y));
+        }
+        selectMesh(m_selected);
+        callHandlerDrawer();
+        m_objRotateDrag = 0;
+        return true;
+    }
+    if (m_donutOZ.hitCollision(x, y)) {
+        m_objRotateDrag = 3;
+        double rotation1 = findRotation(x, y, m_donutOZ, m_buttonOZ);
+        tempAngle += rotation1;
+        m_buttonOZ.move(xSpinball + 40 * cos(tempAngle), ySpinball + 320 + 40 * sin(tempAngle));
+        int xDrag, yDrag;
+        getmouseclick(WM_LBUTTONUP, xDrag, yDrag);
+        int dragDiff = sqrt((xDrag - x) * (xDrag - x) + (yDrag - y) * (yDrag - y));
+        while (!ismouseclick(WM_LBUTTONUP)) {
+            getmouseclick(WM_MOUSEMOVE, xDrag, yDrag);
+            if (m_donutOZ.hitCollision(xDrag, yDrag) && dragDiff >= 5) {
+                double rotation = findRotation(xDrag, yDrag, m_donutOZ, m_buttonOZ);
+                m_meshes[m_selected].rotate(0, 0, rotation);
+                tempAngle += rotation;
+                m_meshes[m_selected].rotateDisplayAngle();
+                m_updated[m_selected] = true;
+                m_buttonOZ.move(xSpinball + 40 * cos(tempAngle), ySpinball + 320 + 40 * sin(tempAngle));
+                callHandlerDrawer();
+                x = xDrag;
+                y = yDrag;
+            }
+            dragDiff = sqrt((xDrag - x) * (xDrag - x) + (yDrag - y) * (yDrag - y));
+        }
+        selectMesh(m_selected);
+        callHandlerDrawer();
+        m_objRotateDrag = 0;
+        return true;
+    }
+    m_objRotateDrag = 0;
+    return false;
+}
 
 bool Space3D::checkAxisRotation(const int& x, const int& y) {
     const double Grad_1 = 0.0078539816339745;
     clearmouseclick(WM_LBUTTONUP);
     if (m_arrowDown.hitCollision(x, y)) {
         while (!ismouseclick(WM_LBUTTONUP)) {
-            m_cam.modifyAngles(-Grad_1, 0, 0);
+            m_cam.rotateOnAxis(0, -Grad_1);
             m_updated.fill(true);
             callHandlerDrawer();
         }
@@ -209,7 +353,7 @@ bool Space3D::checkAxisRotation(const int& x, const int& y) {
     }
     if (m_arrowUp.hitCollision(x, y)) {
         while (!ismouseclick(WM_LBUTTONUP)) {
-            m_cam.modifyAngles(+Grad_1, 0, 0);
+            m_cam.rotateOnAxis(0, Grad_1);
             m_updated.fill(true);
             callHandlerDrawer();
         }
@@ -217,7 +361,7 @@ bool Space3D::checkAxisRotation(const int& x, const int& y) {
     }
     if (m_arrowLeft.hitCollision(x, y)) {
         while (!ismouseclick(WM_LBUTTONUP)) {
-            m_cam.modifyAngles(0, 0, +Grad_1);
+            m_cam.rotateOnAxis(2, Grad_1);
             m_updated.fill(true);
             callHandlerDrawer();
         }
@@ -225,15 +369,15 @@ bool Space3D::checkAxisRotation(const int& x, const int& y) {
     }
     if (m_arrowRight.hitCollision(x, y)) {
         while (!ismouseclick(WM_LBUTTONUP)) {
-            m_cam.modifyAngles(0, 0, -Grad_1);
+            m_cam.rotateOnAxis(2, -Grad_1);
             m_updated.fill(true);
             callHandlerDrawer();
         }
         return true;
     }
-    if (m_arrowSpinLeft.hitCollision(x, y)) {
+    /*if (m_arrowSpinLeft.hitCollision(x, y)) {
         while (!ismouseclick(WM_LBUTTONUP)) {
-            m_cam.modifyAngles(0, +Grad_1, 0);
+            m_cam.rotateOnAxis(1, Grad_1);
             m_updated.fill(true);
             callHandlerDrawer();
         }
@@ -241,12 +385,12 @@ bool Space3D::checkAxisRotation(const int& x, const int& y) {
     }
     if (m_arrowSpinRight.hitCollision(x, y)) {
         while (!ismouseclick(WM_LBUTTONUP)) {
-            m_cam.modifyAngles(0, -Grad_1, 0);
+            m_cam.rotateOnAxis(1, -Grad_1);
             m_updated.fill(true);
             callHandlerDrawer();
         }
         return true;
-    }
+    }*/
     return false;
 }
 
@@ -267,42 +411,44 @@ Point3D Space3D::rotateByCamera(const Point3D& pct) const {
     double xr = pct.getX();
     double yr = pct.getY();
     double zr = pct.getZ();
-    double aX = m_cam.angleX();
-    double aY = m_cam.angleY();
-    double aZ = m_cam.angleZ();
-    double dx = (-sin(aX) * sin(aY) * sin(aZ) + cos(aZ) * cos(aY)) * xr +  (-sin(aZ) * cos(aX)) * yr + (sin(aY) * cos(aZ) + sin(aX) * sin(aZ) * cos(aY)) * zr;
-    double dy = (sin(aX) * sin(aY) * cos(aZ) + cos(aY) * sin(aZ)) * xr + (cos(aX) * cos(aZ)) * yr +  (sin(aY) * sin(aZ) - sin(aX) * cos(aZ) * cos(aY))* zr;
-    double dz = -sin(aY) * cos(aX) * xr + sin(aX) * yr + cos(aX) * cos(aY) * zr;
+
+    Point3D aux = Point3D(xr, yr, zr).rotateByUnitQuat(m_cam.quat());
+    double dx = aux.getX();
+    double dy = aux.getY();
+    double dz = aux.getZ();
     return Point3D(dx, dy, dz);
 }
 
-Point3D Space3D::normalisePoint(const Point3D& pct) const {
+Point3D Space3D::normalisePoint(const Point3D& pct,  const Quaternion& camQuat, const Quaternion& camInverse) const {
     double xr = pct.getX() - m_cam.position().getX();
     double yr = pct.getY() - m_cam.position().getY();
     double zr = pct.getZ() - m_cam.position().getZ();
-    double aX = m_cam.angleX();
-    double aY = m_cam.angleY();
-    double aZ = m_cam.angleZ();
-    double dx = (-sin(aX) * sin(aY) * sin(aZ) + cos(aZ) * cos(aY)) * xr + (sin(aX) * sin(aY) * cos(aZ) + cos(aY) * sin(aZ)) * yr - sin(aY) * cos(aX) * zr;
-    double dy = -sin(aZ) * cos(aX) * xr + (cos(aX) * cos(aZ)) * yr + sin(aX) * zr;
-    double dz = (sin(aY) * cos(aZ) + sin(aX) * sin(aZ) * cos(aY)) * xr + (sin(aY) * sin(aZ) - sin(aX) * cos(aZ) * cos(aY)) * yr + cos(aX) * cos(aY) * zr;
+
+    Quaternion pointQuat(0, Point3D(xr, yr, zr).toArray());
+    Quaternion rotatedPct = Quaternion(camInverse * pointQuat * camQuat);
+
+    double dx = rotatedPct[1];
+    double dy = rotatedPct[2];
+    double dz = rotatedPct[3];
+
     return Point3D(dx, dy, dz);
 }
 
-Point2D Space3D::projectPoint(const Point3D& pct) const {
+Point2D Space3D::projectPoint(const Point3D& pct, const Quaternion& camQuat, const Quaternion& camInverse) const {
     const int xCenter = (x0 + x1) / 2;
     const int yCenter = (y0 + y1) / 2;
     const int yLen = (y1 - y0);
     const int xr = pct.getX() - m_cam.position().getX();
     const int yr = pct.getY() - m_cam.position().getY();
     const int zr = pct.getZ() - m_cam.position().getZ();
-    double aX = m_cam.angleX();
-    double aY = m_cam.angleY();
-    double aZ = m_cam.angleZ();
     double EZ = m_cam.EZ();
-    double dx = (-sin(aX) * sin(aY) * sin(aZ) + cos(aZ) * cos(aY)) * xr + (sin(aX) * sin(aY) * cos(aZ) + cos(aY) * sin(aZ)) * yr - sin(aY) * cos(aX) * zr;
-    double dy = -sin(aZ) * cos(aX) * xr + (cos(aX) * cos(aZ)) * yr + sin(aX) * zr;
-    double dz = (sin(aY) * cos(aZ) + sin(aX) * sin(aZ) * cos(aY)) * xr + (sin(aY) * sin(aZ) - sin(aX) * cos(aZ) * cos(aY)) * yr + cos(aX) * cos(aY) * zr;
+    Quaternion pointQuat(0, Point3D(xr, yr, zr).toArray());
+    Quaternion rotatedPct = Quaternion(camInverse * pointQuat * camQuat);
+
+    double dx = rotatedPct[1];
+    double dy = rotatedPct[2];
+    double dz = rotatedPct[3];
+
     if (dy <= 0) {
         return Point2D(-100, -100);
     }
@@ -317,13 +463,15 @@ Section Space3D::projectSection(const Mesh& mesh) {
     }
     MyVector<Point2D> projectedPoints;
     projectedPoints.resize(mesh.size());
+    Quaternion camQuat = m_cam.quat();
+    Quaternion camInverse = camQuat.inverse();
     for(size_t i = 0; i < mesh.size(); i++) {
-        projectedPoints[i] = projectPoint(mesh[i]);
+        projectedPoints[i] = projectPoint(mesh[i], camQuat, camInverse);
     }
     if (!m_menuHolder) {
         return Section(projectedPoints, Point2D(-100, -100), mesh.adjacencyList());
     }
-    Point2D sectionCenterPoint = projectPoint(mesh.centerPoint());
+    Point2D sectionCenterPoint = projectPoint(mesh.centerPoint(), camQuat, camInverse);
     return Section(projectedPoints, sectionCenterPoint, mesh.adjacencyList());
 }
 
@@ -363,104 +511,16 @@ bool Space3D::insideWorkArea(const Point2D& point) const {
     return insideWorkArea(point.getX(), point.getY());
 }
 
-bool Space3D::checkCamMovement(const char& c) {
-    const int distance = 25;
-    Point3D auxPoint;
-    switch (c) {
-        case 'a':
-            auxPoint = Point3D(-distance, 0, 0);
-            break;
-        case 'd':
-            auxPoint = Point3D(distance, 0, 0);
-            break;
-        case 's':
-            auxPoint = Point3D(0, -distance, 0);
-            break;
-        case 'w':
-            auxPoint = Point3D(0, distance, 0);
-            break;
-        case 'e':
-            auxPoint = Point3D(0, 0, distance);
-            break;
-        case 'q':
-            auxPoint = Point3D(0, 0, -distance);
-            break;
-        default:
-            return 0;
-    }
-    Point3D rotatedPoint = rotateByCamera(auxPoint);
-    m_cam.modifyPosition(rotatedPoint.getX(), rotatedPoint.getY(), rotatedPoint.getZ());
-    m_updated.fill(true);
-    callHandlerDrawer();
-    return 1;
-}
-
-bool Space3D::checkObjectRotation(int x, int y) {
-    if (m_donutOX.hitCollision(x, y)) {
-        int xDrag, yDrag;
-        getmouseclick(WM_LBUTTONUP, xDrag, yDrag);
-        int dragDiff = sqrt((xDrag - x) * (xDrag - x) + (yDrag - y) * (yDrag - y));
-        while (!ismouseclick(WM_LBUTTONUP)) {
-            getmouseclick(WM_MOUSEMOVE, xDrag, yDrag);
-            if (m_donutOX.hitCollision(xDrag, yDrag) && dragDiff >= 5) {
-                double rotation = findRotation(xDrag, yDrag, m_donutOX, m_buttonOX);
-                m_meshes[m_selected].rotate(rotation, 0, 0);
-                selectMesh(m_selected);
-                m_updated[m_selected] = true;
-                callHandlerDrawer();
-                x = xDrag;
-                y = yDrag;
-            }
-            dragDiff = sqrt((xDrag - x) * (xDrag - x) + (yDrag - y) * (yDrag - y));
-        }
-        return true;
-    }
-    if (m_donutOY.hitCollision(x, y)) {
-        int xDrag, yDrag;
-        getmouseclick(WM_LBUTTONUP, xDrag, yDrag);
-        int dragDiff = sqrt((xDrag - x) * (xDrag - x) + (yDrag - y) * (yDrag - y));
-        while (!ismouseclick(WM_LBUTTONUP)) {
-            getmouseclick(WM_MOUSEMOVE, xDrag, yDrag);
-            if (m_donutOY.hitCollision(xDrag, yDrag) && dragDiff >= 5) {
-                double rotation = findRotation(xDrag, yDrag, m_donutOY, m_buttonOY);
-                m_meshes[m_selected].rotate(0, rotation, 0);
-                selectMesh(m_selected);
-                m_updated[m_selected] = true;
-                callHandlerDrawer();
-                x = xDrag;
-                y = yDrag;
-            }
-            dragDiff = sqrt((xDrag - x) * (xDrag - x) + (yDrag - y) * (yDrag - y));
-        }
-        return true;
-    }
-    if (m_donutOZ.hitCollision(x, y)) {
-        int xDrag, yDrag;
-        getmouseclick(WM_LBUTTONUP, xDrag, yDrag);
-        int dragDiff = sqrt((xDrag - x) * (xDrag - x) + (yDrag - y) * (yDrag - y));
-        while (!ismouseclick(WM_LBUTTONUP)) {
-            getmouseclick(WM_MOUSEMOVE, xDrag, yDrag);
-            if (m_donutOZ.hitCollision(xDrag, yDrag) && dragDiff >= 5) {
-                double rotation = findRotation(xDrag, yDrag, m_donutOZ, m_buttonOZ);
-                m_meshes[m_selected].rotate(0, 0, rotation);
-                selectMesh(m_selected);
-                m_updated[m_selected] = true;
-                callHandlerDrawer();
-                x = xDrag;
-                y = yDrag;
-            }
-            dragDiff = sqrt((xDrag - x) * (xDrag - x) + (yDrag - y) * (yDrag - y));
-        }
-        return true;
-    }
-    return false;
-}
 
 bool Space3D::getKeyCommand() {
     if (!kbhit()) {
         return false;
     }
-    return checkCamMovement(getch());
+    char x;
+    do {
+        x = getch();
+    } while (kbhit());
+    return checkCamMovement(x);
 }
 
 //returns true if menu should redraw itself
@@ -497,7 +557,9 @@ void Space3D::dragMesh() {
         getmouseclick(WM_MOUSEMOVE, xDrag, yDrag);
         if (insideWorkArea(xDrag, yDrag)) {
             if (!m_sections[m_selected].grabButtonCollision(xDrag, yDrag)) {
-                dragAndDrop(xDrag, yDrag, m_draggedMesh);
+                Quaternion camQuat = m_cam.quat();
+                Quaternion camInverse = camQuat.inverse();
+                dragAndDrop(xDrag, yDrag, m_draggedMesh, camQuat, camInverse);
                 m_fadedDrag = true;
                 m_menuHolder->draw();
             }
@@ -512,13 +574,13 @@ void Space3D::dragMesh() {
     }
 }
 
-void Space3D::dragAndDrop(const int& xDrag, const int& yDrag, Mesh& mesh) {
+void Space3D::dragAndDrop(const int& xDrag, const int& yDrag, Mesh& mesh, const Quaternion& camQuat, const Quaternion& camInverse) {
     const double xCenter = (x0 + x1) / 2;
     const double yCenter = (y0 + y1) / 2;
     const int yLen = y1 - y0;
 
     Point3D centerPoint(mesh.centerPoint());
-    Point3D normalizedPoint(normalisePoint(centerPoint));
+    Point3D normalizedPoint(normalisePoint(centerPoint, camQuat, camInverse));
 
     //SCHEMA:
     //"Dezproiectam" obiectul de pe ecran, si l scoatem din sistemul de coordonate al camerei
@@ -526,8 +588,7 @@ void Space3D::dragAndDrop(const int& xDrag, const int& yDrag, Mesh& mesh) {
     //dy2 = dy1; sunt la fel de aproape de camera.
     //Scoatem dx2 si dz2 prin bx1 si bx2
 
-    //xC, yC - centrul sect.; for accurate translations
-    Point2D sectionCenterPoint = projectPoint(mesh.centerPoint());
+    Point2D sectionCenterPoint = projectPoint(mesh.centerPoint(), camQuat, camInverse);
     double xC = sectionCenterPoint.getX();
     double yC = sectionCenterPoint.getY();
 
@@ -545,26 +606,23 @@ void Space3D::dragAndDrop(const int& xDrag, const int& yDrag, Mesh& mesh) {
     double dy1 = normalizedPoint.getY();
     double dz1 = normalizedPoint.getZ();
     double EZ = m_cam.EZ();
-    //DY DIFERIT de 0 ca asa l vrem. In proiectie vom stabili defapt ce se intampla
-    //daca camera e prea aproape de un obiect
+
     double dy2 = dy1;
     double dx2 = dx1 + (bx2 - bx1) * dy2 / EZ;
     double dz2 = dz1 + (by2 - by1) * dy2 / EZ;
 
     //Aici inversam rotatia camerei...
-    double aX = m_cam.angleX();
-    double aY = m_cam.angleY();
-    double aZ = m_cam.angleZ();
-    double tx = ( -sin(aX) * sin(aY) * sin(aZ) + cos(aZ) * cos(aY) ) * dx2 +  (-sin(aZ) * cos(aX)) * dy2 + (sin(aY) * cos(aZ) + sin(aX) * sin(aZ) * cos(aY)) * dz2;
-    double ty =  (sin(aX) * sin(aY) * cos(aZ) + cos(aY) * sin(aZ)) * dx2 + (cos(aX) * cos(aZ)) * dy2 +  (sin(aY) * sin(aZ) - sin(aX) * cos(aZ) * cos(aY))* dz2;
-    double tz =  (- sin(aY) * cos(aX)) * dx2 + sin(aX)  * dy2 + cos(aX) * cos(aY) * dz2;
+
+    Point3D aux = Point3D(dx2, dy2, dz2).rotateByUnitQuat(m_cam.quat());
+    double tx = aux.getX();
+    double ty = aux.getY();
+    double tz = aux.getZ();
 
     //..si acum il scoatem complet din sistemul de coordonate al camerei.
     tx = tx + m_cam.position().getX();
     ty = ty + m_cam.position().getY();
     tz = tz + m_cam.position().getZ();
 
-    //translatam
     mesh.translate(tx - centerPoint.getX(), ty - centerPoint.getY(), tz - centerPoint.getZ());
 }
 
@@ -585,15 +643,15 @@ void Space3D::highlightMesh() {
 }
 
 void Space3D::selectMesh(const size_t& index) {
+    //cred ca aici o sa fac si butoanele Global/Local
     m_selected = index;
     const int x = m_spinballButton.getXCenter();
     const int y = m_spinballButton.getYCenter();
 
-    m_buttonOX = CircularButton(x + 20 + 40 * cos(m_meshes[m_selected].angleX()), y + 120 + 40 * sin(m_meshes[m_selected].angleX()), 7);
-
-    m_buttonOY = CircularButton(x + 20 + 40 * cos(m_meshes[m_selected].angleY()), y + 220 + 40 * sin(m_meshes[m_selected].angleY()), 7);
-
-    m_buttonOZ = CircularButton(x + 20 + 40 * cos(m_meshes[m_selected].angleZ()), y + 320 + 40 * sin(m_meshes[m_selected].angleZ()), 7);
+    m_buttonOX = CircularButton(x + 40, y + 120, 7);
+    m_buttonOY = CircularButton(x + 40, y + 220, 7);
+    m_buttonOZ = CircularButton(x + 40, y + 320, 7);
+    m_meshes[m_selected].rotateDisplayAngle();
 }
 
 //deseneaza toate mesh-urile proiectate + centrele

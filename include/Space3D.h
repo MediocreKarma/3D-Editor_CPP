@@ -52,6 +52,7 @@ class Space3D
         int m_selected;
         bool m_spinballSelected;
         bool m_fadedDrag;
+        unsigned int m_objRotateDrag;
         MyVector<Mesh> m_meshes;
         Mesh m_draggedMesh;
         MyVector<Section> m_sections;
@@ -79,7 +80,7 @@ class Space3D
         void setButtons();
         void drawRotationArrows();
         void dragMesh();
-        void dragAndDrop(const int& xDrag, const int& yDrag, Mesh& mesh);
+        void dragAndDrop(const int& xDrag, const int& yDrag, Mesh& mesh,  const Quaternion& camQuat, const Quaternion& camInverse);
         double findRotation(const int& xDrag, const int& yDrag, const DonutButton& angleDonut, CircularButton& button);
         bool checkAxisRotation(const int& x, const int& y);
         bool checkCamMovement(const char& c);
@@ -87,9 +88,10 @@ class Space3D
         Point2D moveInsideWorkArea(const Point2D& P, const Point2D& Q, const int& xBorder, const int& yBorder);
         void drawSpinball();
         void showAngleOptions();
-        Point2D projectPoint(const Point3D& pct) const;
+        void drawAngleButtons();
+        Point2D projectPoint(const Point3D& pct, const Quaternion& camQuat, const Quaternion& camInverse) const;
         Point3D rotateByCamera(const Point3D& pct) const;
-        Point3D normalisePoint(const Point3D& pct) const;
+        Point3D normalisePoint(const Point3D& pct,  const Quaternion& camQuat, const Quaternion& camInverse) const;
         Section projectSection(const Mesh& mesh);
         void rotateOX(Mesh& lines, const double& alpha);
         void rotateOY(Mesh& lines, const double& alpha);
