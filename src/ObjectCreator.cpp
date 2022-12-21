@@ -3,7 +3,7 @@
 
 //TODO:
 //image icons (DONE, but I think I'll change them later anyway so who knows)
-//organize 3d-point fxns, bc right now they're put randomly in ifs
+//organize 3d-area fxns, bc right now they're called randomly in ifs
 //pointConnector3D() (DONE)
 //pointDeleter3D()
 //centering for selected layer in layer buttons view
@@ -221,7 +221,6 @@ void ObjectCreator::resetLine() {
 
 void ObjectCreator::drawToolButtons() {
     for (size_t i = 0; i < m_toolButtons.size(); ++i) {
-        //m_toolButtons[i].drawLabel(RED, ColorSchemes::themeColors[m_theme][ColorSchemes::SECONDARYCOLOR]);
         m_toolButtons[i].drawImageButton();
     }
 }
@@ -598,7 +597,6 @@ bool ObjectCreator::getClickCommand() {
             return true;
         }
         if (m_workArea.insideWorkArea(x, y)) {
-            //if not cam command or anything, but clicked inside the place
             deleteLines3D(x, y);
             return true;
         }

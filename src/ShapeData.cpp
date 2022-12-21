@@ -410,11 +410,13 @@ void Mesh::deleteIndexConnection(const size_t& index1, const size_t& index2) {
     for (size_t i = 0; i < m_adjList[index1].size(); ++i) {
         if (m_adjList[index1][i] == index2) {
             m_adjList[index1].erase(m_adjList[index1].begin() + i);
+            break;
         }
     }
     for (size_t i = 0; i < m_adjList[index2].size(); ++i) {
         if (m_adjList[index2][i] == index1) {
             m_adjList[index2].erase(m_adjList[index2].begin() + i);
+            break;
         }
     }
 }
