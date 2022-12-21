@@ -53,7 +53,7 @@ class ObjectCreator {
         Button m_addLayerButton;
         MyVector<CircularButton> m_pointButtons;
         Button m_minimizedSpaceButton;
-        MyArray<Button, 4> m_toolButtons;
+        MyArray<ImageButton, 4> m_toolButtons;
         Tool m_tool;
         int x0;
         int y0;
@@ -71,10 +71,13 @@ class ObjectCreator {
 
         void init();
         void resetLine();
+        int getLayerByHeight(const int& height);
         void pointMover(const size_t& index);
-        void pointConnector(const size_t& index);
+        void pointConnector2D(const size_t& index);
+        void pointConnector3D(const size_t& index);
         void pointDeleter(const size_t& index);
         void pointAdder(const int& x, const int& y);
+        void deleteLines3D(const int& x, const int& y);
         void drawSelectLayers();
         void updateButtons();
         void drawButtons();

@@ -1,6 +1,18 @@
 #include "ObjectCreator.h"
 #include <iostream>
 
+//TODO:
+//image icons (DONE, but I think I'll change them later anyway so who knows)
+//organize 3d-point fxns, bc right now they're put randomly in ifs
+//pointConnector3D() (DONE)
+//pointDeleter3D()
+//centering for selected layer in layer buttons view
+//deleteLine()(DONE for 3D view, but not associated with a tool yet:
+               //drag a line on screen at any time & it'll delete intersecting lines)
+
+//TODO: (dupa ce rezolvam cu modularizarea txtInput)
+//fxns for generating Sphere, Cone, Cylinder, care au toate parametri (default: 12, probabil)
+
 Layer::Layer() :
     m_points(), m_updated(), m_height() {}
 
@@ -107,8 +119,9 @@ ObjectCreator& ObjectCreator::operator = (const ObjectCreator& oc) {
 }
 
 void ObjectCreator::toolButtonsInit() {
+    MyArray<MyArray<char, 128>, 4> fileNames = { "media\\buttonMove.jpg", "media\\buttonAddPoint.jpg", "media\\buttonAddLine.jpg", "media\\buttonDelete.jpg" };
     for (size_t i = 0; i < 4; ++i) {
-        m_toolButtons[i] = Button(12, 36 + i * 24, 24, 24);
+        m_toolButtons[i] = ImageButton(12, 36 + 24 * i, 24, 24, fileNames[i].data());
     }
 }
 
@@ -208,7 +221,8 @@ void ObjectCreator::resetLine() {
 
 void ObjectCreator::drawToolButtons() {
     for (size_t i = 0; i < m_toolButtons.size(); ++i) {
-        m_toolButtons[i].drawLabel(RED, ColorSchemes::themeColors[m_theme][ColorSchemes::SECONDARYCOLOR]);
+        //m_toolButtons[i].drawLabel(RED, ColorSchemes::themeColors[m_theme][ColorSchemes::SECONDARYCOLOR]);
+        m_toolButtons[i].drawImageButton();
     }
 }
 
@@ -224,11 +238,13 @@ void ObjectCreator::drawSelectLayers() {
 }
 
 void ObjectCreator::renderLayerSelectButtons() {
+    //TODO: choose which layerBtns to draw such that new selected layer goes roughly in center of onscreen list of layerBtns
+    //(dependent on current resolution, how many fit on screen... etc)
     for (size_t i = 0; i < m_layers.size(); ++i) {
         MyArray<char, 32> layerLevel = itoa(m_layers[i].height(), "Layer Z: ");
         m_layerSelectButtons[i] = TextButton(x1 - 100, y0 + 200 + 20 + i * 40, 200, 40, layerLevel.data());
     }
-    m_addLayerButton = Button(x1 - 100, y0 + 200 + 20 + m_layers.size() * 40, 40, 40);
+    m_addLayerButton = Button(x1 - 220, y0 + 220, 40, 40);
 }
 
 void ObjectCreator::updateButtons() {
@@ -296,6 +312,8 @@ void ObjectCreator::draw(bool update) {
     m_workArea.render();
     if (m_selectedLayer == -1) {
         m_workArea.run();
+        setlinestyle(0, 0, 1);
+        m_assistLine.draw();
         if (update) {
             updateButtons();
         }
@@ -313,6 +331,16 @@ void ObjectCreator::draw(bool update) {
     swapbuffers();
 }
 
+int ObjectCreator::getLayerByHeight(const int& height) {
+    //poate o sa ne fie vreodata folositor, who knows
+    for (unsigned int i = 0; i < m_layers.size(); ++i) {
+        if (m_layers[(size_t)i].height() == height) {
+            return i;
+        }
+    }
+    return -1;
+}
+
 void ObjectCreator::editLayer(const int& index) {
     TextButton& editedLayer = m_layerSelectButtons[index];
     editedLayer.drawLabel(LIGHTGRAY, BLACK);
@@ -328,7 +356,7 @@ void ObjectCreator::editLayer(const int& index) {
 }
 
 void ObjectCreator::pointAdder(const int& x, const int& y) {
-    if (m_workArea.insideWorkArea(x, y)) {
+    if (!m_workArea.insideWorkArea(x, y)) {
         return;
     }
     const int xCenter = (x0 + 26 + x1 - 200) / 2;
@@ -393,7 +421,7 @@ void ObjectCreator::pointMover(const size_t& index) {
     }
 }
 
-void ObjectCreator::pointConnector(const size_t& index) {
+void ObjectCreator::pointConnector2D(const size_t& index) {
     const int xCenter = (workX0 + workX1) / 2;
     const int yCenter = (workY0 + workY1) / 2;
     setcolor(ColorSchemes::themeColors[m_theme][ColorSchemes::SECONDARYCOLOR]);
@@ -429,13 +457,89 @@ void ObjectCreator::pointConnector(const size_t& index) {
     m_workArea.update();
 }
 
+void ObjectCreator::pointConnector3D(const size_t& index) {
+    setcolor(ColorSchemes::themeColors[m_theme][ColorSchemes::SECONDARYCOLOR]);
+    const Section& sect = m_workArea.sectionAt(0);
+    const int& xFirstPoint = sect[index].getX();
+    const int& yFirstPoint = sect[index].getY();
+    clearmouseclick(WM_LBUTTONUP);
+    int xDrag, yDrag;
+    while (!ismouseclick(WM_LBUTTONUP)) {
+        getmouseclick(WM_MOUSEMOVE, xDrag, yDrag);
+        if (xDrag == -1 || !m_workArea.insideWorkArea(xDrag, yDrag)) {
+            continue;
+        }
+        m_assistLine = Line2D(xFirstPoint, yFirstPoint, xDrag, yDrag);
+        getHoverCommand(xDrag, yDrag);
+        draw();
+    }
+    resetLine();
+    getmouseclick(WM_LBUTTONUP, xDrag, yDrag);
+    if (!m_workArea.insideWorkArea(xDrag, yDrag)) {
+        return;
+    }
+    size_t i;
+    for (i = 0; i < m_pointButtons.size(); ++i) {
+        if (m_pointButtons[i].hitCollision(xDrag, yDrag)) {
+            break;
+        }
+    }
+    if (i == m_pointButtons.size()) {
+        resetLine();
+        draw();
+        return;
+    }
+    m_workMesh->addEdge(index, i);
+    m_workArea.update();
+}
+
+void ObjectCreator::deleteLines3D(const int& x, const int& y){
+    const Section& sect = m_workArea.sectionAt(0);
+    clearmouseclick(WM_LBUTTONUP);
+    int xDrag, yDrag;
+    while (!ismouseclick(WM_LBUTTONUP)) {
+        getmouseclick(WM_MOUSEMOVE, xDrag, yDrag);
+        if (xDrag == -1 || !m_workArea.insideWorkArea(xDrag, yDrag)) {
+            continue;
+        }
+        m_assistLine = Line2D(x, y, xDrag, yDrag);
+        getHoverCommand(xDrag, yDrag);
+        draw();
+    }
+    resetLine();
+    getmouseclick(WM_LBUTTONUP, xDrag, yDrag);
+    if (!m_workArea.insideWorkArea(xDrag, yDrag)) {
+        return;
+    }
+    bool hasDeletedLine = false;
+    Point2D p1(x, y), p2(xDrag, yDrag);
+    for (size_t i = 0; i < sect.size(); ++i) {
+        for (size_t j = 0; j < m_workMesh->adjacencyListReference()[i].size(); ++j) {
+            if (linesIntersect(p1, p2, sect[i], sect[m_workMesh->adjacencyListReference()[i][j]])) {
+                m_workMesh->deleteIndexConnection(i, m_workMesh->adjacencyListReference()[i][j]);
+                hasDeletedLine = true;
+                j--;
+            }
+        }
+    }
+    resetLine();
+    if (hasDeletedLine) {
+        m_workArea.update();
+    }
+}
+
 void ObjectCreator::toolOperationOnPoint(const size_t& index) {
+    //TODO:
+    //if m_selected do on layer m_selected. else do in 3d.
+    //not sure if we'll eventually merge fxns like
+    //pointConnector2D and pointConnector3D together...
+    //who knows
     switch (m_tool) {
         case Tool::MovePoint:
             pointMover(index);
             break;
         case Tool::ConnectPoint:
-            pointConnector(index);
+            pointConnector2D(index);
             break;
         case Tool::DeletePoint:
             pointDeleter(index);
@@ -463,6 +567,12 @@ bool ObjectCreator::getClickCommand() {
     }
     if (m_selectedLayer != -1) {
         if (m_minimizedSpaceButton.hitCollision(x, y)) {
+            //TODO: draw minimizedSpace:
+            //either copy to separate space and render that
+            //or take current section and center it
+            //and translate all pnts relative to center
+            //such that it fits the small area
+            //idk tho. will think abt that later
             m_selectedLayer = -1;
             return true;
         }
@@ -477,8 +587,21 @@ bool ObjectCreator::getClickCommand() {
             }
         }
     }
-    else if (m_workArea.getCommand(x, y)) {
-        return true;
+    else {
+        for (size_t i = 0; i < m_pointButtons.size(); ++i) {
+            if (m_pointButtons[i].hitCollision(x, y) && m_tool == Tool::ConnectPoint) {
+                pointConnector3D(i);
+                return true;
+            }
+        }
+        if (m_workArea.getCommand(x, y)) {
+            return true;
+        }
+        if (m_workArea.insideWorkArea(x, y)) {
+            //if not cam command or anything, but clicked inside the place
+            deleteLines3D(x, y);
+            return true;
+        }
     }
     return false;
 }

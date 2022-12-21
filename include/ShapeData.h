@@ -20,6 +20,7 @@ class Point2D {
         void setX(const int& x_);
         void setY(const int& y_);
         bool operator == (const Point2D& other);
+        friend bool linesIntersect(const Point2D& A, const Point2D& B, const Point2D& C, const Point2D& D);
 
     private:
         int x;
@@ -135,6 +136,7 @@ class Mesh {
         MyVector<MyVector<size_t>>& adjacencyListReference();
         const MyVector<MyVector<size_t>>& adjacencyList() const;
         void addIndexConnections(const size_t& index, const MyVector<size_t>& adjList);
+        void deleteIndexConnection(const size_t& index1, const size_t& index2);
         void translate(const double& xTranslate, const double& yTranslate, const double& zTranslate);
         Point3D centerPoint() const;
         void updateCenterPoint();

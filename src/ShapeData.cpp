@@ -49,6 +49,29 @@ void Line2D::draw() {
     line(P.getX(), P.getY(), Q.getX(), Q.getY());
 }
 
+bool linesIntersect(const Point2D& A, const Point2D& B, const Point2D& C, const Point2D& D) {
+    //https://stackoverflow.com/a/565282
+    //o sa stam fiecare din noi sa intelegem ce e aici,
+    //pt ca merge prea bine ca sa mi mai bat eu capul cu altceva
+    Point2D CmP = Point2D(C.getX() - A.getX(), C.getY() - A.getY());
+    Point2D r = Point2D(B.getX() - A.getX(), B.getY() - A.getY());
+    Point2D s = Point2D(D.getX() - C.getX(), D.getY() - C.getY());
+    double CmPxr = CmP.getX() * r.getY() - CmP.getY() * r.getX();
+    double CmPxs = CmP.getX() * s.getY() - CmP.getY() * s.getX();
+    double rxs = r.getX() * s.getY() - r.getY() * s.getX();
+    if (fabs(CmPxr) < 0.0000001){
+        return ((C.getX() - A.getX() < 0) != (C.getX() - B.getX() < 0))
+            || ((C.getY() - A.getY() < 0) != (C.getY() - B.getY() < 0));
+    }
+    if (fabs(rxs) < 0.0000001){
+        return false;
+    }
+    double rxsr = 1 / rxs;
+    double t = CmPxs * rxsr;
+    double u = CmPxr * rxsr;
+    return (t >= 0) && (t <= 1) && (u >= 0) && (u <= 1);
+}
+
 const int Section::RADIUS;
 
 Section::Section() :
@@ -379,6 +402,19 @@ void Mesh::erase(const size_t& index) {
             if (k > index) {
                 --k;
             }
+        }
+    }
+}
+
+void Mesh::deleteIndexConnection(const size_t& index1, const size_t& index2) {
+    for (size_t i = 0; i < m_adjList[index1].size(); ++i) {
+        if (m_adjList[index1][i] == index2) {
+            m_adjList[index1].erase(m_adjList[index1].begin() + i);
+        }
+    }
+    for (size_t i = 0; i < m_adjList[index2].size(); ++i) {
+        if (m_adjList[index2][i] == index1) {
+            m_adjList[index2].erase(m_adjList[index2].begin() + i);
         }
     }
 }
