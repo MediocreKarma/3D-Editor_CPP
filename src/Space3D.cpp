@@ -406,12 +406,9 @@ double Space3D::findRotation(const int& xDrag, const int& yDrag, const DonutButt
 }
 
 Point3D Space3D::rotateByCamera(const Point3D& pct) const {
-    //Folosit in cam movement; "deznormalizeaza" rotatia vectorilor canonici in relatie cu camera, pt a fi accurate in 3D
-    //si a parea practic ca se misca pe axele locale ale camerei
     double xr = pct.getX();
     double yr = pct.getY();
     double zr = pct.getZ();
-
     Point3D aux = Point3D(xr, yr, zr).rotateByUnitQuat(m_cam.quat());
     double dx = aux.getX();
     double dy = aux.getY();
@@ -423,14 +420,11 @@ Point3D Space3D::normalisePoint(const Point3D& pct,  const Quaternion& camQuat, 
     double xr = pct.getX() - m_cam.position().getX();
     double yr = pct.getY() - m_cam.position().getY();
     double zr = pct.getZ() - m_cam.position().getZ();
-
     Quaternion pointQuat(0, Point3D(xr, yr, zr).toArray());
     Quaternion rotatedPct = Quaternion(camInverse * pointQuat * camQuat);
-
     double dx = rotatedPct[1];
     double dy = rotatedPct[2];
     double dz = rotatedPct[3];
-
     return Point3D(dx, dy, dz);
 }
 
@@ -444,11 +438,9 @@ Point2D Space3D::projectPoint(const Point3D& pct, const Quaternion& camQuat, con
     double EZ = m_cam.EZ();
     Quaternion pointQuat(0, Point3D(xr, yr, zr).toArray());
     Quaternion rotatedPct = Quaternion(camInverse * pointQuat * camQuat);
-
     double dx = rotatedPct[1];
     double dy = rotatedPct[2];
     double dz = rotatedPct[3];
-
     if (dy <= 0) {
         return Point2D(-100, -100);
     }
@@ -578,26 +570,11 @@ void Space3D::dragAndDrop(const int& xDrag, const int& yDrag, Mesh& mesh, const 
     const double xCenter = (x0 + x1) / 2;
     const double yCenter = (y0 + y1) / 2;
     const int yLen = y1 - y0;
-
     Point3D centerPoint(mesh.centerPoint());
     Point3D normalizedPoint(normalisePoint(centerPoint, camQuat, camInverse));
-
-    //SCHEMA:
-    //"Dezproiectam" obiectul de pe ecran, si l scoatem din sistemul de coordonate al camerei
-    //(adica we undo the rotation si il departam de camera)
-    //dy2 = dy1; sunt la fel de aproape de camera.
-    //Scoatem dx2 si dz2 prin bx1 si bx2
-
     Point2D sectionCenterPoint = projectPoint(mesh.centerPoint(), camQuat, camInverse);
     double xC = sectionCenterPoint.getX();
     double yC = sectionCenterPoint.getY();
-
-    /*Inversam ecuatiile astea din projectPoint si getProjectPoint:
-    pentru a afla b-urile, adica coordonatele proiectiei punctului
-    intr-un sistem de coordonate de la (-1,-1) la (1,1),
-    in loc de (x1,y1) la (x2, y2):
-    */
-
     double bx1 = (xC - xCenter) / yLen;
     double by1 = (yC - yCenter) / yLen * -1;
     double bx2 = (xDrag - xCenter) / yLen;
@@ -606,19 +583,13 @@ void Space3D::dragAndDrop(const int& xDrag, const int& yDrag, Mesh& mesh, const 
     double dy1 = normalizedPoint.getY();
     double dz1 = normalizedPoint.getZ();
     double EZ = m_cam.EZ();
-
     double dy2 = dy1;
     double dx2 = dx1 + (bx2 - bx1) * dy2 / EZ;
     double dz2 = dz1 + (by2 - by1) * dy2 / EZ;
-
-    //Aici inversam rotatia camerei...
-
     Point3D aux = Point3D(dx2, dy2, dz2).rotateByUnitQuat(m_cam.quat());
     double tx = aux.getX();
     double ty = aux.getY();
     double tz = aux.getZ();
-
-    //..si acum il scoatem complet din sistemul de coordonate al camerei.
     tx = tx + m_cam.position().getX();
     ty = ty + m_cam.position().getY();
     tz = tz + m_cam.position().getZ();
@@ -643,7 +614,7 @@ void Space3D::highlightMesh() {
 }
 
 void Space3D::selectMesh(const size_t& index) {
-    //cred ca aici o sa fac si butoanele Global/Local
+    //TODO: m_spinball right click -> reset Rotation
     m_selected = index;
     const int x = m_spinballButton.getXCenter();
     const int y = m_spinballButton.getYCenter();

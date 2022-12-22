@@ -69,6 +69,8 @@ class ObjectCreator {
         int m_hovered;
         Line2D m_assistLine;
         bool m_assistLineDotted;
+        int m_layerSelectsBegin, m_layerSelectsEnd;
+        MyArray<Button, 2> m_layerScrollArrows;
 
         void init();
         void resetLine();
@@ -96,6 +98,8 @@ class ObjectCreator {
         bool getDoubleClickCommand();
         void toolOperationOnPoint(const size_t& index);
         void renderLayerSelectButtons();
+        void updateLayerSelectsInterval();
+        void moveLayerSelectsInterval(const int& delta);
         void editLayer(const int& index);
 };
 

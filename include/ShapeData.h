@@ -20,8 +20,11 @@ class Point2D {
         void setX(const int& x_);
         void setY(const int& y_);
         bool operator == (const Point2D& other);
+        Point2D& operator = (const Point2D& other);
         Point2D operator + (const Point2D& p);
         Point2D operator - (const Point2D& p);
+        void translate (const Point2D& other);
+        void translate (const int& x_, const int& y_);
         friend bool linesIntersect(const Point2D& A, const Point2D& B, const Point2D& C, const Point2D& D);
 
     private:

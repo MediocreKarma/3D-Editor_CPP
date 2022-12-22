@@ -36,12 +36,28 @@ bool Point2D::operator == (const Point2D& other) {
     return x == other.x && y == other.y;
 }
 
+Point2D& Point2D::operator = (const Point2D& other) {
+    x = other.x;
+    y = other.y;
+    return *this;
+}
+
 Point2D Point2D::operator + (const Point2D& p) {
     return Point2D(x + p.x, y + p.y);
 }
 
 Point2D Point2D::operator - (const Point2D& p) {
     return Point2D(x - p.x, y - p.y);
+}
+
+void Point2D::translate (const Point2D& other) {
+    x += other.x;
+    y += other.y;
+}
+
+void Point2D::translate (const int& x_, const int& y_) {
+    x += x_;
+    y += y_;
 }
 
 Line2D::Line2D() :

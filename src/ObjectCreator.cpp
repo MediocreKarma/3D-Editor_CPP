@@ -77,7 +77,7 @@ void Layer::update(const size_t& index) {
 ObjectCreator::ObjectCreator(const int& theme) :
     m_theme(theme), m_layers(), m_layerSelectButtons(), m_layerPointButtons(), m_layerAdjListIndex(), m_addLayerButton(), m_pointButtons(), m_minimizedSpaceButton(), m_toolButtons(),
     m_tool(Tool::ConnectPoint), x0(0), y0(0), x1(1000), y1(800), workX0(26), workY0(26), workX1(800), workY1(800), m_workArea(-1000, theme, this), m_workMesh(nullptr), m_selectedLayer(-1),
-    m_hovered(-1), m_assistLine(-1, -1, -1, -1), m_assistLineDotted(false){
+    m_hovered(-1), m_assistLine(-1, -1, -1, -1), m_assistLineDotted(false), m_layerSelectsBegin(-1), m_layerSelectsEnd(-1), m_layerScrollArrows(){
     toolButtonsInit();
     m_workArea.setCorners(26, 26, 800, 800);
     m_workArea.addMesh(Mesh());
@@ -88,7 +88,8 @@ ObjectCreator::ObjectCreator(const int& theme) :
 
 ObjectCreator::ObjectCreator(Mesh mesh, const int& theme) :
     m_theme(theme), m_layers(), m_layerSelectButtons(), m_layerPointButtons(), m_layerAdjListIndex(), m_addLayerButton(), m_pointButtons(), m_minimizedSpaceButton(), m_toolButtons(), m_tool(Tool::MovePoint),
-    x0(0), y0(0), x1(1000), y1(800), workX0(26), workY0(26), workX1(800), workY1(800), m_workArea(-1000, theme, this), m_workMesh(nullptr), m_selectedLayer(-1), m_hovered(-1), m_assistLine(-1, -1, -1, -1), m_assistLineDotted(false) {
+    x0(0), y0(0), x1(1000), y1(800), workX0(26), workY0(26), workX1(800), workY1(800), m_workArea(-1000, theme, this), m_workMesh(nullptr), m_selectedLayer(-1), m_hovered(-1),
+    m_assistLine(-1, -1, -1, -1), m_assistLineDotted(false), m_layerSelectsBegin(-1), m_layerSelectsEnd(-1), m_layerScrollArrows(){
     toolButtonsInit();
     const Point3D& centerPoint = mesh.centerPoint();
     mesh.translate(-centerPoint.getX(), -centerPoint.getY(), -centerPoint.getZ());
@@ -102,7 +103,8 @@ ObjectCreator::ObjectCreator(const ObjectCreator& oc) :
     m_theme(oc.m_theme), m_layers(oc.m_layers), m_layerSelectButtons(oc.m_layerSelectButtons), m_layerPointButtons(oc.m_layerPointButtons), m_layerAdjListIndex(oc.m_layerAdjListIndex),
     m_addLayerButton(oc.m_addLayerButton), m_pointButtons(oc.m_pointButtons), m_minimizedSpaceButton(oc.m_minimizedSpaceButton), m_toolButtons(oc.m_toolButtons), m_tool(oc.m_tool),
     x0(oc.x0), y0(oc.y0), x1(oc.x1), y1(oc.y1), workX0(oc.workX0), workY0(oc.workY0), workX1(oc.workX1), workY1(oc.workY1), m_workArea(oc.m_workArea), m_workMesh(oc.m_workMesh),
-    m_selectedLayer(oc.m_selectedLayer), m_hovered(oc.m_hovered), m_assistLine(oc.m_assistLine), m_assistLineDotted(oc.m_assistLineDotted) {}
+    m_selectedLayer(oc.m_selectedLayer), m_hovered(oc.m_hovered), m_assistLine(oc.m_assistLine), m_assistLineDotted(oc.m_assistLineDotted),
+    m_layerSelectsBegin(oc.m_layerSelectsBegin), m_layerSelectsEnd(oc.m_layerSelectsEnd), m_layerScrollArrows(){}
 
 ObjectCreator& ObjectCreator::operator = (const ObjectCreator& oc) {
     m_theme = oc.m_theme;
@@ -114,6 +116,8 @@ ObjectCreator& ObjectCreator::operator = (const ObjectCreator& oc) {
     m_workArea.addMesh(mesh);
     m_assistLine = oc.m_assistLine;
     m_hovered = oc.m_hovered;
+    m_layerSelectsBegin = oc.m_layerSelectsBegin;
+    m_layerSelectsEnd = oc.m_layerSelectsEnd;
     m_workArea.render();
     init();
     return *this;
@@ -171,7 +175,11 @@ void ObjectCreator::init() {
     for (size_t i = 0; i < m_layers.size(); ++i) {
         m_layerPointButtons[i] = m_layers[i].renderButtons(x0 + 26, y0 + 26, x1 - 200, y1);
     }
+    int availableSlots = (y1 - y0 - 200) / 40 + ((y1 - y0 - 200) % 40 >= 20 ? 0 : -1);
+    m_layerSelectsBegin = 0;
+    m_layerSelectsEnd = (availableSlots < (int)m_layers.size() ? availableSlots - 1 : m_layers.size() - 1);
     renderLayerSelectButtons();
+    updateLayerSelectsInterval();
     m_minimizedSpaceButton = Button(x1 - 100, y0 + 100, 200, 200);
 }
 
@@ -231,25 +239,94 @@ void ObjectCreator::drawToolButtons() {
 }
 
 void ObjectCreator::drawSelectLayers() {
+    //draw layer btns
     for (size_t i = 0; i < m_layerSelectButtons.size(); ++i) {
-        m_layerSelectButtons[i].drawTextButton(1, 3, RGB(160, 160, 160), false);
+        if (m_selectedLayer != (int)i) {
+            m_layerSelectButtons[i].drawTextButton(1, 3, RGB(160, 160, 160), false);
+        }
+        else {
+            m_layerSelectButtons[i].drawTextButton(1, 3, RGB(210, 160, 160), false);
+        }
     }
-    //butonu PLUS
+    //butoane de PLUS + arrows
+    setcolor(ColorSchemes::themeColors[m_theme][ColorSchemes::SECONDARYCOLOR]);
     int x = m_addLayerButton.getXCenter();
     int y = m_addLayerButton.getYCenter();
-    setcolor(ColorSchemes::themeColors[m_theme][ColorSchemes::SECONDARYCOLOR]);
-    line(x - 15, y, x + 15, y);
-    line(x, y - 15, x, y + 15);
+    int visualHalfBtnSize = 15;
+    line(x - visualHalfBtnSize, y, x + visualHalfBtnSize, y);
+    line(x, y - visualHalfBtnSize, x, y + visualHalfBtnSize);
+    x = m_layerScrollArrows[0].getXCenter();
+    line(x - visualHalfBtnSize, y + visualHalfBtnSize / 2, x, y - visualHalfBtnSize / 2);
+    line(x + visualHalfBtnSize, y + visualHalfBtnSize / 2, x, y - visualHalfBtnSize / 2);
+    x = m_layerScrollArrows[1].getXCenter();
+    line(x - visualHalfBtnSize, y - visualHalfBtnSize / 2, x, y + visualHalfBtnSize / 2);
+    line(x + visualHalfBtnSize, y - visualHalfBtnSize / 2, x, y + visualHalfBtnSize / 2);
 }
 
 void ObjectCreator::renderLayerSelectButtons() {
-    //TODO: choose which layerBtns to draw such that new selected layer goes roughly in center of onscreen list of layerBtns
-    //(dependent on current resolution, how many fit on screen... etc)
-    for (size_t i = 0; i < m_layers.size(); ++i) {
-        MyArray<char, 32> layerLevel = itoa(m_layers[i].height(), "Layer Z: ");
-        m_layerSelectButtons[i] = TextButton(x1 - 100, y0 + 200 + 20 + i * 40, 200, 40, layerLevel.data());
+    updateLayerSelectsInterval();
+    std::cout<<"size: "<<m_layers.size()<<"\n";
+    std::cout<<m_layerSelectsBegin<<" "<<m_layerSelectsEnd<<"\n";
+    int rendered = 0;
+    for (int i = 0; i < m_layerSelectsBegin; ++i) {
+        m_layerSelectButtons[i] = TextButton(-100, -100, 1, 1, "");
     }
-    m_addLayerButton = Button(x1 - 220, y0 + 220, 40, 40);
+    for (int i = m_layerSelectsBegin; i <= m_layerSelectsEnd; ++i) {
+        MyArray<char, 32> layerLevel = itoa(m_layers[i].height(), "Layer Z: ");
+        m_layerSelectButtons[i] = TextButton(x1 - 100, y0 + 200 + 20 + rendered++ * 40, 200, 40, layerLevel.data());
+    }
+    for (size_t i = m_layerSelectsEnd + 1; i < m_layers.size(); ++i) {
+        m_layerSelectButtons[i] = TextButton(-100, -100, 1, 1, "");
+    }
+    std::cout<<"redrawingggg\n";
+    m_addLayerButton = Button(x1 - 180, y0 + 200 + 20 + (m_layerSelectsEnd - m_layerSelectsBegin + 1) * 40, 40, 40);
+    m_layerScrollArrows[0] = Button(x1 - 100, y0 + 200 + 20 + (m_layerSelectsEnd - m_layerSelectsBegin + 1) * 40, 40, 40);
+    m_layerScrollArrows[1] = Button(x1 - 20, y0 + 200 + 20 + (m_layerSelectsEnd - m_layerSelectsBegin + 1) * 40, 40, 40);
+}
+
+void ObjectCreator::updateLayerSelectsInterval() {
+    if ((y1 - y0 - 200) / 40 + ((y1 - y0 - 200) % 40 >= 20 ? 0 : -1) <= (int)m_layers.size()) {
+        return;
+    }
+    else {
+        if (m_layerSelectsEnd > (int)m_layers.size() - 1) {
+            while (m_layerSelectsBegin > 0) {
+                --m_layerSelectsEnd;
+                --m_layerSelectsBegin;
+            }
+            if (m_layerSelectsEnd > (int)m_layers.size() - 1) {
+                //singura situatie in care se poate intampla asta
+                //chiar si dupa move este momentul in care intervalul
+                //a fost mutat in sus la maxim dar tot e prea mare
+                //Begin este, deci, deja la 0
+                m_layerSelectsEnd = m_layers.size() - 1;
+            }
+            return;
+        }
+        else if (m_layerSelectsBegin < 0) {
+            //nu cred ca putem ajunge in situatia asta
+            //dar daca dau vreodata de ea, o adaug
+            std::cout<<"ai dat de situatia aia de care ziceai ca nu dai\n";
+            return;
+        }
+    }
+}
+
+void ObjectCreator::moveLayerSelectsInterval(const int& delta) {
+    if ((y1 - y0 - 200) / 40 + ((y1 - y0 - 200) % 40 >= 20 ? 0 : -1) >= (int)m_layers.size() || delta == 0) {
+        return;
+    }
+    if (delta < 0) {
+        int localDelta = (m_layerSelectsBegin + delta >= 0 ? delta : -m_layerSelectsBegin);
+        m_layerSelectsBegin += localDelta;
+        m_layerSelectsEnd += localDelta;
+    }
+    if (delta > 0) {
+        int localDelta = (m_layerSelectsEnd + delta < (int)m_layers.size() ? delta : (int)m_layers.size() - 1 - m_layerSelectsEnd);
+        m_layerSelectsBegin += localDelta;
+        m_layerSelectsEnd += localDelta;
+    }
+    renderLayerSelectButtons();
 }
 
 void ObjectCreator::updateButtons() {
@@ -348,6 +425,9 @@ void ObjectCreator::draw(bool update) {
         else {
             m_assistLine.draw();
         }
+        setbkcolor(ColorSchemes::themeColors[m_theme][ColorSchemes::PRIMARYCOLOR]);
+        setcolor(ColorSchemes::themeColors[m_theme][ColorSchemes::SECONDARYCOLOR]);
+        outtextxy(0, 3, itoa(m_layers[m_selectedLayer].height(), "Current layer: ").data());
     }
     if (m_hovered != -1) {
         drawPointData();
@@ -374,17 +454,17 @@ void ObjectCreator::editLayer(const int& index) {
     setvisualpage(0);
     MyArray<char, 256> readInput = txtBox.getText();
     int result = atoi(readInput);
+    setactivepage(1);
+    if (readInput.data() == NULL) {
+        return;
+    }
     if (result == INT_MIN && result != m_layers[index].height()) {
         return;
     }
-    //daca Z este diferit de original, modifica tot ce trebuie modificat
-    //Daca mutam astfel incat 2 layere sa aibe acelasi height,
-    //le lasam pe amandoua pe acelasi height, separate.
-    //bubble sort si insertion sort sunt stabile, deci
-    //nu o sa se schimbe ordinea consecutiva la sortari
-    //TODO: bug testing and fixing
-
     if (result != INT_MIN && result != m_layers[index].height()) {
+        if (getLayerByHeight(result) != -1) {
+            return;
+        }
         for (size_t i = 0; i < m_layers[index].size(); ++i) {
             (*m_workMesh)[m_layerAdjListIndex[index][i]].setZ((double)result);
         }
@@ -399,23 +479,17 @@ void ObjectCreator::editLayer(const int& index) {
                     std::swap(m_layers[i - 1], m_layers[i]);
                     std::swap(m_layerAdjListIndex[i - 1], m_layerAdjListIndex[i]);
                     std::swap(m_layerPointButtons[i - 1], m_layerPointButtons[i]);
-                    //swap layer select buttons
-                    MyArray<char, 32> textPred = itoa(m_layers[i - 1].height(), "Layer Z: "),
-                                      textSucc = itoa(m_layers[i].height(), "Layer Z: ");
-                    m_layerSelectButtons[i - 1].modifyText(MyArray<char, 32>(textPred));
-                    m_layerSelectButtons[i].modifyText(MyArray<char, 32>(textSucc));
                     sorted = false;
                 }
             }
         } while (!sorted);
         for (size_t i = 0; i < m_layers.size(); ++i) {
-            updateButtons();
             if (m_layers[i].height() == result) {
                 m_selectedLayer = i;
-                break;
             }
         }
-        //draw(true);
+        renderLayerSelectButtons();
+        updateButtons();
     }
     m_workArea.update();
 }
@@ -469,17 +543,11 @@ void ObjectCreator::pointDeleter(const size_t& index) {
 void ObjectCreator::pointDeleter3D(const size_t& index) {
     Point3D& pnt = (*m_workMesh)[index];
     int pntHeight = round(pnt.getZ());
-    std::cout<<"height: "<<pntHeight<<"\n";
     int layerIndex = getLayerByHeight(pntHeight);
-    std::cout<<"layerIndex: "<<layerIndex<<"\n";
-    //se gaseste indexul local din layer, ca sa copiez practic codul de la fct 2d (cu mici modificari)
-    //si oricum trebuie modificate toate chestiile astea de pe layerul unde se afla
     //daca poti gasi mai repede indexul care ne trebuie (instead of a for), go ahead -
     //deocamdata vreau sa fie functional, eficienta o rezolvam noi mai incolo
     for (size_t i = 0; i < m_layers[layerIndex].size(); ++i) {
         if (m_layerAdjListIndex[layerIndex][i] == index) {
-            std::cout<<"global index: "<<index<<"\n";
-            std::cout<<"local layer index"<<i<<"\n";
             m_pointButtons.erase(m_pointButtons.begin() + index);
             m_workMesh->erase(index);
             m_layers[layerIndex].removePoint(i);
@@ -488,6 +556,7 @@ void ObjectCreator::pointDeleter3D(const size_t& index) {
                 m_layerSelectButtons.erase(m_layerSelectButtons.begin() + layerIndex);
                 m_layerPointButtons.erase(m_layerPointButtons.begin() + layerIndex);
                 m_layerAdjListIndex.erase(m_layerAdjListIndex.begin() + layerIndex);
+                renderLayerSelectButtons();
             }
             else {
                 m_layerPointButtons[layerIndex].erase(m_layerPointButtons[layerIndex].begin() + i);
@@ -505,7 +574,6 @@ void ObjectCreator::pointDeleter3D(const size_t& index) {
         }
     }
     m_workArea.update();
-    //draw(true);
 }
 
 void ObjectCreator::pointMover(const size_t& index) {
@@ -706,6 +774,14 @@ bool ObjectCreator::getClickCommand() {
     getmouseclick(WM_LBUTTONDOWN, x, y);
     if (x == -1) {
         return m_workArea.getKeyCommand();
+    }
+    if (m_layerScrollArrows[0].hitCollision(x, y)) {
+        moveLayerSelectsInterval(-1);
+        return true;
+    }
+    if (m_layerScrollArrows[1].hitCollision(x, y)) {
+        moveLayerSelectsInterval(1);
+        return true;
     }
     for (size_t i = 0; i < m_toolButtons.size(); ++i) {
         if (m_toolButtons[i].hitCollision(x, y)) {
