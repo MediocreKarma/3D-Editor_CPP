@@ -3,9 +3,10 @@
 
 //TODO:
 //image icons (DONE, but I think I'll change them later anyway so who knows)
+//change height of layer (DONE, sort of?)
 //organize 3d-area fxns, bc right now they're called randomly in ifs
 //pointConnector3D() (DONE)
-//pointDeleter3D()
+//pointDeleter3D() (DONE)
 //centering for selected layer in layer buttons view
 //deleteLine()(DONE for 3D view, but not associated with a tool yet:
                //drag a line on screen at any time & it'll delete intersecting lines)
@@ -75,8 +76,8 @@ void Layer::update(const size_t& index) {
 
 ObjectCreator::ObjectCreator(const int& theme) :
     m_theme(theme), m_layers(), m_layerSelectButtons(), m_layerPointButtons(), m_layerAdjListIndex(), m_addLayerButton(), m_pointButtons(), m_minimizedSpaceButton(), m_toolButtons(),
-    m_tool(Tool::ConnectPoint), x0(0), y0(0), x1(1000), y1(800), workX0(26), workY0(26), workX1(800), workY1(800), m_workArea(-2500, theme, this), m_workMesh(nullptr), m_selectedLayer(-1),
-    m_hovered(-1), m_assistLine(-1, -1, -1, -1) {
+    m_tool(Tool::ConnectPoint), x0(0), y0(0), x1(1000), y1(800), workX0(26), workY0(26), workX1(800), workY1(800), m_workArea(-1000, theme, this), m_workMesh(nullptr), m_selectedLayer(-1),
+    m_hovered(-1), m_assistLine(-1, -1, -1, -1), m_assistLineDotted(false){
     toolButtonsInit();
     m_workArea.setCorners(26, 26, 800, 800);
     m_workArea.addMesh(Mesh());
@@ -87,7 +88,7 @@ ObjectCreator::ObjectCreator(const int& theme) :
 
 ObjectCreator::ObjectCreator(Mesh mesh, const int& theme) :
     m_theme(theme), m_layers(), m_layerSelectButtons(), m_layerPointButtons(), m_layerAdjListIndex(), m_addLayerButton(), m_pointButtons(), m_minimizedSpaceButton(), m_toolButtons(), m_tool(Tool::MovePoint),
-    x0(0), y0(0), x1(1000), y1(800), workX0(26), workY0(26), workX1(800), workY1(800), m_workArea(-2500, theme, this), m_workMesh(nullptr), m_selectedLayer(-1), m_hovered(-1), m_assistLine(-1, -1, -1, -1) {
+    x0(0), y0(0), x1(1000), y1(800), workX0(26), workY0(26), workX1(800), workY1(800), m_workArea(-1000, theme, this), m_workMesh(nullptr), m_selectedLayer(-1), m_hovered(-1), m_assistLine(-1, -1, -1, -1), m_assistLineDotted(false) {
     toolButtonsInit();
     const Point3D& centerPoint = mesh.centerPoint();
     mesh.translate(-centerPoint.getX(), -centerPoint.getY(), -centerPoint.getZ());
@@ -101,7 +102,7 @@ ObjectCreator::ObjectCreator(const ObjectCreator& oc) :
     m_theme(oc.m_theme), m_layers(oc.m_layers), m_layerSelectButtons(oc.m_layerSelectButtons), m_layerPointButtons(oc.m_layerPointButtons), m_layerAdjListIndex(oc.m_layerAdjListIndex),
     m_addLayerButton(oc.m_addLayerButton), m_pointButtons(oc.m_pointButtons), m_minimizedSpaceButton(oc.m_minimizedSpaceButton), m_toolButtons(oc.m_toolButtons), m_tool(oc.m_tool),
     x0(oc.x0), y0(oc.y0), x1(oc.x1), y1(oc.y1), workX0(oc.workX0), workY0(oc.workY0), workX1(oc.workX1), workY1(oc.workY1), m_workArea(oc.m_workArea), m_workMesh(oc.m_workMesh),
-    m_selectedLayer(oc.m_selectedLayer), m_hovered(oc.m_hovered), m_assistLine(oc.m_assistLine) {}
+    m_selectedLayer(oc.m_selectedLayer), m_hovered(oc.m_hovered), m_assistLine(oc.m_assistLine), m_assistLineDotted(oc.m_assistLineDotted) {}
 
 ObjectCreator& ObjectCreator::operator = (const ObjectCreator& oc) {
     m_theme = oc.m_theme;
@@ -119,9 +120,13 @@ ObjectCreator& ObjectCreator::operator = (const ObjectCreator& oc) {
 }
 
 void ObjectCreator::toolButtonsInit() {
-    MyArray<MyArray<char, 128>, 4> fileNames = { "media\\buttonMove.jpg", "media\\buttonAddPoint.jpg", "media\\buttonAddLine.jpg", "media\\buttonDelete.jpg" };
+    MyArray<MyArray<char, 128>, 4> filenames;
+    filenames[(size_t)Tool::NewPoint] = "media\\buttonAddPoint.jpg";
+    filenames[(size_t)Tool::MovePoint] = "media\\buttonMove.jpg";
+    filenames[(size_t)Tool::ConnectPoint] = "media\\buttonAddLine.jpg";
+    filenames[(size_t)Tool::DeletePoint] = "media\\buttonDelete.jpg";
     for (size_t i = 0; i < 4; ++i) {
-        m_toolButtons[i] = ImageButton(12, 36 + 24 * i, 24, 24, fileNames[i].data());
+        m_toolButtons[i] = ImageButton(12, 36 + 24 * i, 24, 24, filenames[i].data());
     }
 }
 
@@ -229,6 +234,7 @@ void ObjectCreator::drawSelectLayers() {
     for (size_t i = 0; i < m_layerSelectButtons.size(); ++i) {
         m_layerSelectButtons[i].drawTextButton(1, 3, RGB(160, 160, 160), false);
     }
+    //butonu PLUS
     int x = m_addLayerButton.getXCenter();
     int y = m_addLayerButton.getYCenter();
     setcolor(ColorSchemes::themeColors[m_theme][ColorSchemes::SECONDARYCOLOR]);
@@ -263,6 +269,10 @@ void ObjectCreator::drawLayerView() { // O(layer.size()^2 * adjList.size())   D:
     const MyVector<MyVector<size_t>>& adjList = m_workMesh->adjacencyList();
     const int workXCenter = (workX0 + workX1) / 2;
     const int workYCenter = (workY0 + workY1) / 2;
+    setcolor(RED);
+    line(workXCenter, workY0, workXCenter, workY1);
+    line(workX0, workYCenter, workX1, workYCenter);
+    setcolor(ColorSchemes::themeColors[m_theme][ColorSchemes::SECONDARYCOLOR]);
     //draw lines
     for (size_t i = 0; i < m_layers[m_selectedLayer].size(); ++i) {
         size_t iReal = m_layerAdjListIndex[m_selectedLayer][i];
@@ -280,9 +290,6 @@ void ObjectCreator::drawLayerView() { // O(layer.size()^2 * adjList.size())   D:
     for (size_t i = 0; i < m_layerPointButtons[m_selectedLayer].size(); ++i) {
         m_layerPointButtons[m_selectedLayer][i].drawLabel(RED, RED);
     }
-    setcolor(ColorSchemes::themeColors[m_theme][ColorSchemes::SECONDARYCOLOR]);
-    line(workXCenter, workY0, workXCenter, workY1);
-    line(workX0, workYCenter, workX1, workYCenter);
 }
 
 void ObjectCreator::drawPointData() {
@@ -311,16 +318,36 @@ void ObjectCreator::draw(bool update) {
     m_workArea.render();
     if (m_selectedLayer == -1) {
         m_workArea.run();
-        setlinestyle(0, 0, 1);
-        m_assistLine.draw();
+        setcolor(ColorSchemes::themeColors[m_theme][ColorSchemes::SECONDARYCOLOR]);
+        if (m_assistLineDotted) {
+            struct linesettingstype oldSettings;
+            getlinesettings(&oldSettings);
+            setlinestyle(3, 0, 2);
+            m_assistLine.draw();
+            setlinestyle(oldSettings.linestyle, oldSettings.upattern, oldSettings.thickness);
+        }
+        else {
+            m_assistLine.draw();
+        }
         if (update) {
             updateButtons();
         }
         drawButtons();
+
     }
     else {
-        m_assistLine.draw();
         drawLayerView();
+        setcolor(ColorSchemes::themeColors[m_theme][ColorSchemes::SECONDARYCOLOR]);
+        if (m_assistLineDotted) {
+            struct linesettingstype oldSettings;
+            getlinesettings(&oldSettings);
+            setlinestyle(3, 0, 2);
+            m_assistLine.draw();
+            setlinestyle(oldSettings.linestyle, oldSettings.upattern, oldSettings.thickness);
+        }
+        else {
+            m_assistLine.draw();
+        }
     }
     if (m_hovered != -1) {
         drawPointData();
@@ -331,9 +358,8 @@ void ObjectCreator::draw(bool update) {
 }
 
 int ObjectCreator::getLayerByHeight(const int& height) {
-    //poate o sa ne fie vreodata folositor, who knows
-    for (unsigned int i = 0; i < m_layers.size(); ++i) {
-        if (m_layers[(size_t)i].height() == height) {
+    for (size_t i = 0; i < m_layers.size(); ++i) {
+        if (m_layers[i].height() == height) {
             return i;
         }
     }
@@ -343,7 +369,7 @@ int ObjectCreator::getLayerByHeight(const int& height) {
 void ObjectCreator::editLayer(const int& index) {
     TextButton& editedLayer = m_layerSelectButtons[index];
     editedLayer.drawLabel(LIGHTGRAY, BLACK);
-    TextInputBox txtBox(editedLayer.getXCenter() - 30, editedLayer.getXCenter() + 100, editedLayer.getYCenter(), BLACK, RGB(150, 150, 150), 3, "-0123456789");
+    TextInputBox txtBox(editedLayer.getXCenter() - 35, editedLayer.getXCenter() + 100, editedLayer.getYCenter(), BLACK, RGB(150, 150, 150), 4, "-0123456789");
     setactivepage(0);
     setvisualpage(0);
     MyArray<char, 256> readInput = txtBox.getText();
@@ -351,7 +377,47 @@ void ObjectCreator::editLayer(const int& index) {
     if (result == INT_MIN && result != m_layers[index].height()) {
         return;
     }
-    //TODO: daca Z este diferit de original, modifica tot ce trebuie modificat
+    //daca Z este diferit de original, modifica tot ce trebuie modificat
+    //Daca mutam astfel incat 2 layere sa aibe acelasi height,
+    //le lasam pe amandoua pe acelasi height, separate.
+    //bubble sort si insertion sort sunt stabile, deci
+    //nu o sa se schimbe ordinea consecutiva la sortari
+    //TODO: bug testing and fixing
+
+    if (result != INT_MIN && result != m_layers[index].height()) {
+        for (size_t i = 0; i < m_layers[index].size(); ++i) {
+            (*m_workMesh)[m_layerAdjListIndex[index][i]].setZ((double)result);
+        }
+        m_layers[index].changeHeight(result);
+        MyArray<char, 32> resultText = itoa(result, "Layer Z: ");
+        m_layerSelectButtons[index].modifyText(resultText);
+        bool sorted = true;
+        do {
+            sorted = true;
+            for (size_t i = 1; i < m_layers.size(); ++i) {
+                if (m_layers[i - 1].height() > m_layers[i].height()) {
+                    std::swap(m_layers[i - 1], m_layers[i]);
+                    std::swap(m_layerAdjListIndex[i - 1], m_layerAdjListIndex[i]);
+                    std::swap(m_layerPointButtons[i - 1], m_layerPointButtons[i]);
+                    //swap layer select buttons
+                    MyArray<char, 32> textPred = itoa(m_layers[i - 1].height(), "Layer Z: "),
+                                      textSucc = itoa(m_layers[i].height(), "Layer Z: ");
+                    m_layerSelectButtons[i - 1].modifyText(MyArray<char, 32>(textPred));
+                    m_layerSelectButtons[i].modifyText(MyArray<char, 32>(textSucc));
+                    sorted = false;
+                }
+            }
+        } while (!sorted);
+        for (size_t i = 0; i < m_layers.size(); ++i) {
+            updateButtons();
+            if (m_layers[i].height() == result) {
+                m_selectedLayer = i;
+                break;
+            }
+        }
+        //draw(true);
+    }
+    m_workArea.update();
 }
 
 void ObjectCreator::pointAdder(const int& x, const int& y) {
@@ -398,6 +464,48 @@ void ObjectCreator::pointDeleter(const size_t& index) {
     m_hovered = -1;
     m_workArea.update();
     draw(true);
+}
+
+void ObjectCreator::pointDeleter3D(const size_t& index) {
+    Point3D& pnt = (*m_workMesh)[index];
+    int pntHeight = round(pnt.getZ());
+    std::cout<<"height: "<<pntHeight<<"\n";
+    int layerIndex = getLayerByHeight(pntHeight);
+    std::cout<<"layerIndex: "<<layerIndex<<"\n";
+    //se gaseste indexul local din layer, ca sa copiez practic codul de la fct 2d (cu mici modificari)
+    //si oricum trebuie modificate toate chestiile astea de pe layerul unde se afla
+    //daca poti gasi mai repede indexul care ne trebuie (instead of a for), go ahead -
+    //deocamdata vreau sa fie functional, eficienta o rezolvam noi mai incolo
+    for (size_t i = 0; i < m_layers[layerIndex].size(); ++i) {
+        if (m_layerAdjListIndex[layerIndex][i] == index) {
+            std::cout<<"global index: "<<index<<"\n";
+            std::cout<<"local layer index"<<i<<"\n";
+            m_pointButtons.erase(m_pointButtons.begin() + index);
+            m_workMesh->erase(index);
+            m_layers[layerIndex].removePoint(i);
+            if (m_layers[layerIndex].empty()) {
+                m_layers.erase(m_layers.begin() + layerIndex);
+                m_layerSelectButtons.erase(m_layerSelectButtons.begin() + layerIndex);
+                m_layerPointButtons.erase(m_layerPointButtons.begin() + layerIndex);
+                m_layerAdjListIndex.erase(m_layerAdjListIndex.begin() + layerIndex);
+            }
+            else {
+                m_layerPointButtons[layerIndex].erase(m_layerPointButtons[layerIndex].begin() + i);
+                m_layerAdjListIndex[layerIndex].erase(m_layerAdjListIndex[layerIndex].begin() + i);
+            }
+            for (MyVector<size_t>& mV : m_layerAdjListIndex) {
+                for (size_t& k : mV) {
+                    if (k > index) {
+                        --k;
+                    }
+                }
+            }
+            m_hovered = -1;
+            break;
+        }
+    }
+    m_workArea.update();
+    //draw(true);
 }
 
 void ObjectCreator::pointMover(const size_t& index) {
@@ -525,6 +633,51 @@ void ObjectCreator::deleteLines3D(const int& x, const int& y){
     if (hasDeletedLine) {
         m_workArea.update();
     }
+    draw(hasDeletedLine);
+}
+
+void ObjectCreator::deleteLines2D(const int& x, const int& y) {
+clearmouseclick(WM_LBUTTONUP);
+    int xDrag, yDrag;
+    while (!ismouseclick(WM_LBUTTONUP)) {
+        getmouseclick(WM_MOUSEMOVE, xDrag, yDrag);
+        if (xDrag == -1 || !m_workArea.insideWorkArea(xDrag, yDrag)) {
+            continue;
+        }
+        m_assistLine = Line2D(x, y, xDrag, yDrag);
+        getHoverCommand(xDrag, yDrag);
+        draw();
+    }
+    resetLine();
+    getmouseclick(WM_LBUTTONUP, xDrag, yDrag);
+    if (!m_workArea.insideWorkArea(xDrag, yDrag)) {
+        return;
+    }
+    bool hasDeletedLine = false;
+    Point2D p1(x, y), p2(xDrag, yDrag);
+    const int xCenter = (workX0 + workX1) / 2;
+    const int yCenter = (workY0 + workY1) / 2;
+    Point2D center(xCenter, yCenter);
+    for (size_t i = 0; i < m_layers[m_selectedLayer].size(); ++i) {
+        for (size_t j = i+1 ; j < m_layers[m_selectedLayer].size(); ++j) {
+            size_t index1 =  m_layerAdjListIndex[m_selectedLayer][i], index2 = m_layerAdjListIndex[m_selectedLayer][j];
+            Point2D point1 = m_layers[m_selectedLayer][i], point2 = m_layers[m_selectedLayer][j];
+            //in 3d, y neg-poz = din fata in spate
+            //in 2d, y neg-poz = de sus in jos (cumva din "spate" in "fata")
+            //deci trb inversate
+            point1.setY(-point1.getY());
+            point2.setY(-point2.getY());
+            if (linesIntersect(p1, p2, center + point1, center + point2 )){
+                m_workMesh->deleteIndexConnection(index1, index2);
+                hasDeletedLine = true;
+            }
+        }
+    }
+    resetLine();
+    if (hasDeletedLine) {
+        m_workArea.update();
+    }
+    draw(hasDeletedLine);
 }
 
 void ObjectCreator::toolOperationOnPoint(const size_t& index) {
@@ -538,6 +691,7 @@ void ObjectCreator::toolOperationOnPoint(const size_t& index) {
             pointMover(index);
             break;
         case Tool::ConnectPoint:
+            m_assistLineDotted = false;
             pointConnector2D(index);
             break;
         case Tool::DeletePoint:
@@ -585,18 +739,31 @@ bool ObjectCreator::getClickCommand() {
                 return true;
             }
         }
+        if (m_workArea.insideWorkArea(x, y)) {
+            m_assistLineDotted = true;
+            deleteLines2D(x, y);
+            return true;
+        }
     }
     else {
         for (size_t i = 0; i < m_pointButtons.size(); ++i) {
-            if (m_pointButtons[i].hitCollision(x, y) && m_tool == Tool::ConnectPoint) {
-                pointConnector3D(i);
-                return true;
+            if (m_pointButtons[i].hitCollision(x, y)) {
+                if (m_tool == Tool::ConnectPoint) {
+                    m_assistLineDotted = false;
+                    pointConnector3D(i);
+                    return true;
+                }
+                else if(m_tool == Tool::DeletePoint) {
+                    pointDeleter3D(i);
+                    return true;
+                }
             }
         }
         if (m_workArea.getCommand(x, y)) {
             return true;
         }
         if (m_workArea.insideWorkArea(x, y)) {
+            m_assistLineDotted = true;
             deleteLines3D(x, y);
             return true;
         }
@@ -658,7 +825,7 @@ Mesh ObjectCreator::run() {
     setactivepage(1);
     draw();
     while (true) {
-        if (getClickCommand() || getHoverCommand() || getDoubleClickCommand()) {
+        if (getDoubleClickCommand() || getClickCommand() || getHoverCommand()) {
             draw();
         }
     }

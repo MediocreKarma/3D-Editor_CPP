@@ -24,8 +24,24 @@ int Point2D::getY() const {
     return y;
 }
 
+void Point2D::setX(const int& x_){
+    x = x_;
+}
+
+void Point2D::setY(const int& y_){
+    y = y_;
+}
+
 bool Point2D::operator == (const Point2D& other) {
     return x == other.x && y == other.y;
+}
+
+Point2D Point2D::operator + (const Point2D& p) {
+    return Point2D(x + p.x, y + p.y);
+}
+
+Point2D Point2D::operator - (const Point2D& p) {
+    return Point2D(x - p.x, y - p.y);
 }
 
 Line2D::Line2D() :

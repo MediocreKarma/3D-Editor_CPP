@@ -35,7 +35,7 @@ class Layer {
 class ObjectCreator {
     public:
         enum class Tool {
-            MovePoint = 0, NewPoint, ConnectPoint, DeletePoint
+            NewPoint = 0, MovePoint, ConnectPoint, DeletePoint
         };
         ObjectCreator(const int& theme = 0);
         ObjectCreator(Mesh editedMesh, const int& theme = 0);
@@ -68,6 +68,7 @@ class ObjectCreator {
         int m_selectedLayer;
         int m_hovered;
         Line2D m_assistLine;
+        bool m_assistLineDotted;
 
         void init();
         void resetLine();
@@ -76,7 +77,9 @@ class ObjectCreator {
         void pointConnector2D(const size_t& index);
         void pointConnector3D(const size_t& index);
         void pointDeleter(const size_t& index);
+        void pointDeleter3D(const size_t& index);
         void pointAdder(const int& x, const int& y);
+        void deleteLines2D(const int& x, const int& y);
         void deleteLines3D(const int& x, const int& y);
         void drawSelectLayers();
         void updateButtons();
