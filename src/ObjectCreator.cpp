@@ -265,8 +265,6 @@ void ObjectCreator::drawSelectLayers() {
 
 void ObjectCreator::renderLayerSelectButtons() {
     updateLayerSelectsInterval();
-    std::cout<<"size: "<<m_layers.size()<<"\n";
-    std::cout<<m_layerSelectsBegin<<" "<<m_layerSelectsEnd<<"\n";
     int rendered = 0;
     for (int i = 0; i < m_layerSelectsBegin; ++i) {
         m_layerSelectButtons[i] = TextButton(-100, -100, 1, 1, "");
@@ -278,7 +276,6 @@ void ObjectCreator::renderLayerSelectButtons() {
     for (size_t i = m_layerSelectsEnd + 1; i < m_layers.size(); ++i) {
         m_layerSelectButtons[i] = TextButton(-100, -100, 1, 1, "");
     }
-    std::cout<<"redrawingggg\n";
     m_addLayerButton = Button(x1 - 180, y0 + 200 + 20 + (m_layerSelectsEnd - m_layerSelectsBegin + 1) * 40, 40, 40);
     m_layerScrollArrows[0] = Button(x1 - 100, y0 + 200 + 20 + (m_layerSelectsEnd - m_layerSelectsBegin + 1) * 40, 40, 40);
     m_layerScrollArrows[1] = Button(x1 - 20, y0 + 200 + 20 + (m_layerSelectsEnd - m_layerSelectsBegin + 1) * 40, 40, 40);
