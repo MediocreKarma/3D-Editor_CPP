@@ -4,27 +4,140 @@
 #include <cstddef>
 #include <initializer_list>
 #include <stdexcept>
-#include "MyIterators.h"
 
-template<class T>
+template<typename T>
+class MyRandomAcessIterator {
+    public:
+        using iterator = MyRandomAcessIterator;
+        using iterator_category = std::random_access_iterator_tag;
+        using difference_type = std::ptrdiff_t;
+        using value_type = T;
+        using reference = T&;
+        using pointer = T*;
+
+        MyRandomAcessIterator(pointer ptr) noexcept :
+            m_ptr(ptr) {}
+
+        reference operator * () {
+            return *m_ptr;
+        }
+
+        pointer operator -> () noexcept {
+            return m_ptr;
+        }
+
+        iterator& operator ++ () noexcept {
+            ++m_ptr;
+            return *this;
+        }
+
+        iterator operator ++ (int) noexcept {
+            iterator tmp(*this);
+            ++m_ptr;
+            return tmp;
+        }
+
+        iterator& operator -- () noexcept {
+            --m_ptr;
+            return *this;
+        }
+
+        iterator operator -- (int) noexcept {
+            iterator tmp(*this);
+            --m_ptr;
+            return tmp;
+        }
+
+        iterator operator + (const int& offset) const noexcept {
+            return iterator(m_ptr + offset);
+        }
+
+        iterator& operator += (const int& offset) noexcept {
+            m_ptr += offset;
+            return *this;
+        }
+
+        iterator operator - (const int& offset) const noexcept {
+            return iterator(m_ptr - offset);
+        }
+
+        iterator& operator -= (const int& offset) noexcept {
+            m_ptr -= offset;
+            return *this;
+        }
+
+        reference operator [] (const int& index) {
+            return *(m_ptr + index);
+        }
+
+        iterator operator = (const iterator& other) noexcept {
+            m_ptr = other.m_ptr;
+            return *this;
+        }
+
+        friend int operator - (const iterator& a, const iterator& b) noexcept {
+            return a.m_ptr - b.m_ptr;
+        }
+
+        friend bool operator == (const iterator& a, const iterator& b) noexcept {
+            return a.m_ptr == b.m_ptr;
+        }
+
+        friend bool operator != (const iterator& a, const iterator& b) noexcept {
+            return a.m_ptr != b.m_ptr;
+        }
+
+        friend bool operator < (const iterator& a, const iterator& b) noexcept  {
+            return a.m_ptr < b.m_ptr;
+        }
+
+        friend bool operator <= (const iterator& a, const iterator& b) noexcept {
+            return a.m_ptr <= b.m_ptr;
+        }
+
+        friend bool operator > (const iterator& a, const iterator& b) noexcept {
+            return a.m_ptr > b.m_ptr;
+        }
+
+        friend bool operator >= (const iterator& a, const iterator& b) noexcept {
+            return a.m_ptr >= b.m_ptr;
+        }
+
+        operator MyRandomAcessIterator<const T>() const noexcept {
+            return MyRandomAcessIterator<const T>(m_ptr);
+        }
+
+    private:
+        pointer m_ptr;
+};
+
+template<typename T>
 class MyVector {
     public:
         using iterator = MyRandomAcessIterator<T>;
         using const_iterator = MyRandomAcessIterator<const T>;
 
-        MyVector() : m_vec(nullptr), m_size(0), m_capacity(2) {
+        MyVector() noexcept : m_vec(nullptr), m_size(0), m_capacity(2) {
             setCapacity(m_capacity);
         }
 
-        MyVector(const MyVector<T>& other) : m_vec(nullptr), m_size(0), m_capacity(2) {
+        MyVector(const MyVector<T>& other) noexcept : m_vec(nullptr), m_size(0), m_capacity(2) {
             setCapacity(other.m_capacity);
             m_size = other.size();
             for (size_t i = 0; i < other.size(); ++i) {
-                m_vec[i] = other[i];
+                try {
+                    m_vec[i] = other[i];
+                }
+                catch(...) {
+                    delete[] m_vec;
+                    m_size = 0;
+                    m_capacity = 0;
+                    return;
+                }
             }
         }
 
-        MyVector(const std::initializer_list<T>& initList) : m_vec(nullptr), m_size(0), m_capacity(2) {
+        MyVector(std::initializer_list<T>&& initList) noexcept : m_vec(nullptr), m_size(0), m_capacity(2) {
             resize(initList.size());
             const T* el = initList.begin();
             for (size_t i = 0; i < initList.size(); ++i) {
@@ -32,14 +145,14 @@ class MyVector {
             }
         }
 
-        MyVector(const size_t& vecSize, const T& value) : m_vec(nullptr), m_size(0), m_capacity(0) {
+        MyVector(const size_t& vecSize, const T& value) noexcept : m_vec(nullptr), m_size(0), m_capacity(0) {
             resize(vecSize);
             for (size_t i = 0; i < size(); ++i) {
                 m_vec[i] = value;
             }
         }
 
-        MyVector(const size_t& vecSize) : m_vec(nullptr), m_size(0), m_capacity(0) {
+        MyVector(const size_t& vecSize) noexcept : m_vec(nullptr), m_size(0), m_capacity(0) {
             resize(vecSize);
         }
 
@@ -59,11 +172,15 @@ class MyVector {
             }
         }
 
+        MyVector(MyVector&& movedVec) noexcept : m_vec(nullptr), m_size(0), m_capacity(0) {
+            movedVec.swap(*this);
+        }
+
         ~MyVector() {
             delete[] m_vec;
         }
 
-        MyVector<T>& operator = (const MyVector<T>& other) {
+        MyVector<T>& operator = (const MyVector<T>& other) noexcept {
             if (this == &other) {
                 return *this;
             }
@@ -75,39 +192,45 @@ class MyVector {
             return *this;
         }
 
-        MyVector<T>& operator = (const std::initializer_list<T>& initList) {
+        MyVector<T>& operator = (std::initializer_list<T> initList) noexcept {
             resize(initList.size());
             const T* el = initList.begin();
             for (size_t i = 0; i < initList.size(); ++i) {
                 m_vec[i] = *(el++);
             }
+            return *this;
         }
 
-        iterator begin() {
+        MyVector<T>& operator = (MyVector&& other) noexcept {
+            other.swap(*this);
+            return *this;
+        }
+
+        iterator begin() noexcept {
             return iterator(&m_vec[0]);
         }
 
-        iterator end() {
+        iterator end() noexcept {
             return iterator(&m_vec[m_size]);
         }
 
-        const_iterator begin() const {
+        const_iterator begin() const noexcept {
             return cbegin();
         }
 
-        const_iterator end() const {
+        const_iterator end() const noexcept {
             return cend();
         }
 
-        const_iterator cbegin() const {
+        const_iterator cbegin() const noexcept {
             return const_iterator(&m_vec[0]);
         }
 
-        const_iterator cend() const {
+        const_iterator cend() const noexcept {
             return const_iterator(&m_vec[m_size]);
         }
 
-        void reserve(const size_t& reservedCapacity) {
+        void reserve(const size_t& reservedCapacity) noexcept {
             if (reservedCapacity < m_capacity) {
                 return;
             }
@@ -121,22 +244,22 @@ class MyVector {
             setCapacity(m_capacity * mult);
         }
 
-        void resize(const size_t& newSize) {
+        void resize(const size_t& newSize) noexcept {
             setCapacity(newSize);
             m_size = newSize;
         }
 
-        size_t size() const {
+        size_t size() const noexcept {
             return m_size;
         }
 
-        bool empty() const {
+        bool empty() const noexcept {
             return !m_size;
         }
 
         void erase(iterator it) {
             if (outOfBounds(it)) {
-                throw std::out_of_range("out of range");
+                throw std::out_of_range("erase failed: outside vector of range");
             }
             iterator nxt = it + 1;
             while (nxt != end()) {
@@ -151,7 +274,7 @@ class MyVector {
                 return;
             }
             if (outOfBounds(it)) {
-                throw std::out_of_range("out of range");
+                throw std::out_of_range("insert failed: outside vector range");
             }
             int pos = it - begin();
             push_back(back());
@@ -173,7 +296,12 @@ class MyVector {
             m_vec[m_size++] = element;
         }
 
-        void pop_back() {
+        template<class... Args>
+        void emplace_back(Args&&... args) {
+            push_back(T(args...));
+        }
+
+        void pop_back() noexcept {
             if (!m_size) {
                 return;
             }
@@ -183,7 +311,7 @@ class MyVector {
             }
         }
 
-        void fill(const T& value) {
+        void fill(const T& value) noexcept {
             if (!m_size) {
                 return;
             }
@@ -200,36 +328,64 @@ class MyVector {
             return m_vec[size() - 1];
         }
 
+        const T& front() const {
+            return m_vec[0];
+        }
+
+        const T& back() const {
+            return m_vec[size() - 1];
+        }
+
         T& operator [] (const size_t& index) {
-            if (outOfBounds(index)) {
-                throw std::out_of_range("out of range");
-            }
             return m_vec[index];
         }
 
         const T& operator [] (const size_t& index) const {
-            if (outOfBounds(index)) {
-                throw std::out_of_range("out of range");
-            }
             return m_vec[index];
+        }
+
+        void clear() noexcept {
+            setCapacity(0);
+        }
+
+        friend void swap(MyVector<T>& a, MyVector<T>& b) noexcept {
+            a.swap(b);
+        }
+
+        void swap(MyVector<T>& rhs) noexcept {
+            std::swap(m_vec, rhs.m_vec);
+            std::swap(m_size, rhs.m_capacity);
+            std::swap(m_capacity, rhs.m_capacity);
         }
 
     private:
         T* m_vec;
         size_t m_size, m_capacity;
 
-        void setCapacity(const size_t& newCapacity) {
+        void setCapacity(const size_t& newCapacity) noexcept {
             if (newCapacity == 0) {
                 delete[] m_vec;
                 m_vec = nullptr;
                 m_capacity = 0;
                 return;
             }
-            T* newVec = new T[newCapacity];
+            T* newVec = nullptr;
+            try {
+                newVec = new T[newCapacity];
+            }
+            catch(...) {
+                return;
+            }
             if (m_vec) {
                 size_t toCopy = newCapacity > m_capacity ? m_capacity : newCapacity;
                 for (size_t i = 0; i < toCopy; ++i) {
-                    newVec[i] = m_vec[i];
+                    try {
+                        newVec[i] = m_vec[i];
+                    }
+                    catch(...) {
+                        delete[] newVec;
+                        return;
+                    }
                 }
             }
             delete[] m_vec;
@@ -237,15 +393,11 @@ class MyVector {
             m_vec = newVec;
         }
 
-        bool outOfBounds(const size_t& index) const {
+        bool outOfBounds(const size_t& index) const noexcept {
             return m_size <= index;
         }
 
-        bool outOfBounds(iterator& it) {
-            return it < begin() && end() <= it;
-        }
-
-        bool outOfBounds(const_iterator& it) const {
+        bool outOfBounds(const_iterator& it) const noexcept {
             return it < cbegin() && cend() <= it;
         }
 };
