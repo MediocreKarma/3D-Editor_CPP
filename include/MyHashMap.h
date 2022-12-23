@@ -8,19 +8,6 @@
 #include "MyVector.h"
 #include "MyList.h"
 
-
-///////// DELETE AT END
-#include <iostream>
-
-
-
-
-/*
-// ITERATORS
-*/
-
-
-
 template<typename KeyType, typename ValueType>
 class MyHashMapIterator;
 
