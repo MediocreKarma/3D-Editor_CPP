@@ -1,7 +1,9 @@
 #ifndef MYITERATORS_H
 #define MYITERATORS_H
+
 #include <iterator>
-template<class T>
+
+template<typename T>
 class MyRandomAcessIterator {
     public:
         using iterator = MyRandomAcessIterator;
@@ -11,53 +13,53 @@ class MyRandomAcessIterator {
         using reference = T&;
         using pointer = T*;
 
-        MyRandomAcessIterator(pointer ptr) :
+        MyRandomAcessIterator(pointer ptr) noexcept :
             m_ptr(ptr) {}
 
         reference operator * () {
             return *m_ptr;
         }
 
-        pointer operator -> () {
+        pointer operator -> () noexcept {
             return m_ptr;
         }
 
-        iterator& operator ++ () {
+        iterator& operator ++ () noexcept {
             ++m_ptr;
             return *this;
         }
 
-        iterator operator ++ (int) {
+        iterator operator ++ (int) noexcept {
             iterator tmp(*this);
             ++m_ptr;
             return tmp;
         }
 
-        iterator& operator -- () {
+        iterator& operator -- () noexcept {
             --m_ptr;
             return *this;
         }
 
-        iterator operator -- (int) {
+        iterator operator -- (int) noexcept {
             iterator tmp(*this);
             --m_ptr;
             return tmp;
         }
 
-        iterator operator + (const int& offset) const {
+        iterator operator + (const int& offset) const noexcept {
             return iterator(m_ptr + offset);
         }
 
-        iterator& operator += (const int& offset) {
+        iterator& operator += (const int& offset) noexcept {
             m_ptr += offset;
             return *this;
         }
 
-        iterator operator - (const int& offset) const {
+        iterator operator - (const int& offset) const noexcept {
             return iterator(m_ptr - offset);
         }
 
-        iterator& operator -= (const int& offset) {
+        iterator& operator -= (const int& offset) noexcept {
             m_ptr -= offset;
             return *this;
         }
@@ -66,68 +68,41 @@ class MyRandomAcessIterator {
             return *(m_ptr + index);
         }
 
-        friend int operator - (const iterator& a, const iterator& b) {
-            return a.m_ptr - b.m_ptr;
-        }
-
-        friend bool operator == (const iterator& a, const iterator& b) {
-            return a.m_ptr == b.m_ptr;
-        }
-
-        friend bool operator != (const iterator& a, const iterator& b) {
-            return a.m_ptr != b.m_ptr;
-        }
-
-        friend bool operator < (const iterator& a, const iterator& b)  {
-            return a.m_ptr < b.m_ptr;
-        }
-
-        friend bool operator <= (const iterator& a, const iterator& b) {
-            return a.m_ptr <= b.m_ptr;
-        }
-
-        friend bool operator > (const iterator& a, const iterator& b) {
-            return a.m_ptr > b.m_ptr;
-        }
-
-        friend bool operator >= (const iterator& a, const iterator& b) {
-            return a.m_ptr >= b.m_ptr;
-        }
-
-    private:
-        pointer m_ptr;
-};
-
-template<class T>
-class MyForwardIterator {
-    public:
-        using iterator = MyForwardIterator;
-        using iterator_category = std::random_access_iterator_tag;
-        using difference_type = std::ptrdiff_t;
-        using value_type = T;
-        using reference = T&;
-        using pointer = T*;
-
-        MyForwardIterator(pointer ptr) :
-            m_ptr(ptr) {}
-
-        reference operator * () {
-            return *m_ptr;
-        }
-
-        pointer operator -> () {
-            return m_ptr;
-        }
-
-        iterator& operator ++ () {
-            ++m_ptr;
+        iterator operator = (const iterator& other) noexcept {
+            m_ptr = other.m_ptr;
             return *this;
         }
 
-        iterator operator ++ (int) {
-            iterator tmp(*this);
-            ++m_ptr;
-            return tmp;
+        friend int operator - (const iterator& a, const iterator& b) noexcept {
+            return a.m_ptr - b.m_ptr;
+        }
+
+        friend bool operator == (const iterator& a, const iterator& b) noexcept {
+            return a.m_ptr == b.m_ptr;
+        }
+
+        friend bool operator != (const iterator& a, const iterator& b) noexcept {
+            return a.m_ptr != b.m_ptr;
+        }
+
+        friend bool operator < (const iterator& a, const iterator& b) noexcept  {
+            return a.m_ptr < b.m_ptr;
+        }
+
+        friend bool operator <= (const iterator& a, const iterator& b) noexcept {
+            return a.m_ptr <= b.m_ptr;
+        }
+
+        friend bool operator > (const iterator& a, const iterator& b) noexcept {
+            return a.m_ptr > b.m_ptr;
+        }
+
+        friend bool operator >= (const iterator& a, const iterator& b) noexcept {
+            return a.m_ptr >= b.m_ptr;
+        }
+
+        operator MyRandomAcessIterator<const T>() const noexcept {
+            return MyRandomAcessIterator<const T>(m_ptr);
         }
 
     private:
