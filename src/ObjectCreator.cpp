@@ -245,9 +245,6 @@ void ObjectCreator::drawSelectLayers() {
     //draw layer btns
     int btnColor = RGB(160, 160, 160),
         highlightedColor = ColorSchemes::mixColors(btnColor, ColorSchemes::themeColors[m_theme][ColorSchemes::ACCENTCOLOR], 50);
-    if (ColorSchemes::themeColors[m_theme][ColorSchemes::PRIMARYCOLOR]) {
-        //highlightedColor = lighten()
-    }
     for (size_t i = 0; i < m_layerSelectButtons.size(); ++i) {
         if (m_selectedLayer != (int)i) {
             m_layerSelectButtons[i].drawTextButton(1, 3, btnColor, false);
