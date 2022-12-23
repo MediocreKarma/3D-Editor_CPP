@@ -2,17 +2,17 @@
 #include <iostream>
 
 //TODO:
-//image icons (DONE, but I think I'll change them later anyway so who knows)
+//image icons (DONE, now transparent)
 //change height of layer (DONE, sort of?)
 //organize 3d-area fxns, bc right now they're called randomly in ifs
 //pointConnector3D() (DONE)
 //pointDeleter3D() (DONE)
-//centering for selected layer in layer buttons view
-//deleteLine()(DONE for 3D view, but not associated with a tool yet:
-               //drag a line on screen at any time & it'll delete intersecting lines)
+//scrolling for LayerSelectButtons (DONE)
+//deleteLine()(DONE for both views)
+//associate a tool with deleteLine() (DONE)
 
 //TODO: (dupa ce rezolvam cu modularizarea txtInput)
-//fxns for generating Sphere, Cone, Cylinder, care au toate parametri (default: 12, probabil)
+//fxns for generating Sphere, Cone, Cylinder, care au toate parametri
 
 Layer::Layer() :
     m_points(), m_updated(), m_height() {}
@@ -82,7 +82,7 @@ ObjectCreator::ObjectCreator(const int& theme) :
     m_workArea.setCorners(26, 26, 800, 800);
     m_workArea.addMesh(Mesh());
     m_workMesh = &m_workArea.meshAt(0);
-    m_minimizedSpaceButton = Button(900, 100, 200, 200);
+    m_minimizedSpaceButton = Button(900 - 1, 100 - 1, 200 - 1, 200 - 4);
     m_addLayerButton = Button(900, 200 + m_layers.size() * 40, 40, 40);
 }
 
@@ -123,14 +123,17 @@ ObjectCreator& ObjectCreator::operator = (const ObjectCreator& oc) {
     return *this;
 }
 
+#include<iostream>
 void ObjectCreator::toolButtonsInit() {
-    MyArray<MyArray<char, 128>, 4> filenames;
-    filenames[(size_t)Tool::NewPoint] = "media\\buttonAddPoint.jpg";
-    filenames[(size_t)Tool::MovePoint] = "media\\buttonMove.jpg";
-    filenames[(size_t)Tool::ConnectPoint] = "media\\buttonAddLine.jpg";
-    filenames[(size_t)Tool::DeletePoint] = "media\\buttonDelete.jpg";
-    for (size_t i = 0; i < 4; ++i) {
-        m_toolButtons[i] = ImageButton(12, 36 + 24 * i, 24, 24, filenames[i].data());
+    MyArray<MyArray<char, 128>, 5> filenames;
+    filenames[(size_t)Tool::NewPoint] = "media\\buttonAddPoint.gif";
+    filenames[(size_t)Tool::MovePoint] = "media\\buttonMove.gif";
+    filenames[(size_t)Tool::ConnectPoint] = "media\\buttonAddLine.gif";
+    filenames[(size_t)Tool::DeletePoint] = "media\\buttonDelete.gif";
+    filenames[(size_t)Tool::CutLine] = "media\\buttonLineCutter.gif";
+    size_t buttonSize = 32;
+    for (size_t i = 0; i < 5; ++i) {
+        m_toolButtons[i] = ImageButton(buttonSize / 2, 36 + buttonSize * i, buttonSize, buttonSize, filenames[i].data());
     }
 }
 
@@ -179,8 +182,7 @@ void ObjectCreator::init() {
     m_layerSelectsBegin = 0;
     m_layerSelectsEnd = (availableSlots < (int)m_layers.size() ? availableSlots - 1 : m_layers.size() - 1);
     renderLayerSelectButtons();
-    updateLayerSelectsInterval();
-    m_minimizedSpaceButton = Button(x1 - 100, y0 + 100, 200, 200);
+    m_minimizedSpaceButton = Button(x1 - 100 - 1, y0 + 100 - 1, 200 - 1, 200 - 4);
 }
 
 MyArray<char, 32> ObjectCreator::itoa(int x, const char* prefix) {
@@ -234,18 +236,24 @@ void ObjectCreator::resetLine() {
 
 void ObjectCreator::drawToolButtons() {
     for (size_t i = 0; i < m_toolButtons.size(); ++i) {
+        m_toolButtons[i].drawLabel(ColorSchemes::themeColors[m_theme][ColorSchemes::ACCENTCOLOR], BLACK);
         m_toolButtons[i].drawImageButton();
     }
 }
 
 void ObjectCreator::drawSelectLayers() {
     //draw layer btns
+    int btnColor = RGB(160, 160, 160),
+        highlightedColor = ColorSchemes::mixColors(btnColor, ColorSchemes::themeColors[m_theme][ColorSchemes::ACCENTCOLOR], 50);
+    if (ColorSchemes::themeColors[m_theme][ColorSchemes::PRIMARYCOLOR]) {
+        //highlightedColor = lighten()
+    }
     for (size_t i = 0; i < m_layerSelectButtons.size(); ++i) {
         if (m_selectedLayer != (int)i) {
-            m_layerSelectButtons[i].drawTextButton(1, 3, RGB(160, 160, 160), false);
+            m_layerSelectButtons[i].drawTextButton(1, 3, btnColor, false);
         }
         else {
-            m_layerSelectButtons[i].drawTextButton(1, 3, RGB(210, 160, 160), false);
+            m_layerSelectButtons[i].drawTextButton(1, 3, highlightedColor, false);
         }
     }
     //butoane de PLUS + arrows
@@ -271,7 +279,7 @@ void ObjectCreator::renderLayerSelectButtons() {
     }
     for (int i = m_layerSelectsBegin; i <= m_layerSelectsEnd; ++i) {
         MyArray<char, 32> layerLevel = itoa(m_layers[i].height(), "Layer Z: ");
-        m_layerSelectButtons[i] = TextButton(x1 - 100, y0 + 200 + 20 + rendered++ * 40, 200, 40, layerLevel.data());
+        m_layerSelectButtons[i] = TextButton(x1 - 100 - 1, y0 + 200 + 20 + rendered++ * 40, 200 - 1, 40, layerLevel.data());
     }
     for (size_t i = m_layerSelectsEnd + 1; i < m_layers.size(); ++i) {
         m_layerSelectButtons[i] = TextButton(-100, -100, 1, 1, "");
@@ -309,9 +317,11 @@ void ObjectCreator::updateLayerSelectsInterval() {
     }
 }
 
-void ObjectCreator::moveLayerSelectsInterval(const int& delta) {
+//true if layers onscreen have actually changed
+bool ObjectCreator::moveLayerSelectsInterval(const int& delta) {
+    int oldBegin = m_layerSelectsBegin, oldEnd = m_layerSelectsEnd;
     if ((y1 - y0 - 200) / 40 + ((y1 - y0 - 200) % 40 >= 20 ? 0 : -1) >= (int)m_layers.size() || delta == 0) {
-        return;
+        return false;
     }
     if (delta < 0) {
         int localDelta = (m_layerSelectsBegin + delta >= 0 ? delta : -m_layerSelectsBegin);
@@ -323,7 +333,11 @@ void ObjectCreator::moveLayerSelectsInterval(const int& delta) {
         m_layerSelectsBegin += localDelta;
         m_layerSelectsEnd += localDelta;
     }
-    renderLayerSelectButtons();
+    if (oldBegin != m_layerSelectsBegin || oldEnd != m_layerSelectsEnd) {
+        renderLayerSelectButtons();
+        return true;
+    }
+    return false;
 }
 
 void ObjectCreator::updateButtons() {
@@ -335,7 +349,7 @@ void ObjectCreator::updateButtons() {
 
 void ObjectCreator::drawButtons() {
     for (size_t i = 0; i < m_pointButtons.size(); ++i) {
-        m_pointButtons[i].drawLabel(RED, RED);
+        m_pointButtons[i].drawLabel(ColorSchemes::themeColors[m_theme][ColorSchemes::ACCENTCOLOR], ColorSchemes::themeColors[m_theme][ColorSchemes::ACCENTCOLOR]);
     }
 }
 
@@ -343,7 +357,7 @@ void ObjectCreator::drawLayerView() { // O(layer.size()^2 * adjList.size())   D:
     const MyVector<MyVector<size_t>>& adjList = m_workMesh->adjacencyList();
     const int workXCenter = (workX0 + workX1) / 2;
     const int workYCenter = (workY0 + workY1) / 2;
-    setcolor(RED);
+    setcolor(ColorSchemes::themeColors[m_theme][ColorSchemes::ACCENTCOLOR]);
     line(workXCenter, workY0, workXCenter, workY1);
     line(workX0, workYCenter, workX1, workYCenter);
     setcolor(ColorSchemes::themeColors[m_theme][ColorSchemes::SECONDARYCOLOR]);
@@ -362,7 +376,7 @@ void ObjectCreator::drawLayerView() { // O(layer.size()^2 * adjList.size())   D:
         }
     }
     for (size_t i = 0; i < m_layerPointButtons[m_selectedLayer].size(); ++i) {
-        m_layerPointButtons[m_selectedLayer][i].drawLabel(RED, RED);
+        m_layerPointButtons[m_selectedLayer][i].drawLabel(ColorSchemes::themeColors[m_theme][ColorSchemes::ACCENTCOLOR], ColorSchemes::themeColors[m_theme][ColorSchemes::ACCENTCOLOR]);
     }
 }
 
@@ -388,7 +402,6 @@ void ObjectCreator::drawPointData() {
 void ObjectCreator::draw(bool update) {
     setfillstyle(SOLID_FILL, ColorSchemes::themeColors[m_theme][ColorSchemes::PRIMARYCOLOR]);
     bar(0, 0, x1, y1);
-    drawToolButtons();
     m_workArea.render();
     if (m_selectedLayer == -1) {
         m_workArea.run();
@@ -407,7 +420,6 @@ void ObjectCreator::draw(bool update) {
             updateButtons();
         }
         drawButtons();
-
     }
     else {
         drawLayerView();
@@ -429,8 +441,9 @@ void ObjectCreator::draw(bool update) {
     if (m_hovered != -1) {
         drawPointData();
     }
+    drawToolButtons();
+    m_minimizedSpaceButton.drawLabel(LIGHTGRAY, ColorSchemes::themeColors[m_theme][ColorSchemes::ACCENTCOLOR]);
     drawSelectLayers();
-    m_minimizedSpaceButton.drawLabel(LIGHTGRAY, RED);
     swapbuffers();
 }
 
@@ -665,7 +678,7 @@ void ObjectCreator::pointConnector3D(const size_t& index) {
     m_workArea.update();
 }
 
-void ObjectCreator::deleteLines3D(const int& x, const int& y){
+void ObjectCreator::lineCutter3D(const int& x, const int& y){
     const Section& sect = m_workArea.sectionAt(0);
     clearmouseclick(WM_LBUTTONUP);
     int xDrag, yDrag;
@@ -698,10 +711,10 @@ void ObjectCreator::deleteLines3D(const int& x, const int& y){
     if (hasDeletedLine) {
         m_workArea.update();
     }
-    draw(hasDeletedLine);
+    //draw(hasDeletedLine);
 }
 
-void ObjectCreator::deleteLines2D(const int& x, const int& y) {
+void ObjectCreator::lineCutter2D(const int& x, const int& y) {
 clearmouseclick(WM_LBUTTONUP);
     int xDrag, yDrag;
     while (!ismouseclick(WM_LBUTTONUP)) {
@@ -762,6 +775,7 @@ void ObjectCreator::toolOperationOnPoint(const size_t& index) {
         case Tool::DeletePoint:
             pointDeleter(index);
         case Tool::NewPoint:
+        case Tool::CutLine:
         default:;
     }
 }
@@ -772,13 +786,21 @@ bool ObjectCreator::getClickCommand() {
     if (x == -1) {
         return m_workArea.getKeyCommand();
     }
-    if (m_layerScrollArrows[0].hitCollision(x, y)) {
-        moveLayerSelectsInterval(-1);
-        return true;
-    }
-    if (m_layerScrollArrows[1].hitCollision(x, y)) {
-        moveLayerSelectsInterval(1);
-        return true;
+    //is doar 2 dar e mai cute asa decat 2 ifuri
+    for (size_t i = 0; i < m_layerScrollArrows.size(); ++i) {
+        if (m_layerScrollArrows[i].hitCollision(x, y)) {
+            clearmouseclick(WM_LBUTTONUP);
+            while (!ismouseclick(WM_LBUTTONUP)) {
+                if (moveLayerSelectsInterval(-1 + 2 * i)) {
+                    //am renuntat la ideea de a desena doar layerele
+                    //se glitchuia. rau
+                    //dar poate o fac eventual
+                    draw();
+                    Sleep(100);
+                }
+            }
+            return true;
+        }
     }
     for (size_t i = 0; i < m_toolButtons.size(); ++i) {
         if (m_toolButtons[i].hitCollision(x, y)) {
@@ -793,12 +815,7 @@ bool ObjectCreator::getClickCommand() {
     }
     if (m_selectedLayer != -1) {
         if (m_minimizedSpaceButton.hitCollision(x, y)) {
-            //TODO: draw minimizedSpace:
-            //either copy to separate space and render that
-            //or take current section and center it
-            //and translate all pnts relative to center
-            //such that it fits the small area
-            //idk tho. will think abt that later
+            //TODO: draw minimizedSpace?
             m_selectedLayer = -1;
             return true;
         }
@@ -806,16 +823,16 @@ bool ObjectCreator::getClickCommand() {
             pointAdder(x, y);
             return true;
         }
+        if (m_tool == Tool::CutLine && m_workArea.insideWorkArea(x, y)) {
+            m_assistLineDotted = true;
+            lineCutter2D(x, y);
+            return true;
+        }
         for (size_t i = 0; i < m_layerPointButtons[m_selectedLayer].size(); ++i) {
             if (m_layerPointButtons[m_selectedLayer][i].hitCollision(x, y)) {
                 toolOperationOnPoint(i);
                 return true;
             }
-        }
-        if (m_workArea.insideWorkArea(x, y)) {
-            m_assistLineDotted = true;
-            deleteLines2D(x, y);
-            return true;
         }
     }
     else {
@@ -832,12 +849,12 @@ bool ObjectCreator::getClickCommand() {
                 }
             }
         }
-        if (m_workArea.getCommand(x, y)) {
+        if (m_workArea.insideWorkArea(x, y) && m_tool == Tool::CutLine) {
+            m_assistLineDotted = true;
+            lineCutter3D(x, y);
             return true;
         }
-        if (m_workArea.insideWorkArea(x, y)) {
-            m_assistLineDotted = true;
-            deleteLines3D(x, y);
+        if (m_workArea.getCommand(x, y)) {
             return true;
         }
     }
@@ -898,7 +915,7 @@ Mesh ObjectCreator::run() {
     setactivepage(1);
     draw();
     while (true) {
-        if (getDoubleClickCommand() || getClickCommand() || getHoverCommand()) {
+        if (getClickCommand() || getDoubleClickCommand() || getHoverCommand()) {
             draw();
         }
     }

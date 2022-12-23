@@ -19,11 +19,11 @@ namespace SettingsMenuInterface
     static const int LABEL_COLOR = RGB(108, 106, 175);
     static const int BUTTON_COLOR = RGB(182, 191, 232);
     static const int DROPLIST_COLOR = RGB(235, 235, 235);
-    static const size_t LABEL_SIZE = 3;
+    static const size_t ACCENT_COLOR_SIZE = ColorSchemes::ACCENTCOLOR_COUNT;
+    static const size_t LABEL_SIZE = 4;
     static const size_t TEXTBUTTON_SIZE = 3;
     static const size_t FLAG_SIZE = 2;
     static const size_t DROPDOWN_SIZE = 5;
-    //cate teme?
     static const size_t THEME_SIZE = 2;
     static const MyArray<int, FLAG_SIZE> themeFillColors = {
         RGB(182, 191, 232), RGB(132, 141, 182)
@@ -31,7 +31,6 @@ namespace SettingsMenuInterface
     static const MyArray<MyArray<int, 2>, DROPDOWN_SIZE> resOptions = {
         {1920, 1080}, {1600, 900}, {1280, 720}, {1000, 750}, {800, 600}
     };
-    //pt teme
     static const int FONT = 3;
     static const int FONT_SIZE = 1;
 
@@ -46,14 +45,16 @@ namespace SettingsMenuInterface
     MyArray<TextLabel, LABEL_SIZE> initLabels();
     MyArray<ImageButton, FLAG_SIZE> initImageButtons();
     DropdownButton<DROPDOWN_SIZE> buildDropdownButton();
+    DropdownButton<DROPDOWN_SIZE> buildAccentColorDropdownButton();
     void drawThemeButtons(MyArray<TextButton, TEXTBUTTON_SIZE>& txtButtons);
     void drawLabels(MyArray<TextLabel, LABEL_SIZE>& labels);
     void drawFlagButtons(MyArray<ImageButton, FLAG_SIZE>& flagButtons);
     void settingsMenu(MyArray<TextButton, TEXTBUTTON_SIZE>& txtButtons, MyArray<ImageButton, FLAG_SIZE>& flagButtons,
-                      TextButton& startButton, DropdownButton<DROPDOWN_SIZE>& ddButton, MyArray<TextLabel, LABEL_SIZE>& labels);
+                      TextButton& startButton, DropdownButton<DROPDOWN_SIZE>& ddButton,
+                      DropdownButton<DROPDOWN_SIZE>& accentButton, MyArray<TextLabel, LABEL_SIZE>& labels);
     void initScreen();
     void draw(MyArray<TextButton, TEXTBUTTON_SIZE>& themeButtons, MyArray<ImageButton, FLAG_SIZE>& flagButtons,
-                TextButton& startButton,  DropdownButton<DROPDOWN_SIZE>& ddButton, MyArray<TextLabel, LABEL_SIZE>& labels);
+                TextButton& startButton,  DropdownButton<DROPDOWN_SIZE>& ddButton, DropdownButton<DROPDOWN_SIZE>& accentButton, MyArray<TextLabel, LABEL_SIZE>& labels);
 }
 
 #endif // SETTINGSMENUINTERFACE_H

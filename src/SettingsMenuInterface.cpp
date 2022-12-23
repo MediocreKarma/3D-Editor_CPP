@@ -4,6 +4,7 @@
 static int resolution = 2;
 static int theme = 0;
 static int language = 0;
+static int accentColor = 0;
 
 void SettingsMenuInterface::drawScreen() {
     setfillstyle(SOLID_FILL, BACKGROUND_COLOR);
@@ -17,7 +18,8 @@ void SettingsMenuInterface::setTextSettings() {
 MyArray<TextLabel, SettingsMenuInterface::LABEL_SIZE> SettingsMenuInterface::initLabels() {
     MyArray<TextLabel, SettingsMenuInterface::LABEL_SIZE> labels = {
         TextLabel(100, 50, 160, 50, "Tema / Theme"),
-        TextLabel(100, 110, 160, 50, "Rezolutie / Resolution"),
+        TextLabel(100, 100, 160, 30, "Rezolutie / Resolution"),
+        TextLabel(430, 100, 300, 30, "Culoare de accent / Accent color"),
         TextLabel(100, 290, 160, 50, "Limba / Language")
     };
     return labels;
@@ -25,8 +27,8 @@ MyArray<TextLabel, SettingsMenuInterface::LABEL_SIZE> SettingsMenuInterface::ini
 
 MyArray<TextButton, SettingsMenuInterface::TEXTBUTTON_SIZE> SettingsMenuInterface::initThemeButtons() {
     MyArray<TextButton, SettingsMenuInterface::TEXTBUTTON_SIZE> themeButtons = {
-        TextButton(350, 50, 140, 50, "Light"),
-        TextButton(500, 50, 140, 50, "Dark")
+        TextButton(280 + 140 / 2, 50, 140, 50, "Light"),
+        TextButton(280  + 20 + 3 * 140 / 2, 50, 140, 50, "Dark")
     };
     return themeButtons;
 }
@@ -40,13 +42,23 @@ MyArray<ImageButton, SettingsMenuInterface::FLAG_SIZE> SettingsMenuInterface::in
 }
 
 DropdownButton<SettingsMenuInterface::DROPDOWN_SIZE> SettingsMenuInterface::buildDropdownButton() {
-    DropdownButton<SettingsMenuInterface::DROPDOWN_SIZE> ddButton(425, 110, 140, 50, "", 140, 120);
+    DropdownButton<SettingsMenuInterface::DROPDOWN_SIZE> ddButton(100, 130, 100, 24, "", 100, 110);
     ddButton.addOption("1920x1080");
     ddButton.addOption("1600x900");
     ddButton.addOption("1280x720");
     ddButton.addOption("1000x750");
     ddButton.addOption("800x600");
     return ddButton;
+}
+
+DropdownButton<SettingsMenuInterface::DROPDOWN_SIZE> SettingsMenuInterface::buildAccentColorDropdownButton() {
+    DropdownButton<SettingsMenuInterface::DROPDOWN_SIZE> accentButton(430, 130, 160, 24, "", 160, 110);
+    accentButton.addOption("Rosu / Red");
+    accentButton.addOption("Albastru / Blue");
+    accentButton.addOption("Roz / Pink");
+    accentButton.addOption("Galben / Yellow");
+    accentButton.addOption("Verde / Green");
+    return accentButton;
 }
 
 void SettingsMenuInterface::drawLabels(MyArray<TextLabel, LABEL_SIZE>& labels) {
@@ -72,7 +84,8 @@ void SettingsMenuInterface::checkSavedSettings() {
     int resRead = 2, themeRead = 0, langRead = 0;
     if (fscanf(fp, "Resolution: %i\nTheme: %i\nLanguage: %i", &resRead, &themeRead, &langRead) == 3) {
         resolution = resRead;
-        theme = themeRead;
+        theme = themeRead / ACCENT_COLOR_SIZE;
+        accentColor = themeRead % ACCENT_COLOR_SIZE;
         language = langRead;
     }
     fclose(fp);
@@ -80,7 +93,7 @@ void SettingsMenuInterface::checkSavedSettings() {
 
 void SettingsMenuInterface::saveSelection() {
     FILE* fp = fopen("Settings.ini", "w");
-    fprintf(fp, "Resolution: %i\nTheme: %i\nLanguage: %i", resolution, theme, language);
+    fprintf(fp, "Resolution: %i\nTheme: %i\nLanguage: %i", resolution, ACCENT_COLOR_SIZE * theme + accentColor, language);
     fclose(fp);
 }
 
@@ -90,7 +103,8 @@ void SettingsMenuInterface::run() {
     MyArray<ImageButton, FLAG_SIZE> flagButtons(initImageButtons());
     TextButton startButton(300, 350, 100, 50, "Start");
     DropdownButton<DROPDOWN_SIZE> ddButton(buildDropdownButton());
-    settingsMenu(themeButtons, flagButtons, startButton, ddButton, labels);
+    DropdownButton<DROPDOWN_SIZE> accentButton(buildAccentColorDropdownButton());
+    settingsMenu(themeButtons, flagButtons, startButton, ddButton, accentButton, labels);
 }
 
 void SettingsMenuInterface::initScreen() {
@@ -102,21 +116,24 @@ void SettingsMenuInterface::initScreen() {
 }
 
 void SettingsMenuInterface::draw(MyArray<TextButton, TEXTBUTTON_SIZE>& themeButtons, MyArray<ImageButton, FLAG_SIZE>& flagButtons,
-                                    TextButton& startButton,  DropdownButton<DROPDOWN_SIZE>& ddButton, MyArray<TextLabel, LABEL_SIZE>& labels) {
+                                    TextButton& startButton,  DropdownButton<DROPDOWN_SIZE>& ddButton,
+                                    DropdownButton<DROPDOWN_SIZE>& accentButton, MyArray<TextLabel, LABEL_SIZE>& labels) {
     drawThemeButtons(themeButtons);
     drawFlagButtons(flagButtons);
     drawLabels(labels);
     startButton.drawTextButton(FONT, FONT_SIZE, BUTTON_COLOR);
     ddButton.drawTextButton(FONT, FONT_SIZE, BUTTON_COLOR);
+    accentButton.drawTextButton(FONT, FONT_SIZE, BUTTON_COLOR);
     themeButtons[theme].border(HIGHLIGHT_COLOR);
     flagButtons[language].border(HIGHLIGHT_COLOR);
     ddButton.changeMain(resolution, FONT, FONT_SIZE, BUTTON_COLOR);
+    accentButton.changeMain(accentColor, FONT, FONT_SIZE, BUTTON_COLOR);
 }
 
 void SettingsMenuInterface::settingsMenu(MyArray<TextButton, TEXTBUTTON_SIZE>& themeButtons, MyArray<ImageButton, FLAG_SIZE>& flagButtons,
-                                         TextButton& startButton,  DropdownButton<DROPDOWN_SIZE>& ddButton, MyArray<TextLabel, LABEL_SIZE>& labels) {
+                                         TextButton& startButton, DropdownButton<DROPDOWN_SIZE>& ddButton, DropdownButton<DROPDOWN_SIZE>& accentButton, MyArray<TextLabel, LABEL_SIZE>& labels) {
     initScreen();
-    draw(themeButtons, flagButtons, startButton, ddButton, labels);
+    draw(themeButtons, flagButtons, startButton, ddButton, accentButton, labels);
     AppInterface appHandler;
     while (true) {
         while (!ismouseclick(WM_LBUTTONDOWN));
@@ -125,10 +142,10 @@ void SettingsMenuInterface::settingsMenu(MyArray<TextButton, TEXTBUTTON_SIZE>& t
         if (startButton.hitCollision(x, y)) {
             closegraph();
             saveSelection();
-            appHandler.setSettings(resOptions[resolution][0], resOptions[resolution][1], theme, language);
+            appHandler.setSettings(resOptions[resolution][0], resOptions[resolution][1], theme * ACCENT_COLOR_SIZE + accentColor, language);
             appHandler.run();
             initScreen();
-            draw(themeButtons, flagButtons, startButton, ddButton, labels);
+            draw(themeButtons, flagButtons, startButton, ddButton, accentButton, labels);
         }
         for (size_t i = 0; i < themeButtons.size(); ++i) {
             if (themeButtons[i].hitCollision(x, y)) {
@@ -163,6 +180,17 @@ void SettingsMenuInterface::settingsMenu(MyArray<TextButton, TEXTBUTTON_SIZE>& t
                 ddButton.changeMain(ddCollide, FONT, FONT_SIZE, BUTTON_COLOR);
                 ddButton.toggleVisibillity(BACKGROUND_COLOR, FONT, FONT_SIZE, DROPLIST_COLOR);
                 resolution = ddCollide;
+            }
+        }
+        if (accentButton.hitCollision(x, y)) {
+            accentButton.toggleVisibillity(BACKGROUND_COLOR, FONT, FONT_SIZE, DROPLIST_COLOR);
+        }
+        if (accentButton.isListVisible()) {
+            const int accentCollide = accentButton.listHitCollision(x,y);
+            if(accentCollide >= 0) {
+                accentButton.changeMain(accentCollide, FONT, FONT_SIZE, BUTTON_COLOR);
+                accentButton.toggleVisibillity(BACKGROUND_COLOR, FONT, FONT_SIZE, DROPLIST_COLOR);
+                accentColor = accentCollide;
             }
         }
     }

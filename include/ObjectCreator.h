@@ -35,7 +35,7 @@ class Layer {
 class ObjectCreator {
     public:
         enum class Tool {
-            NewPoint = 0, MovePoint, ConnectPoint, DeletePoint
+            NewPoint = 0, MovePoint, ConnectPoint, DeletePoint, CutLine
         };
         ObjectCreator(const int& theme = 0);
         ObjectCreator(Mesh editedMesh, const int& theme = 0);
@@ -53,7 +53,7 @@ class ObjectCreator {
         Button m_addLayerButton;
         MyVector<CircularButton> m_pointButtons;
         Button m_minimizedSpaceButton;
-        MyArray<ImageButton, 4> m_toolButtons;
+        MyArray<ImageButton, 5> m_toolButtons;
         Tool m_tool;
         int x0;
         int y0;
@@ -81,8 +81,8 @@ class ObjectCreator {
         void pointDeleter(const size_t& index);
         void pointDeleter3D(const size_t& index);
         void pointAdder(const int& x, const int& y);
-        void deleteLines2D(const int& x, const int& y);
-        void deleteLines3D(const int& x, const int& y);
+        void lineCutter2D(const int& x, const int& y);
+        void lineCutter3D(const int& x, const int& y);
         void drawSelectLayers();
         void updateButtons();
         void drawButtons();
@@ -99,7 +99,7 @@ class ObjectCreator {
         void toolOperationOnPoint(const size_t& index);
         void renderLayerSelectButtons();
         void updateLayerSelectsInterval();
-        void moveLayerSelectsInterval(const int& delta);
+        bool moveLayerSelectsInterval(const int& delta);
         void editLayer(const int& index);
 };
 

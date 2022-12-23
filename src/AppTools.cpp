@@ -1,5 +1,17 @@
 #include "AppTools.h"
 
+int ColorSchemes::mixColors(const int& color1, const int& color2, const uint8_t& percentage) {
+    MyArray<int, 3> rgb1 = {color1 & 255, (color1 & (255<<8))>>8, (color1 & (255<<16))>>16},
+                    rgb2 = {color2 & 255, (color2 & (255<<8))>>8, (color2 & (255<<16))>>16};
+    //percentage: between 0 and 100
+    //se face medie ponderata dintre valorile rgb
+    MyArray<int, 3> rgb3 = {((rgb1[0] * (100 - percentage) + rgb2[0] * percentage) / 100 ),
+                            ((rgb1[1] * (100 - percentage) + rgb2[1] * percentage) / 100 ),
+                            ((rgb1[2] * (100 - percentage) + rgb2[2] * percentage) / 100 )};
+    int rgbFinal =  rgb3[0] | (rgb3[1] << 8) | (rgb3[2] << 16);
+    return rgbFinal;
+}
+
 Label::Label() :
     xCenter(), yCenter(), xLen(), yLen() {}
 
@@ -138,7 +150,7 @@ ImageButton::ImageButton(const int& xCenter_, const int& yCenter_, const int& xL
     Button(xCenter_, yCenter_, xLen_, yLen_), filename(filename_) {}
 
 void ImageButton::drawImageButton() {
-    drawLabel(0);
+    //drawLabel(0);
     readimagefile(filename.data(), xCenter - xLen / 2 + 1, yCenter - yLen / 2 + 1 , xCenter + xLen / 2 - 1, yCenter + yLen / 2 - 1);
 }
 

@@ -23,6 +23,12 @@ void AppInterface::run() {
         getmouseclick(WM_LBUTTONDOWN, xClick, yClick);
         if (m_menu.getCommand(xClick, yClick)) {
             m_menu.draw();
+            continue;
+        }
+        getmouseclick(WM_RBUTTONDOWN, xClick, yClick);
+        if (m_menu.getDblClickCommand(xClick, yClick)) {
+            m_menu.draw();
+            continue;
         }
         else if (m_menu.returnToSettingsFlag()){
             return;

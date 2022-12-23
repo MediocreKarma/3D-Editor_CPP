@@ -173,6 +173,16 @@ bool Menu::getCommand(const int& x, const int& y) {
     return false;
 }
 
+bool Menu::getDblClickCommand(const int& x, const int& y) {
+    if (x == -1) {
+        return false;
+    }
+    if (m_space.getDblClickCommand(x, y)) {
+        return true;
+    }
+    return false;
+}
+
 bool Menu::returnToSettingsFlag() {
     if (m_settingsMenuFlag) {
         m_settingsMenuFlag = false;

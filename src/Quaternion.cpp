@@ -22,7 +22,7 @@ Quaternion::Quaternion(const Quaternion& other) :
 Quaternion::Quaternion(const double& real, const double& i, const double& j, const double& k) :
     m_data({real, i, j, k}) {}
 
-Quaternion::Quaternion(const double& heading, const double& attitude, const double& bank) :
+/*Quaternion::Quaternion(const double& heading, const double& attitude, const double& bank) :
     m_data() {
     //disclaimer: nu stiu ce i asta
     double w,x,y,z;
@@ -42,7 +42,7 @@ Quaternion::Quaternion(const double& heading, const double& attitude, const doub
 	m_data[1] = x;
 	m_data[2] = y;
 	m_data[3] = z;
-}
+}*/
 
 double Quaternion::real() const {
     return m_data[0];
@@ -171,10 +171,9 @@ void Quaternion::display() {
 }
 
 MyArray<double, 3> Quaternion::toEuler() const {
-    //disclaimer: nici asta nu stiu ce e
     double qw = m_data[0], qx = m_data[1], qy = m_data[2], qz = m_data[3];
     double yaw = atan2(2.0*(qy*qz + qw*qx), qw*qw - qx*qx - qy*qy + qz*qz);
     double pitch = asin(-2.0*(qx*qz - qw*qy));
-    double roll = atan2(2.0*(qx*qy + qw*qz), qw*qw + qx*qx - qy*qy - qz*qz);
+    double roll = -atan2(2.0*(qx*qy + qw*qz), qw*qw + qx*qx - qy*qy - qz*qz);
     return MyArray<double, 3>({yaw, pitch, roll});
 }

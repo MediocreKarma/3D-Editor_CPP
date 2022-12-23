@@ -8,8 +8,22 @@
 namespace ColorSchemes {
     static const int PRIMARYCOLOR = 0;
     static const int SECONDARYCOLOR = 1;
-    static const MyArray<MyArray<int, 2>, 2> themeColors = {
-        {WHITE, BLACK}, {BLACK, WHITE}
+    static const int ACCENTCOLOR = 2;
+    static const int ACCENTCOLOR_COUNT = 5;
+    //only works for RGB values; used for highlighting purposes
+    int mixColors(const int& color1, const int& color2, const uint8_t& percentage);
+    static const MyArray<int, ACCENTCOLOR_COUNT> accentColors = {
+        /*RED, BLUE, PINK, YELLOW, GREEN - RGB values to use with above function*/
+        RGB(219, 43, 57), RGB(110, 68, 255), RGB(249, 145, 204), RGB(233, 196, 106), RGB(42, 157, 143)
+    };
+    static const MyArray<MyArray<int, 3>, ACCENTCOLOR_COUNT * 2> themeColors = {
+        //cand se schimba accentColor se va trece defapt la a doua jumatate a lu themeColors
+        //ca sa nu mai schimbam in alte parti, si sa pastram oricum un singur index pt m_theme
+
+        /*LIGHT MODE*/{WHITE, BLACK, accentColors[0]}, {WHITE, BLACK, accentColors[1]}, {WHITE, BLACK, accentColors[2]},
+                      {WHITE, BLACK, accentColors[3]}, {WHITE, BLACK, accentColors[4]},
+        /*DARK MODE */{BLACK, WHITE, accentColors[0]}, {BLACK, WHITE, accentColors[1]}, {BLACK, WHITE, accentColors[2]},
+                      {BLACK, WHITE, accentColors[3]}, {BLACK, WHITE, accentColors[4]}
     };
     static const int NO_COLOR = -1;
 }

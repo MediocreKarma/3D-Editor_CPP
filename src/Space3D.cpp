@@ -320,7 +320,7 @@ bool Space3D::checkObjectRotation(int x, int y) {
             getmouseclick(WM_MOUSEMOVE, xDrag, yDrag);
             if (m_donutOZ.hitCollision(xDrag, yDrag) && dragDiff >= 5) {
                 double rotation = findRotation(xDrag, yDrag, m_donutOZ, m_buttonOZ);
-                m_meshes[m_selected].rotate(0, 0, rotation);
+                m_meshes[m_selected].rotate(0, 0, -rotation);
                 tempAngle += rotation;
                 m_meshes[m_selected].rotateDisplayAngle();
                 m_updated[m_selected] = true;
@@ -537,6 +537,19 @@ bool Space3D::getCommand(const int& x, const int& y) {
             return true;
         }
     }
+    if (insideWorkArea(x, y)) {
+        m_selected = -1;
+        return true;
+    }
+    return false;
+}
+
+bool Space3D::getDblClickCommand(const int& x, const int& y) {
+    if (m_selected != -1 && m_spinballButton.hitCollision(x, y)) {
+        m_meshes[m_selected].resetRotation();
+        m_updated[m_selected] = true;
+        return true;
+    }
     return false;
 }
 
@@ -593,7 +606,6 @@ void Space3D::dragAndDrop(const int& xDrag, const int& yDrag, Mesh& mesh, const 
     tx = tx + m_cam.position().getX();
     ty = ty + m_cam.position().getY();
     tz = tz + m_cam.position().getZ();
-
     mesh.translate(tx - centerPoint.getX(), ty - centerPoint.getY(), tz - centerPoint.getZ());
 }
 
@@ -603,13 +615,14 @@ bool Space3D::isDragAndDrop(const int& xDrag, const int& yDrag) const {
 
 void Space3D::highlightMesh() {
     for (int i = 0; i < m_selected; ++i) {
-        m_sections[i].draw(ColorSchemes::themeColors[m_theme][ColorSchemes::SECONDARYCOLOR], RED, RED);
+        m_sections[i].draw(ColorSchemes::themeColors[m_theme][ColorSchemes::SECONDARYCOLOR], ColorSchemes::themeColors[m_theme][ColorSchemes::ACCENTCOLOR], ColorSchemes::themeColors[m_theme][ColorSchemes::ACCENTCOLOR]);
     }
     if (m_selected != -1) {
-        m_sections[m_selected].draw(ColorSchemes::themeColors[m_theme][ColorSchemes::SECONDARYCOLOR], GREEN, GREEN);
+        int highlightedColor = ColorSchemes::mixColors(ColorSchemes::themeColors[m_theme][ColorSchemes::ACCENTCOLOR], RGB(255, 255, 255), 60);
+        m_sections[m_selected].draw(ColorSchemes::themeColors[m_theme][ColorSchemes::SECONDARYCOLOR], highlightedColor, highlightedColor);
     }
     for (size_t i = m_selected + 1; i < size(); ++i) {
-        m_sections[i].draw(ColorSchemes::themeColors[m_theme][ColorSchemes::SECONDARYCOLOR], RED, RED);
+        m_sections[i].draw(ColorSchemes::themeColors[m_theme][ColorSchemes::SECONDARYCOLOR], ColorSchemes::themeColors[m_theme][ColorSchemes::ACCENTCOLOR], ColorSchemes::themeColors[m_theme][ColorSchemes::ACCENTCOLOR]);
     }
 }
 
@@ -618,7 +631,6 @@ void Space3D::selectMesh(const size_t& index) {
     m_selected = index;
     const int x = m_spinballButton.getXCenter();
     const int y = m_spinballButton.getYCenter();
-
     m_buttonOX = CircularButton(x + 40, y + 120, 7);
     m_buttonOY = CircularButton(x + 40, y + 220, 7);
     m_buttonOZ = CircularButton(x + 40, y + 320, 7);
