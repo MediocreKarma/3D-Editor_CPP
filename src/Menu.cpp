@@ -173,11 +173,11 @@ bool Menu::getCommand(const int& x, const int& y) {
     return false;
 }
 
-bool Menu::getDblClickCommand(const int& x, const int& y) {
+bool Menu::getRightClickCommand(const int& x, const int& y) {
     if (x == -1) {
         return false;
     }
-    if (m_space.getDblClickCommand(x, y)) {
+    if (m_space.getRightClickCommand(x, y)) {
         return true;
     }
     return false;

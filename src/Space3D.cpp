@@ -544,7 +544,7 @@ bool Space3D::getCommand(const int& x, const int& y) {
     return false;
 }
 
-bool Space3D::getDblClickCommand(const int& x, const int& y) {
+bool Space3D::getRightClickCommand(const int& x, const int& y) {
     if (m_selected != -1 && m_spinballButton.hitCollision(x, y)) {
         m_meshes[m_selected].resetRotation();
         m_updated[m_selected] = true;

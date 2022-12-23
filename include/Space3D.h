@@ -30,7 +30,7 @@ class Space3D
         bool insideWorkArea(const Point2D& point) const;
         bool getCommand(const int& xClick, const int& yClick);
         bool getKeyCommand();
-        bool getDblClickCommand(const int& x, const int& y);
+        bool getRightClickCommand(const int& x, const int& y);
         bool fscan(FILE* fp);
         void fprint(FILE* fp);
         MyArray<char, 512> getLinkedFileName();

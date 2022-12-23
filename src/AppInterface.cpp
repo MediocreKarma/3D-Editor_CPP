@@ -19,16 +19,14 @@ void AppInterface::run() {
     m_menu.setBorder(0, 0, m_appWidth, 27);
     m_menu.draw();
     while (true) {
-        int xClick, yClick;
+        int xClick, yClick, xRightClick, yRightClick;
         getmouseclick(WM_LBUTTONDOWN, xClick, yClick);
+        getmouseclick(WM_RBUTTONDOWN, xRightClick, yRightClick);
         if (m_menu.getCommand(xClick, yClick)) {
             m_menu.draw();
-            continue;
         }
-        getmouseclick(WM_RBUTTONDOWN, xClick, yClick);
-        if (m_menu.getDblClickCommand(xClick, yClick)) {
+        else if (m_menu.getRightClickCommand(xRightClick, yRightClick)) {
             m_menu.draw();
-            continue;
         }
         else if (m_menu.returnToSettingsFlag()){
             return;
