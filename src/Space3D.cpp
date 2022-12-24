@@ -2,7 +2,6 @@
 #include "Menu.h"
 #include "ObjectCreator.h"
 #include "Quaternion.h"
-#include<iostream>
 
 const double pi = 3.141926535897;
 
@@ -148,26 +147,14 @@ void Space3D::drawRotationArrows() {
     const int yCenter = (y0 + y1) / 2;
     setcolor(ColorSchemes::themeColors[m_theme][ColorSchemes::SECONDARYCOLOR]);
     setlinestyle(SOLID_LINE, 0, 2);
-    //m_arrowLeft.border(WHITE);
     line(x0 + BORDER_OFFSET, yCenter, x0 + POSITION_OFFSET, yCenter - POSITION_OFFSET);
     line(x0 + BORDER_OFFSET, yCenter, x0 + POSITION_OFFSET, yCenter + POSITION_OFFSET);
-    //m_arrowRight.border(WHITE);
     line(x1 - BORDER_OFFSET, yCenter, x1 - POSITION_OFFSET, yCenter - POSITION_OFFSET);
     line(x1 - BORDER_OFFSET, yCenter, x1 - POSITION_OFFSET, yCenter + POSITION_OFFSET);
-    //m_arrowUp.border(WHITE);
     line(xCenter, y0 + BORDER_OFFSET, xCenter - POSITION_OFFSET, y0 + POSITION_OFFSET);
     line(xCenter, y0 + BORDER_OFFSET, xCenter + POSITION_OFFSET, y0 + POSITION_OFFSET);
-    //m_arrowDown.border(WHITE);
     line(xCenter, y1 - BORDER_OFFSET, xCenter - POSITION_OFFSET, y1 - POSITION_OFFSET);
     line(xCenter, y1 - BORDER_OFFSET, xCenter + POSITION_OFFSET, y1 - POSITION_OFFSET);
-    //m_arrowSpinRight.border(WHITE);
-    /*ellipse(x0 + 25, y0 + 25, 90, 360, 15, 15);
-    line(x0 + 27, y0 + 11, x0 + 20, y0 + 4);
-    line(x0 + 27, y0 + 11, x0 + 20, y0 + 18);
-    //m_arrowSpinLeft.border(WHITE);
-    ellipse(x0 + 25, y1 - 25, 180, 450, 15, 15);
-    line (x0 + 23, y1 - 39, x0 + 30, y1 - 46);
-    line (x0 + 23, y1 - 39, x0 + 30, y1 - 32);*/
 }
 
 void Space3D::drawSpinball() {
@@ -539,7 +526,6 @@ bool Space3D::getCommand(const int& x, const int& y) {
     }
     if (insideWorkArea(x, y)) {
         m_selected = -1;
-        return true;
     }
     return false;
 }
@@ -627,7 +613,6 @@ void Space3D::highlightMesh() {
 }
 
 void Space3D::selectMesh(const size_t& index) {
-    //TODO: m_spinball right click -> reset Rotation
     m_selected = index;
     const int x = m_spinballButton.getXCenter();
     const int y = m_spinballButton.getYCenter();

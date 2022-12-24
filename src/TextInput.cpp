@@ -1,5 +1,4 @@
 #include "TextInput.h"
-#include <iostream>
 
 TextInputBox::TextInputBox(const int& areaBegin, const int& areaEnd, const int& height, const int& textColor, const int& fillColor, const int& maxSize, const char* acceptedInput) :
                 m_areaBegin(areaBegin), m_areaEnd(areaEnd), m_displayBegin(0), m_displayEnd(0), m_height(height), m_index(0), m_textColor(textColor), m_fillColor(fillColor), m_maxSize(maxSize),

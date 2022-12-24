@@ -1,5 +1,4 @@
 #include "AppInterface.h"
-#include <iostream>
 
 AppInterface::AppInterface(const int& appWidth, const int& appHeight, const int& theme, const int& languagePackage) :
     m_menu(), m_appWidth(appWidth), m_appHeight(appHeight), m_theme(theme), m_languagePackage(languagePackage) {}

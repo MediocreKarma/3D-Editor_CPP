@@ -1,5 +1,4 @@
 #include "SettingsMenuInterface.h"
-#include <iostream>
 
 static int resolution = 2;
 static int theme = 0;

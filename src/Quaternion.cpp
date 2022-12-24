@@ -22,27 +22,8 @@ Quaternion::Quaternion(const Quaternion& other) :
 Quaternion::Quaternion(const double& real, const double& i, const double& j, const double& k) :
     m_data({real, i, j, k}) {}
 
-/*Quaternion::Quaternion(const double& heading, const double& attitude, const double& bank) :
-    m_data() {
-    //disclaimer: nu stiu ce i asta
-    double w,x,y,z;
-    double c1 = cos(heading/2);
-    double s1 = sin(heading/2);
-    double c2 = cos(attitude/2);
-    double s2 = sin(attitude/2);
-    double c3 = cos(bank/2);
-    double s3 = sin(bank/2);
-    double c1c2 = c1*c2;
-    double s1s2 = s1*s2;
-    w =c1c2*c3 - s1s2*s3;
-  	x =c1c2*s3 + s1s2*c3;
-	y =s1*c2*c3 + c1*s2*s3;
-	z =c1*s2*c3 - s1*c2*s3;
-	m_data[0] = w;
-	m_data[1] = x;
-	m_data[2] = y;
-	m_data[3] = z;
-}*/
+//daca voi avea nevoie vreodata de el, il voi adauga
+//Quaternion::Quaternion(const double& yaw, const double& pitch, const double& roll) : m_data() {}
 
 double Quaternion::real() const {
     return m_data[0];

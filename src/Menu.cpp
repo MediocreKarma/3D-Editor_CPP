@@ -1,5 +1,4 @@
 #include "Menu.h"
-#include <iostream>
 #include "SettingsMenuInterface.h"
 
 Menu::Menu(const int& theme, const int& appWidth, const int& appHeight) :

@@ -1,6 +1,6 @@
 #include "ShapeData.h"
 #include "Quaternion.h"
-#include <iostream>
+
 const double PI = 3.14159265359;
 const double err = 0.000000000000000000000;
 
@@ -482,7 +482,6 @@ void Mesh::addPoint(const Point3D& point) {
 void Mesh::addEdge(const size_t& index1, const size_t& index2) {
     for (size_t i = 0; i < m_adjList[index1].size(); ++i) {
         if (m_adjList[index1][i] == index2) {
-            std::cout << "here";
             return;
         }
     }

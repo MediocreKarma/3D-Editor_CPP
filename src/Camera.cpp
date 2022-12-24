@@ -1,5 +1,4 @@
 #include "Camera.h"
-#include <iostream>
 static const double PI = 3.141592653589793238462;
 
 Camera::Camera(const int& maxRadius) :

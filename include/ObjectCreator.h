@@ -22,8 +22,10 @@ class Layer {
         void addPoint(const Point2D& point);
         void removePoint(const Point2D& point);
         void removePoint(const size_t& index);
+        void update();
         void update(const size_t& index);
         MyVector<CircularButton> renderButtons(const int& x0, const int& y0, const int& x1, const int& y1);
+        void renderButtons(const int& x0, const int& y0, const int& x1, const int& y1, MyVector<CircularButton>& existingButtons);
 
     private:
         MyVector<Point2D> m_points;

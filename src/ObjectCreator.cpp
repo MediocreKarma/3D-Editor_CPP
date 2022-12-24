@@ -2,15 +2,6 @@
 #include <iostream>
 
 /*
-DONE:
-image icons (DONE, now transparent)
-change height of layer (DONE, sort of?)
-pointConnector3D() (DONE)
-pointDeleter3D() (DONE)
-scrolling for LayerSelectButtons (DONE)
-deleteLine()(DONE)
-associate a tool with deleteLine() (DONE)
-
 TODO:
 organize 3d-area fxns, bc right now they're called randomly in ifs (not even started let alone done)
 ZOOM/SCROLL FOR LAYERS
@@ -20,11 +11,6 @@ TODO 2: (dupa ce rezolvam cu modularizarea txtInput)
 fxns for generating Sphere, Cone, Cylinder, care au toate parametri
 
 KNOWN BUGS:
-- din cauza felului in care functioneaza getCommand-ul Space3D-ului
-  nu poti da click pe sagetile camerei cand e selectat CutLine;
-  daca as inversa ordinea in if, nu ar mai intra defapt niciodata in if-ul lu CutLine;
-  daca as lasa asa, ramanem cu bug-ul asta.
-  presimt ca se poate rezolva cu un wm_mouseMove, dar nu stiu sigur.
 - weird behaviour if double-clicking on more than one layer consecutively.
 
 */
@@ -71,17 +57,40 @@ void Layer::removePoint(const size_t& index) {
     m_updated.erase(m_updated.begin() + index);
 }
 
+//PENTRU randare completa, fara sa i pese de m_updated
 MyVector<CircularButton> Layer::renderButtons(const int& x0, const int& y0, const int& x1, const int& y1) {
     const int xCenter = (x0 + x1) / 2;
     const int yCenter = (y0 + y1) / 2;
     MyVector<CircularButton> pointButtons(m_points.size());
     for (size_t i = 0; i < m_points.size(); ++i) {
+        pointButtons[i] = CircularButton(xCenter + m_points[i].getX(), yCenter - m_points[i].getY(), 5);
+    }
+    return pointButtons;
+}
+
+//PENTRU randare partiala cu un vector-destinatie, daca ne pasa de m_updated.
+//nu garantez ca vom avea nevoie de ea. insa felul in care foloseai m_updated in originala
+//era straight up pointless; pt ca in vectorul original tot se mutau toate elementele,
+//si se faceau niste initializari degeaba, si se stergeau date, etc.
+//asa, daca ai nevoie, ai functia asta separata care se foloseste de m_updated.
+void Layer::renderButtons(const int& x0, const int& y0, const int& x1, const int& y1, MyVector<CircularButton>& existingButtons) {
+    const int xCenter = (x0 + x1) / 2;
+    const int yCenter = (y0 + y1) / 2;
+    if (existingButtons.size() < m_points.size()) {
+        //nu stiu exact daca o sa apara vreodata eroarea asta tbh ca in init o sa folosesti oricum cealalta functie
+        std::cout<<"ti o aparut eroarea aia la renderButtons\n";
+        return;
+    }
+    for (size_t i = 0; i < m_points.size(); ++i) {
         if (m_updated[i]) {
-            pointButtons[i] = CircularButton(xCenter + m_points[i].getX(), yCenter - m_points[i].getY(), 5);
+            existingButtons[i] = CircularButton(xCenter + m_points[i].getX(), yCenter - m_points[i].getY(), 5);
             m_updated[i] = false;
         }
     }
-    return pointButtons;
+}
+
+void Layer::update() {
+    m_updated.fill(true);
 }
 
 void Layer::update(const size_t& index) {
@@ -721,7 +730,6 @@ void ObjectCreator::lineCutter3D(const int& x, const int& y){
     if (hasDeletedLine) {
         m_workArea.update();
     }
-    //draw(hasDeletedLine);
 }
 
 void ObjectCreator::lineCutter2D(const int& x, const int& y) {
@@ -765,15 +773,9 @@ clearmouseclick(WM_LBUTTONUP);
     if (hasDeletedLine) {
         m_workArea.update();
     }
-    draw(hasDeletedLine);
 }
 
 void ObjectCreator::toolOperationOnPoint(const size_t& index) {
-    //TODO:
-    //if m_selected do on layer m_selected. else do in 3d.
-    //not sure if we'll eventually merge fxns like
-    //pointConnector2D and pointConnector3D together...
-    //who knows
     switch (m_tool) {
         case Tool::MovePoint:
             pointMover(index);
@@ -859,12 +861,12 @@ bool ObjectCreator::getClickCommand() {
                 }
             }
         }
-        if (m_workArea.insideWorkArea(x, y) && m_tool == Tool::CutLine) {
-            m_assistLineDotted = true;
-            lineCutter3D(x, y);
+        if (m_workArea.getCommand(x, y)) {
             return true;
         }
-        if (m_workArea.getCommand(x, y)) {
+        else if (m_workArea.insideWorkArea(x, y) && m_tool == Tool::CutLine) {
+            m_assistLineDotted = true;
+            lineCutter3D(x, y);
             return true;
         }
     }
