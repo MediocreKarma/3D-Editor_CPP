@@ -490,7 +490,6 @@ bool Space3D::insideWorkArea(const Point2D& point) const {
     return insideWorkArea(point.getX(), point.getY());
 }
 
-
 bool Space3D::getKeyCommand() {
     if (!kbhit()) {
         return false;
@@ -524,8 +523,9 @@ bool Space3D::getCommand(const int& x, const int& y) {
             return true;
         }
     }
-    if (insideWorkArea(x, y)) {
+    if (insideWorkArea(x, y) && m_selected != -1) {
         m_selected = -1;
+        return true;
     }
     return false;
 }

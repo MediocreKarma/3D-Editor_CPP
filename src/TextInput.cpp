@@ -114,6 +114,9 @@ MyArray<char, TextInputBox::MAX_TEXT_SIZE> TextInputBox::getText(const MyArray<c
                         m_mouseclick = {x, y};
                         return m_text;
                     }
+                    else {
+                        changeIndexByClick(x, m_displayBegin, m_displayEnd);
+                    }
                 }
             }
             ch = getch();
@@ -202,6 +205,7 @@ MyArray<char, TextInputBox::MAX_TEXT_SIZE> TextInputBox::displayText(const size_
 void TextInputBox::display(const size_t& from, const size_t& to) {
     clearText();
     MyArray<char, MAX_TEXT_SIZE> outText = displayText(from, to);
+    setbkcolor(m_fillColor);
     outtextxy(m_areaBegin, m_height - textheight(outText.data()) / 2, outText.data());
     displayCursor(outText, from);
 }

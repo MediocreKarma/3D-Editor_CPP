@@ -3,15 +3,13 @@
 
 /*
 TODO:
-organize 3d-area fxns, bc right now they're called randomly in ifs (not even started let alone done)
-ZOOM/SCROLL FOR LAYERS
-    (schema: global zoom value, global Screen center. add new tools for LAYER: drag, zoom out, zoom in)
+organize 3d-area fxns, bc right now they're called randomly in ifs
+separate layerView workArea (add separate bool fxn or something, why bother with more global stuff)
+draw minimizedSpace?
+zoom in/out / move (either drag or arrow keys, but drag would be more impressive) for layer view
 
 TODO 2: (dupa ce rezolvam cu modularizarea txtInput)
 fxns for generating Sphere, Cone, Cylinder, care au toate parametri
-
-KNOWN BUGS:
-- weird behaviour if double-clicking on more than one layer consecutively.
 
 */
 Layer::Layer() :
@@ -257,9 +255,9 @@ void ObjectCreator::resetLine() {
 }
 
 void ObjectCreator::drawToolButtons() {
-    for (size_t i = 0; i < m_toolButtons.size(); ++i) {
-        m_toolButtons[i].drawLabel(ColorSchemes::themeColors[m_theme][ColorSchemes::ACCENTCOLOR], BLACK);
-        m_toolButtons[i].drawImageButton();
+    for (auto& button : m_toolButtons) {
+        button.drawLabel(ColorSchemes::themeColors[m_theme][ColorSchemes::ACCENTCOLOR], BLACK);
+        button.drawImageButton();
     }
 }
 
@@ -267,12 +265,12 @@ void ObjectCreator::drawSelectLayers() {
     //draw layer btns
     int btnColor = RGB(160, 160, 160),
         highlightedColor = ColorSchemes::mixColors(btnColor, ColorSchemes::themeColors[m_theme][ColorSchemes::ACCENTCOLOR], 50);
-    for (size_t i = 0; i < m_layerSelectButtons.size(); ++i) {
-        if (m_selectedLayer != (int)i) {
-            m_layerSelectButtons[i].drawTextButton(1, 3, btnColor, false);
+    for (auto& button : m_layerSelectButtons) {
+        if (m_selectedLayer != (&button) - m_layerSelectButtons.begin()) {
+            button.drawTextButton(1, 3, btnColor, false);
         }
         else {
-            m_layerSelectButtons[i].drawTextButton(1, 3, highlightedColor, false);
+            button.drawTextButton(1, 3, highlightedColor, false);
         }
     }
     //butoane de PLUS + arrows
@@ -367,8 +365,8 @@ void ObjectCreator::updateButtons() {
 }
 
 void ObjectCreator::drawButtons() {
-    for (size_t i = 0; i < m_pointButtons.size(); ++i) {
-        m_pointButtons[i].drawLabel(ColorSchemes::themeColors[m_theme][ColorSchemes::ACCENTCOLOR], ColorSchemes::themeColors[m_theme][ColorSchemes::ACCENTCOLOR]);
+    for (auto& button : m_pointButtons) {
+        button.drawLabel(ColorSchemes::themeColors[m_theme][ColorSchemes::ACCENTCOLOR], ColorSchemes::themeColors[m_theme][ColorSchemes::ACCENTCOLOR]);
     }
 }
 
@@ -394,8 +392,8 @@ void ObjectCreator::drawLayerView() { // O(layer.size()^2 * adjList.size())   D:
             }
         }
     }
-    for (size_t i = 0; i < m_layerPointButtons[m_selectedLayer].size(); ++i) {
-        m_layerPointButtons[m_selectedLayer][i].drawLabel(ColorSchemes::themeColors[m_theme][ColorSchemes::ACCENTCOLOR], ColorSchemes::themeColors[m_theme][ColorSchemes::ACCENTCOLOR]);
+    for (auto& button : m_layerPointButtons[m_selectedLayer]) {
+        button.drawLabel(ColorSchemes::themeColors[m_theme][ColorSchemes::ACCENTCOLOR], ColorSchemes::themeColors[m_theme][ColorSchemes::ACCENTCOLOR]);
     }
 }
 
@@ -423,6 +421,7 @@ void ObjectCreator::draw(bool update) {
     bar(0, 0, x1, y1);
     m_workArea.render();
     if (m_selectedLayer == -1) {
+        m_workArea.setCorners(x0 + 26, y0 + 26, x1 - 200, y1);
         m_workArea.run();
         setcolor(ColorSchemes::themeColors[m_theme][ColorSchemes::SECONDARYCOLOR]);
         if (m_assistLineDotted) {
@@ -439,9 +438,13 @@ void ObjectCreator::draw(bool update) {
             updateButtons();
         }
         drawButtons();
+        m_minimizedSpaceButton.drawLabel(LIGHTGRAY, ColorSchemes::themeColors[m_theme][ColorSchemes::ACCENTCOLOR]);
     }
     else {
-        drawLayerView();
+        m_minimizedSpaceButton.drawLabel(LIGHTGRAY, ColorSchemes::themeColors[m_theme][ColorSchemes::ACCENTCOLOR]);
+        //m_workArea.setCorners(m_minimizedSpaceButton.getXCenter() - 50, m_minimizedSpaceButton.getYCenter() - 50,
+        //                      m_minimizedSpaceButton.getXCenter() + 50, m_minimizedSpaceButton.getYCenter() + 50 );
+        //m_workArea.draw();
         setcolor(ColorSchemes::themeColors[m_theme][ColorSchemes::SECONDARYCOLOR]);
         if (m_assistLineDotted) {
             struct linesettingstype oldSettings;
@@ -453,6 +456,7 @@ void ObjectCreator::draw(bool update) {
         else {
             m_assistLine.draw();
         }
+        drawLayerView();
         setbkcolor(ColorSchemes::themeColors[m_theme][ColorSchemes::PRIMARYCOLOR]);
         setcolor(ColorSchemes::themeColors[m_theme][ColorSchemes::SECONDARYCOLOR]);
         outtextxy(0, 3, itoa(m_layers[m_selectedLayer].height(), "Current layer: ").data());
@@ -461,29 +465,33 @@ void ObjectCreator::draw(bool update) {
         drawPointData();
     }
     drawToolButtons();
-    m_minimizedSpaceButton.drawLabel(LIGHTGRAY, ColorSchemes::themeColors[m_theme][ColorSchemes::ACCENTCOLOR]);
     drawSelectLayers();
     swapbuffers();
 }
 
 int ObjectCreator::getLayerByHeight(const int& height) {
-    for (size_t i = 0; i < m_layers.size(); ++i) {
-        if (m_layers[i].height() == height) {
-            return i;
+    for (auto& layer : m_layers) {
+        if (layer.height() == height) {
+            return &layer - m_layers.begin();
         }
     }
     return -1;
 }
 
 void ObjectCreator::editLayer(const int& index) {
+    //TODO: change interval
+    int btnColor = RGB(160, 160, 160),
+        highlightedColor = ColorSchemes::mixColors(btnColor, ColorSchemes::themeColors[m_theme][ColorSchemes::ACCENTCOLOR], 50);
     TextButton& editedLayer = m_layerSelectButtons[index];
-    editedLayer.drawLabel(LIGHTGRAY, BLACK);
-    TextInputBox txtBox(editedLayer.getXCenter() - 35, editedLayer.getXCenter() + 100, editedLayer.getYCenter(), BLACK, RGB(150, 150, 150), 4, "-0123456789");
-    setactivepage(0);
-    setvisualpage(0);
+    editedLayer.drawLabel(highlightedColor, BLACK);
+    TextInputBox txtBox(editedLayer.getXCenter() - 35, editedLayer.getXCenter() + 100, editedLayer.getYCenter(), BLACK, highlightedColor, 4, "-0123456789");
+    int oldv = getvisualpage();
+    int olda = getactivepage();
+    setactivepage(oldv);
     MyArray<char, 256> readInput = txtBox.getText();
     int result = atoi(readInput);
-    setactivepage(1);
+    setvisualpage(oldv);
+    setactivepage(olda);
     if (readInput.data() == NULL) {
         return;
     }
@@ -512,15 +520,12 @@ void ObjectCreator::editLayer(const int& index) {
                 }
             }
         } while (!sorted);
-        for (size_t i = 0; i < m_layers.size(); ++i) {
-            if (m_layers[i].height() == result) {
-                m_selectedLayer = i;
-            }
-        }
+        m_selectedLayer = getLayerByHeight(result);
         renderLayerSelectButtons();
         updateButtons();
     }
     m_workArea.update();
+    draw();
 }
 
 void ObjectCreator::pointAdder(const int& x, const int& y) {
@@ -796,7 +801,11 @@ bool ObjectCreator::getClickCommand() {
     int x, y;
     getmouseclick(WM_LBUTTONDOWN, x, y);
     if (x == -1) {
-        return m_workArea.getKeyCommand();
+        //nu prea ne intereseaza outcomeul;
+        //oricum se apeleaza callHandlerDrawer
+        //in checkCamMovement daca e nevoie
+        m_workArea.getKeyCommand();
+        return 0;
     }
     //is doar 2 dar e mai cute asa decat 2 ifuri
     for (size_t i = 0; i < m_layerScrollArrows.size(); ++i) {
@@ -804,9 +813,8 @@ bool ObjectCreator::getClickCommand() {
             clearmouseclick(WM_LBUTTONUP);
             while (!ismouseclick(WM_LBUTTONUP)) {
                 if (moveLayerSelectsInterval(-1 + 2 * i)) {
-                    //am renuntat la ideea de a desena doar layerele
+                    //am renuntat la ideea de a desena doar layerele;
                     //se glitchuia. rau
-                    //dar poate o fac eventual
                     draw();
                     Sleep(100);
                 }
@@ -827,7 +835,6 @@ bool ObjectCreator::getClickCommand() {
     }
     if (m_selectedLayer != -1) {
         if (m_minimizedSpaceButton.hitCollision(x, y)) {
-            //TODO: draw minimizedSpace?
             m_selectedLayer = -1;
             return true;
         }
@@ -862,7 +869,10 @@ bool ObjectCreator::getClickCommand() {
             }
         }
         if (m_workArea.getCommand(x, y)) {
-            return true;
+            //tot ce se poate intampla in workArea este rotirea camerei
+            //moment in care se apeleaza callHandlerDrawer
+            //unde inclusiv meniul objectcreatorului este apelat
+            return false;
         }
         else if (m_workArea.insideWorkArea(x, y) && m_tool == Tool::CutLine) {
             m_assistLineDotted = true;

@@ -158,6 +158,12 @@ class Mesh {
         double angleZ() const;
         Quaternion quat() const;
         void resetRotation();
+        MyArray<Point3D, 2> getBoundingBoxCorners();
+        /*TODO
+        friend Mesh generateCircle(const int& diameter, const int& rings);
+        friend Mesh generateCone(const int& height, const int& diameter, const int& sides);
+        friend Mesh generateCube(const int& length);
+        */
 
     private:
         MyVector<Point3D> m_points;

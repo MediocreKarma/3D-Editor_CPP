@@ -1,7 +1,9 @@
 #include "FileHandler.h"
 
 FileHandler::FileHandler() :
-    m_width(600), m_height(300), txtBox(100, 500, 150, BLACK, WHITE, 256), m_xButton(575, 25, 50, 50, "media\\xButton.jpg") {}
+    m_width(600), m_height(300), txtBox(100, 500, 150, BLACK, WHITE, 256),
+    //recycling
+    m_xButton(575, 20, 30, 30, "media\\buttonDelete.gif") {}
 
 void FileHandler::initSaveWindow() {
     txtBox = TextInputBox(100, 500, 150, BLACK, WHITE, 256);

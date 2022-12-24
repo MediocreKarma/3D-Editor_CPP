@@ -667,3 +667,31 @@ void Mesh::resetRotation() {
     m_quat = Quaternion(1, 0, 0, 0);
     translate(aux[0], aux[1], aux[2]);
 }
+
+MyArray<Point3D, 2> Mesh::getBoundingBoxCorners() {
+    if (!m_points.size()) {
+        return MyArray<Point3D, 2>{Point3D(0, 0, 0), Point3D(0, 0, 0)};
+    }
+    Point3D bottomLeft = m_points[0], topRight = m_points[0];
+    for (auto& point : m_points) {
+        if (point.getX() < bottomLeft.getX()) {
+            bottomLeft.setX(point.getX());
+        }
+        if (point.getY() < bottomLeft.getY()) {
+            bottomLeft.setY(point.getY());
+        }
+        if (point.getZ() < bottomLeft.getZ()) {
+            bottomLeft.setZ(point.getZ());
+        }
+        if (point.getX() > topRight.getX()) {
+            topRight.setX(point.getX());
+        }
+        if (point.getY() > topRight.getY()) {
+            topRight.setY(point.getY());
+        }
+        if (point.getZ() > topRight.getZ()) {
+            topRight.setZ(point.getZ());
+        }
+    }
+    return MyArray<Point3D, 2>{bottomLeft, topRight};
+}
