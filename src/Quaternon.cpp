@@ -1,6 +1,6 @@
 #include "Quaternion.h"
 
-Quaternon::Quaternion()
-{
+//Quaternon::Quaternion()
+//{
     //ctor
-}
+//}

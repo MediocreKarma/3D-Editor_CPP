@@ -249,7 +249,7 @@ class MyVector {
 
         void swap(MyVector<T>& rhs) noexcept {
             std::swap(m_vec, rhs.m_vec);
-            std::swap(m_size, rhs.m_capacity);
+            std::swap(m_size, rhs.m_size);
             std::swap(m_capacity, rhs.m_capacity);
         }
 
@@ -293,7 +293,11 @@ class MyVector {
         }
 
         bool outOfBounds(const_iterator& it) const noexcept {
-            return it < cbegin() && cend() <= it;
+            return it < cbegin() || cend() <= it;
+        }
+
+        bool outOfBounds(iterator& it) const noexcept {
+            return it < begin() || end() <= it;
         }
 };
 

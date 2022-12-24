@@ -1,19 +1,33 @@
 #include "ObjectCreator.h"
 #include <iostream>
 
-//TODO:
-//image icons (DONE, now transparent)
-//change height of layer (DONE, sort of?)
-//organize 3d-area fxns, bc right now they're called randomly in ifs
-//pointConnector3D() (DONE)
-//pointDeleter3D() (DONE)
-//scrolling for LayerSelectButtons (DONE)
-//deleteLine()(DONE for both views)
-//associate a tool with deleteLine() (DONE)
+/*
+DONE:
+image icons (DONE, now transparent)
+change height of layer (DONE, sort of?)
+pointConnector3D() (DONE)
+pointDeleter3D() (DONE)
+scrolling for LayerSelectButtons (DONE)
+deleteLine()(DONE)
+associate a tool with deleteLine() (DONE)
 
-//TODO: (dupa ce rezolvam cu modularizarea txtInput)
-//fxns for generating Sphere, Cone, Cylinder, care au toate parametri
+TODO:
+organize 3d-area fxns, bc right now they're called randomly in ifs (not even started let alone done)
+ZOOM/SCROLL FOR LAYERS
+    (schema: global zoom value, global Screen center. add new tools for LAYER: drag, zoom out, zoom in)
 
+TODO 2: (dupa ce rezolvam cu modularizarea txtInput)
+fxns for generating Sphere, Cone, Cylinder, care au toate parametri
+
+KNOWN BUGS:
+- din cauza felului in care functioneaza getCommand-ul Space3D-ului
+  nu poti da click pe sagetile camerei cand e selectat CutLine;
+  daca as inversa ordinea in if, nu ar mai intra defapt niciodata in if-ul lu CutLine;
+  daca as lasa asa, ramanem cu bug-ul asta.
+  presimt ca se poate rezolva cu un wm_mouseMove, dar nu stiu sigur.
+- weird behaviour if double-clicking on more than one layer consecutively.
+
+*/
 Layer::Layer() :
     m_points(), m_updated(), m_height() {}
 
@@ -123,7 +137,6 @@ ObjectCreator& ObjectCreator::operator = (const ObjectCreator& oc) {
     return *this;
 }
 
-#include<iostream>
 void ObjectCreator::toolButtonsInit() {
     MyArray<MyArray<char, 128>, 5> filenames;
     filenames[(size_t)Tool::NewPoint] = "media\\buttonAddPoint.gif";
