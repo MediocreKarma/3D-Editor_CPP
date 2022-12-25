@@ -3,6 +3,24 @@
 int ColorSchemes::mixColors(const int& color1, const int& color2, const uint8_t& percentage) {
     MyArray<int, 3> rgb1 = {color1 & 255, (color1 & (255<<8))>>8, (color1 & (255<<16))>>16},
                     rgb2 = {color2 & 255, (color2 & (255<<8))>>8, (color2 & (255<<16))>>16};
+    if (IS_BGI_COLOR(color1)) {
+        //very slightly change colour
+        if (rgb1[0] < 255) {
+            rgb1[0]++; //next shade up
+        }
+        else {
+            rgb1[0]++; //next shade down
+        }
+    }
+    if (IS_BGI_COLOR(color2)) {
+        //very slightly change colour
+        if (rgb2[0] < 255) {
+            rgb2[0]++; //next shade up
+        }
+        else {
+            rgb2[0]++; //next shade down
+        }
+    }
     MyArray<int, 3> rgb3 = {((rgb1[0] * (100 - percentage) + rgb2[0] * percentage) / 100 ),
                             ((rgb1[1] * (100 - percentage) + rgb2[1] * percentage) / 100 ),
                             ((rgb1[2] * (100 - percentage) + rgb2[2] * percentage) / 100 )};
