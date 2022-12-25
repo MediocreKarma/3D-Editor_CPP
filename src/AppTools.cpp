@@ -9,7 +9,7 @@ int ColorSchemes::mixColors(const int& color1, const int& color2, const uint8_t&
             rgb1[0]++; //next shade up
         }
         else {
-            rgb1[0]-- //next shade down
+            rgb1[0]--; //next shade down
         }
     }
     if (IS_BGI_COLOR(color2)) {
