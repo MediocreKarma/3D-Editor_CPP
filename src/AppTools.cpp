@@ -9,7 +9,7 @@ int ColorSchemes::mixColors(const int& color1, const int& color2, const uint8_t&
             rgb1[0]++; //next shade up
         }
         else {
-            rgb1[0]++; //next shade down
+            rgb1[0]-- //next shade down
         }
     }
     if (IS_BGI_COLOR(color2)) {
@@ -18,7 +18,7 @@ int ColorSchemes::mixColors(const int& color1, const int& color2, const uint8_t&
             rgb2[0]++; //next shade up
         }
         else {
-            rgb2[0]++; //next shade down
+            rgb2[0]--; //next shade down
         }
     }
     MyArray<int, 3> rgb3 = {((rgb1[0] * (100 - percentage) + rgb2[0] * percentage) / 100 ),
