@@ -148,12 +148,14 @@ class Mesh {
         void addIndexConnections(const size_t& index, const MyVector<size_t>& adjList);
         void deleteIndexConnection(const size_t& index1, const size_t& index2);
         void translate(const double& xTranslate, const double& yTranslate, const double& zTranslate);
+        void translate(const Point3D& pntTranslate);
         Point3D centerPoint() const;
         void updateCenterPoint();
         void fprint(FILE* fp);
         bool fscan(FILE* fp);
         void rotate(const double& angleX, const double& angleY, const double& angleZ);
         void rotateOnAxis(const Point3D& center, const Point3D& axis, const double& angle);
+        void rotateByUnitQuat(const Quaternion& quat);
         void rotateDisplayAngle();
         void scaleEven(const double& scaleFactor);
         void scaleAxis(bool isLocal, const double& scaleFactor, const size_t& axis);

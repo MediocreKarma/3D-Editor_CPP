@@ -1,6 +1,5 @@
 #include "ObjectCreator.h"
 #include <iostream>
-
 const double pi = 3.1415926535897;
 /*
 
@@ -77,11 +76,7 @@ MyVector<CircularButton> Layer::renderButtons(const int& x0, const int& y0, cons
     return pointButtons;
 }
 
-//PENTRU randare partiala cu un vector-destinatie, daca ne pasa de m_updated.
-//nu garantez ca vom avea nevoie de ea. insa felul in care foloseai m_updated in originala
-//era straight up pointless; pt ca in vectorul original tot se mutau toate elementele,
-//si se faceau niste initializari degeaba, si se stergeau date, etc.
-//asa, daca ai nevoie, ai functia asta separata care se foloseste de m_updated.
+//PENTRU randare partiala cu un vector-destinatie, daca ne pasa de m_updated
 void Layer::renderButtons(const int& x0, const int& y0, const int& x1, const int& y1, MyVector<CircularButton>& existingButtons) {
     const int xCenter = (x0 + x1) / 2;
     const int yCenter = (y0 + y1) / 2;
@@ -125,7 +120,8 @@ void Layer::moveRel(const Point2D& rel) {
 ObjectCreator::ObjectCreator(const int& theme) :
     m_theme(theme), m_layers(), m_layerSelectButtons(), m_layerPointButtons(), m_layerAdjListIndex(), m_addLayerButton(), m_pointButtons(), m_minimizedSpaceButton(), m_toolButtons(),
     m_tool(Tool::MovePoint), x0(0), y0(0), x1(1000), y1(800), workX0(26), workY0(26), workX1(800), workY1(800), m_workArea(-1000, theme, this), m_workMesh(nullptr), m_selectedLayer(-1),
-    m_hovered(-1), m_assistLine(-1, -1, -1, -1), m_assistLineDotted(false), m_layerSelectsBegin(-1), m_layerSelectsEnd(-1), m_layerScrollArrows(), m_layerTools() {
+    m_hovered(-1), m_assistLine(-1, -1, -1, -1), m_assistLineDotted(false), m_layerSelectsBegin(-1), m_layerSelectsEnd(-1), m_layerScrollArrows(), m_layerTools(), m_closeFlag(false),
+    m_discardButton(), m_saveButton() {
     toolButtonsInit();
     m_workArea.setCorners(26, 26, 800, 800);
     m_workArea.addMesh(Mesh());
@@ -137,7 +133,8 @@ ObjectCreator::ObjectCreator(const int& theme) :
 ObjectCreator::ObjectCreator(Mesh mesh, const int& theme) :
     m_theme(theme), m_layers(), m_layerSelectButtons(), m_layerPointButtons(), m_layerAdjListIndex(), m_addLayerButton(), m_pointButtons(), m_minimizedSpaceButton(),
     m_toolButtons(), m_tool(Tool::MovePoint), x0(0), y0(0), x1(1000), y1(800), workX0(26), workY0(26), workX1(800), workY1(800), m_workArea(-1000, theme, this), m_workMesh(nullptr),
-    m_selectedLayer(-1), m_hovered(-1), m_assistLine(-1, -1, -1, -1), m_assistLineDotted(false), m_layerSelectsBegin(-1), m_layerSelectsEnd(-1), m_layerScrollArrows(), m_layerTools() {
+    m_selectedLayer(-1), m_hovered(-1), m_assistLine(-1, -1, -1, -1), m_assistLineDotted(false), m_layerSelectsBegin(-1), m_layerSelectsEnd(-1), m_layerScrollArrows(), m_layerTools(),
+    m_closeFlag(false), m_discardButton(), m_saveButton() {
     toolButtonsInit();
     const Point3D& centerPoint = mesh.centerPoint();
     mesh.translate(-centerPoint.getX(), -centerPoint.getY(), -centerPoint.getZ());
@@ -152,7 +149,8 @@ ObjectCreator::ObjectCreator(const ObjectCreator& oc) :
     m_addLayerButton(oc.m_addLayerButton), m_pointButtons(oc.m_pointButtons), m_minimizedSpaceButton(oc.m_minimizedSpaceButton), m_toolButtons(oc.m_toolButtons), m_tool(oc.m_tool),
     x0(oc.x0), y0(oc.y0), x1(oc.x1), y1(oc.y1), workX0(oc.workX0), workY0(oc.workY0), workX1(oc.workX1), workY1(oc.workY1), m_workArea(oc.m_workArea), m_workMesh(oc.m_workMesh),
     m_selectedLayer(oc.m_selectedLayer), m_hovered(oc.m_hovered), m_assistLine(oc.m_assistLine), m_assistLineDotted(oc.m_assistLineDotted),
-    m_layerSelectsBegin(oc.m_layerSelectsBegin), m_layerSelectsEnd(oc.m_layerSelectsEnd), m_layerScrollArrows(oc.m_layerScrollArrows), m_layerTools(oc.m_layerTools){}
+    m_layerSelectsBegin(oc.m_layerSelectsBegin), m_layerSelectsEnd(oc.m_layerSelectsEnd), m_layerScrollArrows(oc.m_layerScrollArrows), m_layerTools(oc.m_layerTools), m_closeFlag(oc.m_closeFlag),
+    m_discardButton(oc.m_discardButton), m_saveButton(oc.m_saveButton){}
 
 ObjectCreator& ObjectCreator::operator = (const ObjectCreator& oc) {
     m_theme = oc.m_theme;
@@ -167,6 +165,7 @@ ObjectCreator& ObjectCreator::operator = (const ObjectCreator& oc) {
     m_layerSelectsBegin = oc.m_layerSelectsBegin;
     m_layerSelectsEnd = oc.m_layerSelectsEnd;
     m_workArea.render();
+    m_closeFlag = oc.m_closeFlag;
     init();
     return *this;
 }
@@ -182,14 +181,14 @@ void ObjectCreator::toolButtonsInit() {
     for (size_t i = 0; i < 5; ++i) {
         m_toolButtons[i] = ImageButton(buttonSize / 2, 36 + buttonSize * i, buttonSize, buttonSize, filenames[i].data());
     }
+    m_discardButton = TextButton(x1 - 200 - 40, y0 + 30 + 120, 60, 30, "Discard");
+    m_saveButton = TextButton(x1 - 200 - 40, y0 + 30 + 30 + 120, 60, 30, "Save");
     //MyArray<MyArray<char, 128>, 1> layerFilenames;
     //pt cand o sa avem probabil tools precum Duplicate, Duplicate Linked, Draw Circle, Draw Rectangle
     //deocamdata este initializat un MyArray cu 1 imagebutton care nu i folosit la nimic
 }
 
 void ObjectCreator::init() {
-    m_workArea.removeMesh(0);
-    m_workArea.addMesh(generateCylinder(200, 100, 12));
     m_workMesh = &m_workArea.meshAt(0);
     m_workArea.render();
     const Section& sect = m_workArea.sectionAt(0);
@@ -292,6 +291,8 @@ void ObjectCreator::drawToolButtons() {
         button.drawLabel(ColorSchemes::themeColors[m_theme][ColorSchemes::ACCENTCOLOR], BLACK);
         button.drawImageButton();
     }
+    m_discardButton.drawTextButton(3, 1, LIGHTGRAY);
+    m_saveButton.drawTextButton(3, 1, LIGHTGRAY);
 }
 
 void ObjectCreator::drawSelectLayers() {
@@ -846,6 +847,7 @@ void ObjectCreator::toolOperationOnPoint(const size_t& index) {
     }
 }
 
+
 bool ObjectCreator::getClickCommand() {
     int x, y;
     getmouseclick(WM_LBUTTONDOWN, x, y);
@@ -853,8 +855,7 @@ bool ObjectCreator::getClickCommand() {
         //nu prea ne intereseaza outcomeul;
         //oricum se apeleaza callHandlerDrawer
         //in checkCamMovement daca e nevoie
-        m_workArea.getKeyCommand();
-        return 0;
+        return m_workArea.getKeyCommand();
     }
     //is doar 2 dar e mai cute asa decat 2 ifuri
     for (size_t i = 0; i < m_layerScrollArrows.size(); ++i) {
@@ -870,6 +871,14 @@ bool ObjectCreator::getClickCommand() {
             }
             return true;
         }
+    }
+    if (m_discardButton.hitCollision(x, y)) {
+        m_closeFlag = 1;
+        return false;
+    }
+    if (m_saveButton.hitCollision(x, y)) {
+        m_closeFlag = 2;
+        return false;
     }
     for (size_t i = 0; i < m_toolButtons.size(); ++i) {
         if (m_toolButtons[i].hitCollision(x, y)) {
@@ -984,19 +993,28 @@ bool ObjectCreator::getDoubleClickCommand() {
     return false;
 }
 
+
 Mesh ObjectCreator::run() {
-    initwindow(x1, y1, "Object creator", 300, 25);
+    initwindow(x1, y1, "Object creator", 300, 25, false, false);
     setvisualpage(0);
     setactivepage(1);
+    m_closeFlag = false;
     draw();
     while (true) {
         if (getClickCommand() || getDoubleClickCommand() || getHoverCommand()) {
             draw();
         }
+        if (m_closeFlag) {
+            break;
+        }
     }
-    return Mesh();
+    closegraph(getcurrentwindow());
+    return *m_workMesh;
 }
 
+const int& ObjectCreator::getCloseFlag() const {
+    return m_closeFlag;
+}
 
 Mesh ObjectCreator::generateCube(const unsigned int& length_) {
     int length = length_/2;

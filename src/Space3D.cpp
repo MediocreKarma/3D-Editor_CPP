@@ -504,6 +504,10 @@ bool Space3D::getKeyCommand() {
     do {
         x = getch();
     } while (kbhit());
+    return checkKeyCommand(x);
+}
+
+bool Space3D::checkKeyCommand(const char& x) {
     return checkCamMovement(x);
 }
 
@@ -655,6 +659,15 @@ bool Space3D::isLinkedWithFile() {
 
 Mesh& Space3D::meshAt(const size_t& index) {
     return m_meshes[index];
+}
+
+const int& Space3D::selected() const{
+    return m_selected;
+}
+
+void Space3D::setMeshAt(const size_t& index, const Mesh& mesh) {
+    m_meshes[index] = mesh;
+    m_updated[index] = true;
 }
 
 const Mesh& Space3D::meshAt(const size_t& index) const {

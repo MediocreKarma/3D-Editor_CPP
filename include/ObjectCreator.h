@@ -48,6 +48,7 @@ class ObjectCreator {
         ObjectCreator& operator = (const ObjectCreator& other);
         Mesh run();
         void draw(bool update = true);
+        const int& getCloseFlag() const;
 
     private:
         int m_theme;
@@ -77,6 +78,8 @@ class ObjectCreator {
         int m_layerSelectsBegin, m_layerSelectsEnd;
         MyArray<Button, 2> m_layerScrollArrows;
         MyArray<ImageButton, 1> m_layerTools; //yet to be used
+        int m_closeFlag; //close w discard vs close w save
+        TextButton m_discardButton, m_saveButton;
 
         void init();
         void resetLine();

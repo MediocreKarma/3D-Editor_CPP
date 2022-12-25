@@ -109,14 +109,14 @@ void Menu::drawMenu() {
     bar(0, 0, x1, y1);
     bar(0, 0, x2, y2);
     setlinestyle(SOLID_LINE, 0, 1);
-    m_fileButton.drawTextButton(3, 1, LIGHTGRAY);
+    m_fileButton.drawTextButton(3, 1, ColorSchemes::mixColors(RGB(160, 160, 160), ColorSchemes::themeColors[m_theme][ColorSchemes::ACCENTCOLOR], 25));
     m_fileButton.border(BLACK);
-    m_settingsButton.drawTextButton(3, 1, RGB(158, 158, 158));
+    m_settingsButton.drawTextButton(3, 1, ColorSchemes::mixColors(RGB(140, 140, 140), ColorSchemes::themeColors[m_theme][ColorSchemes::ACCENTCOLOR], 25));
     m_settingsButton.border(BLACK);
-    m_helpButton.drawTextButton(3, 1, LIGHTGRAY);
+    m_helpButton.drawTextButton(3, 1, ColorSchemes::mixColors(RGB(160, 160, 160), ColorSchemes::themeColors[m_theme][ColorSchemes::ACCENTCOLOR], 25));
     m_helpButton.border(BLACK);
     if (m_fileButton.isListVisible()) {
-        m_fileButton.showList(3, 1, LIGHTGRAY);
+        m_fileButton.showList(3, 1, ColorSchemes::mixColors(RGB(210, 210, 210), ColorSchemes::themeColors[m_theme][ColorSchemes::ACCENTCOLOR], 25));
     }
 }
 
@@ -130,7 +130,6 @@ void Menu::draw() {
     drawMenu();
     swapbuffers();
 }
-
 bool Menu::getCommand(const int& x, const int& y) {
     if (x == -1) {
         return m_space.getKeyCommand();
@@ -161,10 +160,32 @@ bool Menu::getCommand(const int& x, const int& y) {
         return false;
     }
     if (m_helpButton.hitCollision(x, y)) {
-        Mesh aux = m_space.meshAt(0);
-        aux.resetRotation();
-        ObjectCreator objCreator(aux, m_theme);
-        Mesh newMesh = objCreator.run();
+        int getCurrentWindowNumber = getcurrentwindow();
+        const int index = m_space.selected();
+        if (index != -1) {
+            Mesh aux = m_space.meshAt(index);
+            Point3D center = aux.centerPoint();
+            Quaternion quat = aux.quat();
+            aux.resetRotation();
+            ObjectCreator objCreator(aux, m_theme);
+            aux = objCreator.run();
+            if (objCreator.getCloseFlag() == 2) {
+                aux.rotateByUnitQuat(quat);
+                aux.translate(center);
+                m_space.setMeshAt(index, aux);
+            }
+        }
+        else {
+            //deocamdata va fi lasat asta aici
+            //eventual va fi mutat intr un m_newMeshButton
+            /*ObjectCreator objCreator(m_theme);
+            Mesh newMesh = objCreator.run();
+            if (objCreator.getCloseFlag() == 2) {
+                m_space.addMesh(newMesh);
+            }*/
+        }
+        setcurrentwindow(getCurrentWindowNumber);
+        return true;
     }
     if (m_space.getCommand(x, y)) {
         return true;

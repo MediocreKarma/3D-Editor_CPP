@@ -31,6 +31,7 @@ class Space3D
         bool insideWorkArea(const Point2D& point) const;
         bool getCommand(const int& xClick, const int& yClick);
         bool getKeyCommand();
+        bool checkKeyCommand(const char& x);
         bool getRightClickCommand(const int& x, const int& y);
         bool fscan(FILE* fp);
         void fprint(FILE* fp);
@@ -40,6 +41,8 @@ class Space3D
         void setCorners(const int& x0_, const int& y0_, const int& x1_, const int& y1_);
         Mesh& meshAt(const size_t& index);
         const Mesh& meshAt(const size_t& index) const;
+        const int& selected() const;
+        void setMeshAt(const size_t& index, const Mesh& mesh);
         Section& sectionAt(const size_t& index);
         const Section& sectionAt(const size_t& index) const;
         void update();

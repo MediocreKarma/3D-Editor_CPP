@@ -2,6 +2,7 @@
 #include "Quaternion.h"
 #include <math.h>
 
+
 const double PI = 3.14159265359;
 const double err = 0.000000000000000000000;
 
@@ -458,7 +459,7 @@ void Mesh::deleteIndexConnection(const size_t& index1, const size_t& index2) {
     }
 }
 
-void Mesh::addIndexConnections(const size_t& index, const MyVector<size_t>& listAtIndex) { // O(n^2) -> O(n) cand implementam hashset-uri :D
+void Mesh::addIndexConnections(const size_t& index, const MyVector<size_t>& listAtIndex) {
     for (size_t i = 0; i < listAtIndex.size(); ++i) {
         bool alreadyConnected = false;
         for (size_t j = 0; j < m_adjList[index].size(); ++j) {
@@ -495,10 +496,17 @@ void Mesh::addEdge(const size_t& index1, const size_t& index2) {
 }
 
 void Mesh::translate(const double& xTranslate, const double& yTranslate, const double& zTranslate) {
-    for (size_t i = 0; i < size(); ++i) {
-        m_points[i].translate(xTranslate, yTranslate, zTranslate);
+    for (auto& pnt : m_points) {
+        pnt.translate(xTranslate, yTranslate, zTranslate);
     }
     m_centerPoint.translate(xTranslate, yTranslate, zTranslate);
+}
+
+void Mesh::translate(const Point3D& pntTranslate) {
+    for (auto& pnt : m_points) {
+        pnt.translate(pntTranslate.getX(), pntTranslate.getY(), pntTranslate.getZ());
+    }
+    m_centerPoint.translate(pntTranslate.getX(), pntTranslate.getY(), pntTranslate.getZ());
 }
 
 Point3D Mesh::centerPoint() const {
@@ -607,6 +615,7 @@ void Mesh::rotateOnAxis(const Point3D& center, const Point3D& axis, const double
     translate(center.getX(), center.getY(), center.getZ());
 }
 
+
 void Mesh::scaleEven(const double& scaleFactor) {
     Point3D center = centerPoint();
     int translateAmt = scaleFactor - 1;
@@ -665,6 +674,16 @@ void Mesh::resetRotation() {
     m_angleZ = 0;
     m_quat = Quaternion(1, 0, 0, 0);
     translate(aux[0], aux[1], aux[2]);
+}
+
+void Mesh::rotateByUnitQuat(const Quaternion& quat) {
+    Point3D center(m_centerPoint);
+    translate(-center.getX(), -center.getY(), -center.getZ());
+    for (auto& pnt : m_points) {
+        pnt.rotateByUnitQuat(quat);
+    }
+    m_quat = quat * m_quat;
+    translate(center.getX(), center.getY(), center.getZ());
 }
 
 MyArray<Point3D, 2> Mesh::getBoundingBoxCorners() {
