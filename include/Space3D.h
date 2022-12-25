@@ -23,6 +23,7 @@ class Space3D
         Space3D(const Space3D& other);
         Space3D& operator = (const Space3D& other);
         void addMesh(const Mesh& mesh);
+        void removeMesh(const size_t& index);
         void run();
         void draw();
         void render();

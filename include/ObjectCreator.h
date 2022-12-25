@@ -18,6 +18,7 @@ class Layer {
         int height() const;
         bool empty() const;
         size_t size() const;
+        Point2D center() const;
         void changeHeight(const int& height);
         void addPoint(const Point2D& point);
         void removePoint(const Point2D& point);
@@ -26,12 +27,14 @@ class Layer {
         void update(const size_t& index);
         MyVector<CircularButton> renderButtons(const int& x0, const int& y0, const int& x1, const int& y1);
         void renderButtons(const int& x0, const int& y0, const int& x1, const int& y1, MyVector<CircularButton>& existingButtons);
+        void moveRel(const int& x, const int& y);
+        void moveRel(const Point2D& rel);
 
     private:
         MyVector<Point2D> m_points;
         MyVector<bool> m_updated;
         int m_height;
-
+        Point2D m_center;
 };
 
 class ObjectCreator {
@@ -73,10 +76,12 @@ class ObjectCreator {
         bool m_assistLineDotted;
         int m_layerSelectsBegin, m_layerSelectsEnd;
         MyArray<Button, 2> m_layerScrollArrows;
+        MyArray<ImageButton, 1> m_layerTools; //yet to be used
 
         void init();
         void resetLine();
         int getLayerByHeight(const int& height);
+        void layerViewMover(const int& x_, const int& y_);
         void pointMover(const size_t& index);
         void pointConnector2D(const size_t& index);
         void pointConnector3D(const size_t& index);
@@ -103,6 +108,10 @@ class ObjectCreator {
         void updateLayerSelectsInterval();
         bool moveLayerSelectsInterval(const int& delta);
         void editLayer(const int& index);
+        Mesh generateCube(const unsigned int& length_);
+        Mesh generateCylinder(const unsigned int& height, const unsigned int& radius, const unsigned int& sides);
+        Mesh generateCone(const unsigned int& height, const unsigned int& radius, const unsigned int& sides);
+        Mesh generateSphere(const unsigned int& radius, const unsigned int& segments, const unsigned int& rings);
 };
 
 #endif // OBJECTCREATOR_H

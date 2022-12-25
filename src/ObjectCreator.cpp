@@ -1,27 +1,34 @@
 #include "ObjectCreator.h"
 #include <iostream>
 
+const double pi = 3.1415926535897;
 /*
-TODO:
-organize 3d-area fxns, bc right now they're called randomly in ifs
-separate layerView workArea (add separate bool fxn or something, why bother with more global stuff)
-draw minimizedSpace?
-zoom in/out / move (either drag or arrow keys, but drag would be more impressive) for layer view
 
-TODO 2: (dupa ce rezolvam cu modularizarea txtInput)
-fxns for generating Sphere, Cone, Cylinder, care au toate parametri
+DONE:
+move layer view (DONE, using same tool as PointMover for now - with tool selected, drag on screen)
+generate fxns for Cone, Cylinder, Cube, Sphere
+
+TODO:
+-Duplicate, Duplicate Linked (adds vertical connections)
+-organize 3d-area fxns, bc right now they're called randomly in ifs
+-separate layerView workArea (add separate bool fxn or something, why bother with more global stuff)
+-draw minimizedSpace?
+-i initially wanted to be able to zoom in on layers but zooming would lead to rounding errors (Point2D(int, int))
+ (might be fixed when adding maps as we'd be able to pull points straight from 3d mesh easier? idk)
+
 
 */
 Layer::Layer() :
-    m_points(), m_updated(), m_height() {}
+    m_points(), m_updated(), m_height(), m_center(Point2D(0, 0)) {}
 
 Layer::Layer(const Layer& other) :
-    m_points(other.m_points), m_updated(other.m_updated), m_height(other.m_height) {}
+    m_points(other.m_points), m_updated(other.m_updated), m_height(other.m_height), m_center(other.m_center) {}
 
 Layer& Layer::operator = (const Layer& other) {
     m_points = other.m_points;
     m_height = other.m_height;
     m_updated = other.m_updated;
+    m_center = other.m_center;
     return *this;
 }
 
@@ -39,6 +46,10 @@ bool Layer::empty() const {
 
 size_t Layer::size() const {
     return m_points.size();
+}
+
+Point2D Layer::center() const {
+    return m_center;
 }
 
 void Layer::changeHeight(const int& height_) {
@@ -95,10 +106,26 @@ void Layer::update(const size_t& index) {
     m_updated[index] = true;
 }
 
+
+void Layer::moveRel(const int& x, const int& y) {
+    Point2D rel(x, y);
+    for (auto& pnt : m_points) {
+        pnt += rel;
+    }
+    m_center += rel;
+}
+
+void Layer::moveRel(const Point2D& rel) {
+    for (auto& pnt : m_points) {
+        pnt += rel;
+    }
+    m_center += rel;
+}
+
 ObjectCreator::ObjectCreator(const int& theme) :
     m_theme(theme), m_layers(), m_layerSelectButtons(), m_layerPointButtons(), m_layerAdjListIndex(), m_addLayerButton(), m_pointButtons(), m_minimizedSpaceButton(), m_toolButtons(),
-    m_tool(Tool::ConnectPoint), x0(0), y0(0), x1(1000), y1(800), workX0(26), workY0(26), workX1(800), workY1(800), m_workArea(-1000, theme, this), m_workMesh(nullptr), m_selectedLayer(-1),
-    m_hovered(-1), m_assistLine(-1, -1, -1, -1), m_assistLineDotted(false), m_layerSelectsBegin(-1), m_layerSelectsEnd(-1), m_layerScrollArrows(){
+    m_tool(Tool::MovePoint), x0(0), y0(0), x1(1000), y1(800), workX0(26), workY0(26), workX1(800), workY1(800), m_workArea(-1000, theme, this), m_workMesh(nullptr), m_selectedLayer(-1),
+    m_hovered(-1), m_assistLine(-1, -1, -1, -1), m_assistLineDotted(false), m_layerSelectsBegin(-1), m_layerSelectsEnd(-1), m_layerScrollArrows(), m_layerTools() {
     toolButtonsInit();
     m_workArea.setCorners(26, 26, 800, 800);
     m_workArea.addMesh(Mesh());
@@ -108,9 +135,9 @@ ObjectCreator::ObjectCreator(const int& theme) :
 }
 
 ObjectCreator::ObjectCreator(Mesh mesh, const int& theme) :
-    m_theme(theme), m_layers(), m_layerSelectButtons(), m_layerPointButtons(), m_layerAdjListIndex(), m_addLayerButton(), m_pointButtons(), m_minimizedSpaceButton(), m_toolButtons(), m_tool(Tool::MovePoint),
-    x0(0), y0(0), x1(1000), y1(800), workX0(26), workY0(26), workX1(800), workY1(800), m_workArea(-1000, theme, this), m_workMesh(nullptr), m_selectedLayer(-1), m_hovered(-1),
-    m_assistLine(-1, -1, -1, -1), m_assistLineDotted(false), m_layerSelectsBegin(-1), m_layerSelectsEnd(-1), m_layerScrollArrows(){
+    m_theme(theme), m_layers(), m_layerSelectButtons(), m_layerPointButtons(), m_layerAdjListIndex(), m_addLayerButton(), m_pointButtons(), m_minimizedSpaceButton(),
+    m_toolButtons(), m_tool(Tool::MovePoint), x0(0), y0(0), x1(1000), y1(800), workX0(26), workY0(26), workX1(800), workY1(800), m_workArea(-1000, theme, this), m_workMesh(nullptr),
+    m_selectedLayer(-1), m_hovered(-1), m_assistLine(-1, -1, -1, -1), m_assistLineDotted(false), m_layerSelectsBegin(-1), m_layerSelectsEnd(-1), m_layerScrollArrows(), m_layerTools() {
     toolButtonsInit();
     const Point3D& centerPoint = mesh.centerPoint();
     mesh.translate(-centerPoint.getX(), -centerPoint.getY(), -centerPoint.getZ());
@@ -125,7 +152,7 @@ ObjectCreator::ObjectCreator(const ObjectCreator& oc) :
     m_addLayerButton(oc.m_addLayerButton), m_pointButtons(oc.m_pointButtons), m_minimizedSpaceButton(oc.m_minimizedSpaceButton), m_toolButtons(oc.m_toolButtons), m_tool(oc.m_tool),
     x0(oc.x0), y0(oc.y0), x1(oc.x1), y1(oc.y1), workX0(oc.workX0), workY0(oc.workY0), workX1(oc.workX1), workY1(oc.workY1), m_workArea(oc.m_workArea), m_workMesh(oc.m_workMesh),
     m_selectedLayer(oc.m_selectedLayer), m_hovered(oc.m_hovered), m_assistLine(oc.m_assistLine), m_assistLineDotted(oc.m_assistLineDotted),
-    m_layerSelectsBegin(oc.m_layerSelectsBegin), m_layerSelectsEnd(oc.m_layerSelectsEnd), m_layerScrollArrows(){}
+    m_layerSelectsBegin(oc.m_layerSelectsBegin), m_layerSelectsEnd(oc.m_layerSelectsEnd), m_layerScrollArrows(oc.m_layerScrollArrows), m_layerTools(oc.m_layerTools){}
 
 ObjectCreator& ObjectCreator::operator = (const ObjectCreator& oc) {
     m_theme = oc.m_theme;
@@ -155,10 +182,16 @@ void ObjectCreator::toolButtonsInit() {
     for (size_t i = 0; i < 5; ++i) {
         m_toolButtons[i] = ImageButton(buttonSize / 2, 36 + buttonSize * i, buttonSize, buttonSize, filenames[i].data());
     }
+    //MyArray<MyArray<char, 128>, 1> layerFilenames;
+    //pt cand o sa avem probabil tools precum Duplicate, Duplicate Linked, Draw Circle, Draw Rectangle
+    //deocamdata este initializat un MyArray cu 1 imagebutton care nu i folosit la nimic
 }
 
 void ObjectCreator::init() {
+    m_workArea.removeMesh(0);
+    m_workArea.addMesh(generateCylinder(200, 100, 12));
     m_workMesh = &m_workArea.meshAt(0);
+    m_workArea.render();
     const Section& sect = m_workArea.sectionAt(0);
     m_pointButtons.resize(sect.size());
     updateButtons();
@@ -186,7 +219,7 @@ void ObjectCreator::init() {
     do {
         sorted = true;
         for (size_t i = 1; i < m_layers.size(); ++i) {
-            if (m_layers[i - 1].height() > m_layers[i].height()) {
+            if (m_layers[i - 1].height() < m_layers[i].height()) {
                 std::swap(m_layers[i - 1], m_layers[i]);
                 std::swap(m_layerAdjListIndex[i - 1], m_layerAdjListIndex[i]);
                 sorted = false;
@@ -374,9 +407,10 @@ void ObjectCreator::drawLayerView() { // O(layer.size()^2 * adjList.size())   D:
     const MyVector<MyVector<size_t>>& adjList = m_workMesh->adjacencyList();
     const int workXCenter = (workX0 + workX1) / 2;
     const int workYCenter = (workY0 + workY1) / 2;
+    const Point2D& layerCenter = m_layers[m_selectedLayer].center();
     setcolor(ColorSchemes::themeColors[m_theme][ColorSchemes::ACCENTCOLOR]);
-    line(workXCenter, workY0, workXCenter, workY1);
-    line(workX0, workYCenter, workX1, workYCenter);
+    line(workXCenter + layerCenter.getX(), workY0, workXCenter + layerCenter.getX(), workY1);
+    line(workX0, workYCenter - layerCenter.getY(), workX1, workYCenter - layerCenter.getY());
     setcolor(ColorSchemes::themeColors[m_theme][ColorSchemes::SECONDARYCOLOR]);
     //draw lines
     for (size_t i = 0; i < m_layers[m_selectedLayer].size(); ++i) {
@@ -441,10 +475,6 @@ void ObjectCreator::draw(bool update) {
         m_minimizedSpaceButton.drawLabel(LIGHTGRAY, ColorSchemes::themeColors[m_theme][ColorSchemes::ACCENTCOLOR]);
     }
     else {
-        m_minimizedSpaceButton.drawLabel(LIGHTGRAY, ColorSchemes::themeColors[m_theme][ColorSchemes::ACCENTCOLOR]);
-        //m_workArea.setCorners(m_minimizedSpaceButton.getXCenter() - 50, m_minimizedSpaceButton.getYCenter() - 50,
-        //                      m_minimizedSpaceButton.getXCenter() + 50, m_minimizedSpaceButton.getYCenter() + 50 );
-        //m_workArea.draw();
         setcolor(ColorSchemes::themeColors[m_theme][ColorSchemes::SECONDARYCOLOR]);
         if (m_assistLineDotted) {
             struct linesettingstype oldSettings;
@@ -460,6 +490,7 @@ void ObjectCreator::draw(bool update) {
         setbkcolor(ColorSchemes::themeColors[m_theme][ColorSchemes::PRIMARYCOLOR]);
         setcolor(ColorSchemes::themeColors[m_theme][ColorSchemes::SECONDARYCOLOR]);
         outtextxy(0, 3, itoa(m_layers[m_selectedLayer].height(), "Current layer: ").data());
+        m_minimizedSpaceButton.drawLabel(LIGHTGRAY, ColorSchemes::themeColors[m_theme][ColorSchemes::ACCENTCOLOR]);
     }
     if (m_hovered != -1) {
         drawPointData();
@@ -512,7 +543,7 @@ void ObjectCreator::editLayer(const int& index) {
         do {
             sorted = true;
             for (size_t i = 1; i < m_layers.size(); ++i) {
-                if (m_layers[i - 1].height() > m_layers[i].height()) {
+                if (m_layers[i - 1].height() < m_layers[i].height()) {
                     std::swap(m_layers[i - 1], m_layers[i]);
                     std::swap(m_layerAdjListIndex[i - 1], m_layerAdjListIndex[i]);
                     std::swap(m_layerPointButtons[i - 1], m_layerPointButtons[i]);
@@ -534,8 +565,9 @@ void ObjectCreator::pointAdder(const int& x, const int& y) {
     }
     const int xCenter = (x0 + 26 + x1 - 200) / 2;
     const int yCenter = (y0 + 26 + y1) / 2;
+    const Point2D layerCenter = m_layers[m_selectedLayer].center();
     m_layers[m_selectedLayer].addPoint(Point2D(x - xCenter, yCenter - y));
-    m_workMesh->addPoint(x - xCenter, yCenter - y, m_layers[m_selectedLayer].height());
+    m_workMesh->addPoint(x - xCenter - layerCenter.getX(), yCenter - y - layerCenter.getY(), m_layers[m_selectedLayer].height());
     m_layerAdjListIndex[m_selectedLayer].push_back(m_workMesh->size() - 1);
     m_layerPointButtons[m_selectedLayer].push_back(CircularButton(x, y, 5));
     m_workArea.update();
@@ -610,10 +642,27 @@ void ObjectCreator::pointDeleter3D(const size_t& index) {
     m_workArea.update();
 }
 
+void ObjectCreator::layerViewMover(const int& x_, const int& y_) {
+    int x = x_, y = y_;
+    int xDrag, yDrag;
+    clearmouseclick(WM_LBUTTONUP);
+    while (!ismouseclick(WM_LBUTTONUP)) {
+        getmouseclick(WM_MOUSEMOVE, xDrag, yDrag);
+        if (xDrag != -1 && m_workArea.insideWorkArea(xDrag, yDrag)) {
+            m_layers[m_selectedLayer].moveRel(xDrag - x, y - yDrag);
+            m_layerPointButtons[m_selectedLayer] = m_layers[m_selectedLayer].renderButtons(x0 + 26, y0 + 26, x1 - 200, y1);
+            draw();
+            x = xDrag;
+            y = yDrag;
+        }
+    }
+}
+
 void ObjectCreator::pointMover(const size_t& index) {
     const int xCenter = (workX0 + workX1) / 2;
     const int yCenter = (workY0 + workY1) / 2;
     size_t adjListIndex = m_layerAdjListIndex[m_selectedLayer][index];
+    const Point2D layerCenter = m_layers[m_selectedLayer].center();
     int xDrag, yDrag;
     clearmouseclick(WM_LBUTTONUP);
     while (!ismouseclick(WM_LBUTTONUP)) {
@@ -622,7 +671,7 @@ void ObjectCreator::pointMover(const size_t& index) {
             m_layers[m_selectedLayer][index] = Point2D(xDrag - xCenter, yCenter - yDrag);
             m_layers[m_selectedLayer].update(index);
             m_layerPointButtons[m_selectedLayer][index] = CircularButton(xDrag, yDrag, 5);
-            (*m_workMesh)[adjListIndex] = Point3D(xDrag - xCenter, yCenter - yDrag, m_layers[m_selectedLayer].height());
+            (*m_workMesh)[adjListIndex] = Point3D(xDrag - xCenter - layerCenter.getX(), yCenter - yDrag - layerCenter.getY(), m_layers[m_selectedLayer].height());
             m_workArea.update();
             m_workArea.render();
             draw(true);
@@ -853,6 +902,10 @@ bool ObjectCreator::getClickCommand() {
                 return true;
             }
         }
+        if (m_workArea.insideWorkArea(x, y) && m_tool == Tool::MovePoint) {
+            layerViewMover(x, y);
+            return false;
+        }
     }
     else {
         for (size_t i = 0; i < m_pointButtons.size(); ++i) {
@@ -874,7 +927,7 @@ bool ObjectCreator::getClickCommand() {
             //unde inclusiv meniul objectcreatorului este apelat
             return false;
         }
-        else if (m_workArea.insideWorkArea(x, y) && m_tool == Tool::CutLine) {
+        if (m_workArea.insideWorkArea(x, y) && m_tool == Tool::CutLine) {
             m_assistLineDotted = true;
             lineCutter3D(x, y);
             return true;
@@ -942,4 +995,107 @@ Mesh ObjectCreator::run() {
         }
     }
     return Mesh();
+}
+
+
+Mesh ObjectCreator::generateCube(const unsigned int& length_) {
+    int length = length_/2;
+    Mesh cube;
+    cube.addPoint(-length, -length, -length);
+    cube.addPoint(-length, -length, length);
+    cube.addPoint(-length, length, -length);
+    cube.addPoint(length, -length, -length);
+    cube.addPoint(-length, length, length);
+    cube.addPoint(length, -length, length);
+    cube.addPoint(length, length, -length);
+    cube.addPoint(length, length, length);
+    cube.addIndexConnections(0, {1, 2, 3});
+    cube.addIndexConnections(1, {0, 4, 5});
+    cube.addIndexConnections(2, {0, 4, 6});
+    cube.addIndexConnections(3, {0, 5, 6});
+    cube.addIndexConnections(4, {1, 2, 7});
+    cube.addIndexConnections(5, {1, 3, 7});
+    cube.addIndexConnections(6, {2, 3, 7});
+    return cube;
+}
+
+Mesh ObjectCreator::generateCone(const unsigned int& height, const unsigned int& radius, const unsigned int& sides) {
+    Mesh cone = Mesh();
+    cone.addPoint(0, 0, height / 2);
+    Point3D tmp(0, radius, -((int)height / 2));
+    for (size_t i = 0; i < sides; ++i) {
+        //o sa generam o singura data un corp din asta; eficienta nu e neaparat esentiala
+        //decat sa fac cu sin si cos mai bine folosesc ce am deja de la quaternioni
+        tmp.rotateByAxisVector(2 * pi / sides, {0, 0, 1});
+        cone.addPoint(tmp);
+        cone[cone.size() - 1].round();
+        cone.addEdge(cone.size() - 1, cone.size() - 2);
+        if (i > 0) {
+            cone.addEdge(cone.size() - 1, 0);
+        }
+    }
+    cone.addEdge(cone.size() - 1, cone.size() - sides);
+    return cone;
+}
+
+Mesh ObjectCreator::generateCylinder(const unsigned int& height, const unsigned int& radius, const unsigned int& sides) {
+    Mesh cylinder = Mesh();
+    Point3D tmp(0, radius, -((int)height / 2));
+    for (size_t i = 0; i < sides; ++i) {
+        tmp.rotateByAxisVector(2 * pi / sides, {0, 0, 1});
+        cylinder.addPoint(tmp);
+        cylinder[cylinder.size() - 1].round();
+        tmp.setZ(-tmp.getZ());
+        cylinder.addPoint(tmp);
+        tmp.setZ(-tmp.getZ());
+        cylinder[cylinder.size() - 1].round();
+        cylinder.addEdge(cylinder.size() - 1, cylinder.size() - 2);
+        if (i > 0) {
+            cylinder.addEdge(cylinder.size() - 1, cylinder.size() - 3);
+            cylinder.addEdge(cylinder.size() - 2, cylinder.size() - 4);
+        }
+    }
+    cylinder.addEdge(cylinder.size() - 2, 0);
+    cylinder.addEdge(cylinder.size() - 1, 1);
+    return cylinder;
+}
+
+Mesh ObjectCreator::generateSphere(const unsigned int& radius, const unsigned int& segments, const unsigned int& rings) {
+    //chose UV sphere for clear layer separation -> easier editing in ObjCreator
+    //higher density near poles isn't our problem, we aren't even dealing with UVs
+    Mesh sphere = Mesh();
+    sphere.addPoint(0, 0, radius);
+    size_t verticalPredIndex = 0;
+    Point3D verticalPred = sphere[verticalPredIndex];
+    for (size_t i = 1; i < rings - 1; ++i) {
+        Point3D tmp(verticalPred);
+        tmp.rotateByAxisVector(pi / (rings - 1), {1, 0, 0});
+        verticalPred = tmp;
+        tmp.round();
+        sphere.addPoint(tmp);
+        sphere.addEdge(verticalPredIndex, sphere.size() - 1);
+        verticalPredIndex = sphere.size() - 1;
+        for (size_t j = 1; j < segments; ++j) {
+            Point3D tmp2(tmp);
+            tmp2.rotateByAxisVector(2 * pi * j / segments, {0, 0, 1});
+            tmp2.round();
+            sphere.addPoint(tmp2);
+            int sphSize = sphere.size() - 1;
+            if (sphSize - (int)segments >= 0) {
+                sphere.addEdge(sphSize, sphSize - segments);
+            }
+            if (j > 0) {
+                sphere.addEdge(sphSize, sphSize - 1);
+            }
+            if (j == segments - 1) {
+                sphere.addEdge(sphSize, sphSize - j);
+            }
+        }
+    }
+    sphere.addPoint(0, 0, -(int)radius);
+    for (size_t i = 1; i <= segments; ++i) {
+        sphere.addEdge(0, i);
+        sphere.addEdge(sphere.size() - 1, sphere.size() - 1 - i);
+    }
+    return sphere;
 }

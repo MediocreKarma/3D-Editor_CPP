@@ -21,6 +21,8 @@ class Point2D {
         void setY(const int& y_);
         bool operator == (const Point2D& other);
         Point2D& operator = (const Point2D& other);
+        Point2D& operator += (const Point2D& other);
+        Point2D& operator -= (const Point2D& other);
         Point2D operator + (const Point2D& p);
         Point2D operator - (const Point2D& p);
         void translate (const Point2D& other);
@@ -86,12 +88,15 @@ class Point3D {
         void setY(const double& y_);
         void setZ(const double& z_);
         void setPoint(const Point3D& pct);
+        void round();
         MyArray<double, 3> toArray() const;
         void rotateOX(const Point3D& center, const double& alpha);
         void rotateOY(const Point3D& center, const double& alpha);
         void rotateOZ(const Point3D& center, const double& alpha);
-        Point3D rotateByAxisVector(const double& angle, const MyArray<double, 3>& axis);
-        Point3D rotateByUnitQuat(const Quaternion& quat);
+        void rotateByAxisVector(const double& angle, const MyArray<double, 3>& axis);
+        void rotateByUnitQuat(const Quaternion& quat);
+        Point3D rotatedByAxisVector(const double& angle, const MyArray<double, 3>& axis);
+        Point3D rotatedByUnitQuat(const Quaternion& quat);
         void translate(const double& xTranslate, const double& yTranslate, const double& zTranslate);
         Point3D& operator += (const Point3D& other);
         void fprint(FILE* fp);
@@ -159,11 +164,6 @@ class Mesh {
         Quaternion quat() const;
         void resetRotation();
         MyArray<Point3D, 2> getBoundingBoxCorners();
-        /*TODO
-        friend Mesh generateCircle(const int& diameter, const int& rings);
-        friend Mesh generateCone(const int& height, const int& diameter, const int& sides);
-        friend Mesh generateCube(const int& length);
-        */
 
     private:
         MyVector<Point3D> m_points;

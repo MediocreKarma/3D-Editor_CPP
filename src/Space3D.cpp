@@ -89,6 +89,12 @@ void Space3D::addMesh(const Mesh& mesh) {
     m_updated.push_back(true);
 }
 
+void Space3D::removeMesh(const size_t& index) {
+    m_meshes.erase(m_meshes.begin() + index);
+    m_sections.erase(m_sections.begin() + index);
+    m_updated.erase(m_updated.begin() + index);
+}
+
 void Space3D::setTheme(const int& theme) {
     m_theme = theme;
 }
@@ -396,7 +402,7 @@ Point3D Space3D::rotateByCamera(const Point3D& pct) const {
     double xr = pct.getX();
     double yr = pct.getY();
     double zr = pct.getZ();
-    Point3D aux = Point3D(xr, yr, zr).rotateByUnitQuat(m_cam.quat());
+    Point3D aux = Point3D(xr, yr, zr).rotatedByUnitQuat(m_cam.quat());
     double dx = aux.getX();
     double dy = aux.getY();
     double dz = aux.getZ();
@@ -585,7 +591,7 @@ void Space3D::dragAndDrop(const int& xDrag, const int& yDrag, Mesh& mesh, const 
     double dy2 = dy1;
     double dx2 = dx1 + (bx2 - bx1) * dy2 / EZ;
     double dz2 = dz1 + (by2 - by1) * dy2 / EZ;
-    Point3D aux = Point3D(dx2, dy2, dz2).rotateByUnitQuat(m_cam.quat());
+    Point3D aux = Point3D(dx2, dy2, dz2).rotatedByUnitQuat(m_cam.quat());
     double tx = aux.getX();
     double ty = aux.getY();
     double tz = aux.getZ();

@@ -25,7 +25,7 @@ void Camera::rotateOnAxis(const size_t& axis, const double& angle) {
     canonicalVector.fill(0);
     canonicalVector[axis] = 1;
 
-    MyArray<double, 3> rotatedLocalAxis = Point3D(canonicalVector).rotateByUnitQuat(m_quat).toArray();
+    MyArray<double, 3> rotatedLocalAxis = Point3D(canonicalVector).rotatedByUnitQuat(m_quat).toArray();
     if(axis == 2) rotatedLocalAxis = canonicalVector;
     Quaternion axisAngleRotation(angle, rotatedLocalAxis);
     axisAngleRotation.convertToUnitQ();

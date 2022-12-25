@@ -1,5 +1,6 @@
 #include "ShapeData.h"
 #include "Quaternion.h"
+#include <math.h>
 
 const double PI = 3.14159265359;
 const double err = 0.000000000000000000000;
@@ -39,6 +40,18 @@ bool Point2D::operator == (const Point2D& other) {
 Point2D& Point2D::operator = (const Point2D& other) {
     x = other.x;
     y = other.y;
+    return *this;
+}
+
+Point2D& Point2D::operator += (const Point2D& other) {
+    x += other.x;
+    y += other.y;
+    return *this;
+}
+
+Point2D& Point2D::operator -= (const Point2D& other) {
+    x -= other.x;
+    y -= other.y;
     return *this;
 }
 
@@ -82,9 +95,6 @@ void Line2D::draw() {
 }
 
 bool linesIntersect(const Point2D& A, const Point2D& B, const Point2D& C, const Point2D& D) {
-    //https://stackoverflow.com/a/565282
-    //o sa stam fiecare din noi sa intelegem ce e aici,
-    //pt ca merge prea bine ca sa mi mai bat eu capul cu altceva
     Point2D CmP = Point2D(C.getX() - A.getX(), C.getY() - A.getY());
     Point2D r = Point2D(B.getX() - A.getX(), B.getY() - A.getY());
     Point2D s = Point2D(D.getX() - C.getX(), D.getY() - C.getY());
@@ -191,17 +201,7 @@ Point3D::Point3D(const Point3D& other) :
     x(other.x), y(other.y), z(other.z) {}
 
 Point3D::Point3D(const MyArray<double, 3>& arr) :
-    x(arr[0]), y(arr[1]), z(arr[2]) {
-        /*if (fabs(x) < err) {
-            x = 0;
-        }
-        if (fabs(y) < err) {
-            y = 0;
-        }
-        if (fabs(z) < err) {
-            z = 0;
-        }*/
-    }
+    x(arr[0]), y(arr[1]), z(arr[2]) {}
 
 double Point3D::getX() const {
     return x;
@@ -233,36 +233,34 @@ void Point3D::setPoint(const Point3D& pct) {
     z = pct.getZ();
 }
 
+void Point3D::round() {
+    x = ::round(x);
+    y = ::round(y);
+    z = ::round(z);
+}
+
 MyArray<double, 3> Point3D::toArray() const {
     return MyArray<double,3>({x, y, z});
 }
 
-/*void Point3D::rotateOX(const Point3D& center, const double& alpha) {
-    translate(-center.getX(), -center.getY(), -center.getZ());
-    Quaternion rotationQuat(alpha, {1, 0, 0});
+void Point3D::rotateByAxisVector(const double& angle, const MyArray<double, 3>& axis) {
+    if (fabs(angle) < err) {
+        return;
+    }
+    Quaternion pointQuat(0, toArray());
+    Quaternion axisQuat(0, axis);
+    axisQuat.normalize();
+    Quaternion rotationQuat(angle, axisQuat.complex());
     rotationQuat.convertToUnitQ();
-    (*this) = rotateByUnitQuat(rotationQuat);
-    translate(center.getX(), center.getY(), center.getZ());
+    Quaternion rotInverse = rotationQuat.inverse();
+    Quaternion rotatedPoint = rotationQuat * pointQuat * rotInverse;
+    *this = Point3D(rotatedPoint.complex());
 }
 
-void Point3D::rotateOY(const Point3D& center, const double& alpha) {
-    translate(-center.getX(), -center.getY(), -center.getZ());
-    Quaternion rotationQuat(alpha, {0, 1, 0});
-    rotationQuat.convertToUnitQ();
-    (*this) = rotateByUnitQuat(rotationQuat);
-    translate(center.getX(), center.getY(), center.getZ());
-}
-
-void Point3D::rotateOZ(const Point3D& center, const double& alpha) {
-    translate(-center.getX(), -center.getY(), -center.getZ());
-    Quaternion rotationQuat(-alpha, {0, 0, 1});
-    rotationQuat.convertToUnitQ();
-    (*this) = rotateByUnitQuat(rotationQuat);
-    translate(center.getX(), center.getY(), center.getZ());
-}*/
-
-Point3D Point3D::rotateByAxisVector(const double& angle, const MyArray<double, 3>& axis) {
-    //takes axis (can be local or global), rotates around it
+Point3D Point3D::rotatedByAxisVector(const double& angle, const MyArray<double, 3>& axis) {
+    if (fabs(angle) < err) {
+        return *this;
+    }
     Quaternion pointQuat(0, toArray());
     Quaternion axisQuat(0, axis);
     axisQuat.normalize();
@@ -273,7 +271,14 @@ Point3D Point3D::rotateByAxisVector(const double& angle, const MyArray<double, 3
     return Point3D(rotatedPoint.complex());
 }
 
-Point3D Point3D::rotateByUnitQuat(const Quaternion& quat) {
+void Point3D::rotateByUnitQuat(const Quaternion& quat) {
+    Quaternion pointQuat(0, toArray());
+    Quaternion aux(quat);
+    Quaternion rotatedPct = Quaternion(aux * pointQuat * aux.inverse());
+    *this = Point3D(rotatedPct.complex());
+}
+
+Point3D Point3D::rotatedByUnitQuat(const Quaternion& quat) {
     Quaternion pointQuat(0, toArray());
     Quaternion aux(quat);
     Quaternion rotatedPct = Quaternion(aux * pointQuat * aux.inverse());
@@ -453,7 +458,7 @@ void Mesh::deleteIndexConnection(const size_t& index1, const size_t& index2) {
     }
 }
 
-void Mesh::addIndexConnections(const size_t& index, const MyVector<size_t>& listAtIndex) { // O(n^2) -> O(n) daca implementam hashset-uri :D
+void Mesh::addIndexConnections(const size_t& index, const MyVector<size_t>& listAtIndex) { // O(n^2) -> O(n) cand implementam hashset-uri :D
     for (size_t i = 0; i < listAtIndex.size(); ++i) {
         bool alreadyConnected = false;
         for (size_t j = 0; j < m_adjList[index].size(); ++j) {
@@ -574,11 +579,6 @@ void Mesh::rotateDisplayAngle() {
 }
 
 void Mesh::rotate(const double& angleX_, const double& angleY_, const double& angleZ_) {
-    //vom modifica in rotire pe axe globale (sau locale mai tarziu).
-    //nu stiu ce facem totusi cu unghiurile
-    //n am reusit sa mi dau seama cum functioneaza butoanele tale
-    //ca altfel as fi facut eu modificarile pe care voiam sa le fac
-
     const double e = 0.0000000000001;
     if (fabs(angleX_) > e) {
         rotateOnAxis(centerPoint(), Point3D(1, 0, 0), angleX_);
@@ -598,7 +598,7 @@ void Mesh::rotateOnAxis(const Point3D& center, const Point3D& axis, const double
     const double e = 0.0000000000001;
     if (fabs(angle) >= e) {
         for (size_t i = 0; i < size(); ++i) {
-            m_points[i] = m_points[i].rotateByUnitQuat(rotationQuat);
+            m_points[i].rotateByUnitQuat(rotationQuat);
         }
     }
     rotationQuat*=m_quat;
@@ -616,7 +616,6 @@ void Mesh::scaleEven(const double& scaleFactor) {
 }
 
 void Mesh::scaleAxis(bool isLocal, const double& scaleFactor, const size_t& axis) {
-    //TODO: adapt to quaternions
     MyArray<bool, 3> axes = {false, false, false};
     axes[axis] = 1;
     Point3D center = centerPoint();
@@ -650,7 +649,7 @@ void Mesh::resetRotation() {
     translate(-aux[0], -aux[1], -aux[2]);
     const double e = 0.000000001;
     for (Point3D& pct : m_points) {
-        pct = pct.rotateByUnitQuat(m_quat.inverse());
+        pct.rotateByUnitQuat(m_quat.inverse());
         if (fabs(pct.getX() - round(pct.getX())) < e) {
             pct.setX((int)round(pct.getX()));
         }
