@@ -3,13 +3,16 @@
 int ColorSchemes::mixColors(const int& color1, const int& color2, const uint8_t& percentage) {
     MyArray<int, 3> rgb1 = {color1 & 255, (color1 & (255<<8))>>8, (color1 & (255<<16))>>16},
                     rgb2 = {color2 & 255, (color2 & (255<<8))>>8, (color2 & (255<<16))>>16};
-    //percentage: between 0 and 100
-    //se face medie ponderata dintre valorile rgb
     MyArray<int, 3> rgb3 = {((rgb1[0] * (100 - percentage) + rgb2[0] * percentage) / 100 ),
                             ((rgb1[1] * (100 - percentage) + rgb2[1] * percentage) / 100 ),
                             ((rgb1[2] * (100 - percentage) + rgb2[2] * percentage) / 100 )};
     int rgbFinal =  rgb3[0] | (rgb3[1] << 8) | (rgb3[2] << 16);
-    return rgbFinal;
+    if (!IS_BGI_COLOR(rgbFinal)) {
+        return rgbFinal;
+    }
+    else {
+        return (percentage >= 50 ? color2 : color1);
+    }
 }
 
 Label::Label() :
