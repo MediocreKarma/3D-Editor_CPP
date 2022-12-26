@@ -309,7 +309,7 @@ class MyHashMap {
         static constexpr double OneDivideOverCapacityMultiplier = 1.34;
         static constexpr double UnderCapacityMultiplier = 0.375;
         static constexpr size_t ResizeMultiplier = 2;
-        static constexpr std::hash<KeyType> m_hasher = std::hash<KeyType>();
+        std::hash<KeyType> m_hasher = std::hash<KeyType>();
 
         size_t hash(const KeyType& key) const noexcept {
             return m_hasher(key) & (m_capacity - 1);

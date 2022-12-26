@@ -8,6 +8,7 @@
 #include "AppTools.h"
 #include <cstdio>
 #include "Quaternion.h"
+#include <iostream>
 
 class Point2D {
     public:
@@ -28,6 +29,9 @@ class Point2D {
         void translate (const Point2D& other);
         void translate (const int& x_, const int& y_);
         friend bool linesIntersect(const Point2D& A, const Point2D& B, const Point2D& C, const Point2D& D);
+        //iostream
+        void display() const;
+        void display(bool endlAfter) const;
 
     private:
         int x;
@@ -99,8 +103,12 @@ class Point3D {
         Point3D rotatedByUnitQuat(const Quaternion& quat);
         void translate(const double& xTranslate, const double& yTranslate, const double& zTranslate);
         Point3D& operator += (const Point3D& other);
+        bool operator == (const Point3D& other) const;
         void fprint(FILE* fp);
         bool fscan(FILE* fp);
+        //iostream
+        void display() const;
+        void display(bool endlAfter) const;
 
     private:
         double x;
@@ -174,5 +182,17 @@ class Mesh {
         double m_angleX, m_angleY, m_angleZ;
         Quaternion m_quat;
 };
+
+//specializari std::hash
+namespace std {
+    template<> struct hash<Point3D> {
+        size_t operator()(const Point3D& s) const noexcept {
+            size_t hash1 = hash<double>{}(s.getX());
+            size_t hash2 = hash<double>{}(s.getY());
+            size_t hash3 = hash<double>{}(s.getZ());
+            return hash1 ^ (hash2 << 1) ^ (hash3 << 2);
+        }
+    };
+}
 
 #endif // SHAPEDATA_H

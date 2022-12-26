@@ -2,9 +2,8 @@
 #include "Quaternion.h"
 #include <math.h>
 
-
 const double PI = 3.14159265359;
-const double err = 0.000000000000000000000;
+const double err = 0.0000000000000000000001;
 
 Point2D::Point2D() :
     x(), y() {}
@@ -72,6 +71,14 @@ void Point2D::translate (const Point2D& other) {
 void Point2D::translate (const int& x_, const int& y_) {
     x += x_;
     y += y_;
+}
+
+void Point2D::display() const {
+    std::cout<<x<<" "<<y<<"\n";
+}
+
+void Point2D::display(bool endlAfter) const {
+    std::cout<<x<<" "<<y<<(endlAfter?"\n":"");
 }
 
 Line2D::Line2D() :
@@ -286,6 +293,10 @@ Point3D Point3D::rotatedByUnitQuat(const Quaternion& quat) {
     return Point3D(rotatedPct.complex());
 }
 
+bool Point3D::operator == (const Point3D& other) const {
+    return fabs(x - other.x) < err && fabs(y - other.y) < err && fabs(z - other.z) < err;
+}
+
 Point3D& Point3D::operator += (const Point3D& other) {
     x += other.x;
     y += other.y;
@@ -309,6 +320,14 @@ bool Point3D::fscan(FILE* fp) {
         return false;
     }
     return true;
+}
+
+void Point3D::display() const {
+    std::cout<<x<<" "<<y<<" "<<z<<"\n";
+}
+
+void Point3D::display(bool endlAfter) const {
+    std::cout<<x<<" "<<y<<" "<<z<<(endlAfter?"\n":"");
 }
 
 Line3D::Line3D() :
