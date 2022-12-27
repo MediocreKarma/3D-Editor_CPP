@@ -4,16 +4,16 @@
 #include <iterator>
 
 template<typename T>
-class MyRandomAcessIterator {
+class MyRandomAccessIterator {
     public:
-        using iterator = MyRandomAcessIterator;
+        using iterator = MyRandomAccessIterator;
         using iterator_category = std::random_access_iterator_tag;
         using difference_type = std::ptrdiff_t;
         using value_type = T;
         using reference = T&;
         using pointer = T*;
 
-        MyRandomAcessIterator(pointer ptr) noexcept :
+        MyRandomAccessIterator(pointer ptr) noexcept :
             m_ptr(ptr) {}
 
         reference operator * () {
@@ -101,8 +101,8 @@ class MyRandomAcessIterator {
             return a.m_ptr >= b.m_ptr;
         }
 
-        operator MyRandomAcessIterator<const T>() const noexcept {
-            return MyRandomAcessIterator<const T>(m_ptr);
+        operator MyRandomAccessIterator<const T>() const noexcept {
+            return MyRandomAccessIterator<const T>(m_ptr);
         }
 
     private:

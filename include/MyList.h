@@ -181,7 +181,7 @@ class MyList {
             }
             if (m_size != rhs.size()) {
                 clear();
-                return;
+                return *this;
             }
         }
 

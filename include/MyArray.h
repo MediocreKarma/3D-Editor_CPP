@@ -9,8 +9,8 @@
 template<class T, size_t m_size>
 class MyArray {
     public:
-        using iterator = MyRandomAcessIterator<T>;
-        using const_iterator = MyRandomAcessIterator<const T>;
+        using iterator = MyRandomAccessIterator<T>;
+        using const_iterator = MyRandomAccessIterator<const T>;
 
         MyArray() = default;
 
@@ -124,8 +124,8 @@ class MyArray {
 template<size_t m_size>
 class MyArray<char, m_size> {
     public:
-        using iterator = MyRandomAcessIterator<char>;
-        using const_iterator = MyRandomAcessIterator<const char>;
+        using iterator = MyRandomAccessIterator<char>;
+        using const_iterator = MyRandomAccessIterator<const char>;
 
         MyArray() = default;
 

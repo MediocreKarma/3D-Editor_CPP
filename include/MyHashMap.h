@@ -250,7 +250,7 @@ class MyHashMap {
                 if (it->key == key) {
                     m_hmap[hashKey].erase(it);
                     --m_size;
-                    incremenetFirstOrLastBucket(hashKey);
+                    incrementFirstOrLastBucket(hashKey);
                     if (m_size != 2 && m_size * UnderCapacityMultiplier < m_capacity) {
                         rehash(m_capacity / ResizeMultiplier);
                     }
@@ -262,7 +262,7 @@ class MyHashMap {
         void erase(iterator it) noexcept {
             m_hmap[it.m_bucket].erase(it.m_listIt);
             --m_size;
-            incremenetFirstOrLastBucket(it.m_bucket);
+            incrementFirstOrLastBucket(it.m_bucket);
             if (m_size != 2 && m_size * UnderCapacityMultiplier < m_capacity) {
                 rehash(m_capacity / ResizeMultiplier);
             }
@@ -366,7 +366,7 @@ class MyHashMap {
             }
         }
 
-        void incremenetFirstOrLastBucket(const size_t& hashKey) noexcept {
+        void incrementFirstOrLastBucket(const size_t& hashKey) noexcept {
             if (!m_hmap[hashKey].empty()) {
                 return;
             }

@@ -4,12 +4,13 @@
 #include <cstddef>
 #include <initializer_list>
 #include <stdexcept>
+#include "MyIterators.h"
 
 template<typename T>
 class MyVector {
     public:
-        using iterator = MyRandomAcessIterator<T>;
-        using const_iterator = MyRandomAcessIterator<const T>;
+        using iterator = MyRandomAccessIterator<T>;
+        using const_iterator = MyRandomAccessIterator<const T>;
 
         MyVector() noexcept : m_vec(nullptr), m_size(0), m_capacity(2) {
             setCapacity(m_capacity);
