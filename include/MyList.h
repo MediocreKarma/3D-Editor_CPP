@@ -6,62 +6,14 @@
 #include <initializer_list>
 #include <stdexcept>
 
-template<typename T, typename DRT>
-class MyListIterator;
-
 template<typename T>
 class MyList;
-
-template<typename T>
-class ___list___node {
-    public:
-        friend class MyListIterator<T, T>;
-        friend class MyListIterator<T, const T>;
-        friend class MyList<T>;
-    private:
-        T data;
-        ___list___node<T>* prev;
-        ___list___node<T>* next;
-
-        ___list___node() noexcept :
-            data(), prev(nullptr), next(nullptr) {}
-        ___list___node(const T& _data) noexcept :
-            data(_data), prev(nullptr), next(nullptr) {}
-        ___list___node(const T& _data, ___list___node<T>* _prev, ___list___node<T>* _next) noexcept :
-            data(_data), prev(_prev), next(_next) {}
-        ___list___node(const ___list___node<T>& other) noexcept :
-            data(other.data), prev(other.prev), next(other.next) {}
-        ___list___node(___list___node<T>&& other) noexcept : ___list___node() {
-            other.swap(*this);
-        }
-
-        ___list___node& operator = (const ___list___node& rhs) noexcept {
-            data = rhs.data;
-            prev = rhs.prev;
-            next = rhs.next;
-            return *this;
-        }
-        ___list___node& operator = (___list___node<T>&& rhs) noexcept {
-            rhs.swap(*this);
-            return *this;
-        }
-
-        friend void swap(___list___node<T>& a, ___list___node<T>& b) noexcept {
-            a.swap(b);
-        }
-
-        void swap(___list___node<T>& rhs) noexcept {
-            std::swap(data, rhs.data);
-            std::swap(prev, rhs.prev);
-            std::swap(next, rhs.next);
-        }
-};
 
 template<typename T, typename DRT>
 class MyListIterator {
     private:
-        friend MyList<T>;
-        using Node = ___list___node<T>;
+        friend class MyList<T>;
+        using Node = typename MyList<T>::list_node;
         Node* m_ptr;
 
     public:
@@ -129,7 +81,49 @@ class MyListIterator {
 template<typename T>
 class MyList {
     private:
-        using Node = ___list___node<T>;
+        friend class MyListIterator<T, T>;
+        friend class MyListIterator<T, const T>;
+
+        struct list_node {
+                T data;
+                list_node* prev;
+                list_node* next;
+
+                list_node() noexcept :
+                    data(), prev(nullptr), next(nullptr) {}
+                list_node(const T& _data) noexcept :
+                    data(_data), prev(nullptr), next(nullptr) {}
+                list_node(const T& _data, list_node* _prev, list_node* _next) noexcept :
+                    data(_data), prev(_prev), next(_next) {}
+                list_node(const list_node& other) noexcept :
+                    data(other.data), prev(other.prev), next(other.next) {}
+                list_node(list_node&& other) noexcept : list_node() {
+                    other.swap(*this);
+                }
+
+                list_node& operator = (const list_node& rhs) noexcept {
+                    data = rhs.data;
+                    prev = rhs.prev;
+                    next = rhs.next;
+                    return *this;
+                }
+                list_node& operator = (list_node&& rhs) noexcept {
+                    rhs.swap(*this);
+                    return *this;
+                }
+
+                friend void swap(list_node& a, list_node& b) noexcept {
+                    a.swap(b);
+                }
+
+                void swap(list_node& rhs) noexcept {
+                    std::swap(data, rhs.data);
+                    std::swap(prev, rhs.prev);
+                    std::swap(next, rhs.next);
+                }
+        };
+
+        using Node = list_node;
         Node* m_first;
         Node* m_last;
         size_t m_size;
@@ -268,6 +262,14 @@ class MyList {
 
         const_reverse_iterator crend() const noexcept {
             return std::reverse_iterator<const_iterator>(cbegin());
+        }
+
+        iterator find(const T& findData) noexcept {
+            Node* pos = m_first->next;
+            while (pos != m_last && pos->data != findData) {
+                pos = pos->next;
+            }
+            return iterator(pos);
         }
 
         void erase(iterator it) {

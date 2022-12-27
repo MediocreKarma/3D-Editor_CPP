@@ -4,7 +4,6 @@
 #include <cstddef>
 #include <initializer_list>
 #include <stdexcept>
-#include "MyIterators.h"
 
 template<typename T>
 class MyVector {
@@ -32,7 +31,7 @@ class MyVector {
             }
         }
 
-        MyVector(std::initializer_list<T>&& initList) noexcept : m_vec(nullptr), m_size(0), m_capacity(2) {
+        MyVector(std::initializer_list<T> initList) noexcept : m_vec(nullptr), m_size(0), m_capacity(2) {
             resize(initList.size());
             const T* el = initList.begin();
             for (size_t i = 0; i < initList.size(); ++i) {
@@ -292,12 +291,8 @@ class MyVector {
             return m_size <= index;
         }
 
-        bool outOfBounds(const_iterator& it) const noexcept {
-            return it < cbegin() || cend() <= it;
-        }
-
-        bool outOfBounds(iterator& it) const noexcept {
-            return it < begin() || end() <= it;
+        bool outOfBounds(const_iterator it) const noexcept {
+            return it < cbegin() && cend() <= it;
         }
 };
 
