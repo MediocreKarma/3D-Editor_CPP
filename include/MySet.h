@@ -1,37 +1,39 @@
-#ifndef MYMAP_H
-#define MYMAP_H
+#ifndef MYSET_H
+#define MYSET_H
+
 
 #include <iterator>
 
-template<typename KeyType, typename ValueType, typename F = std::less<KeyType>>
-class MyMap;
+template<typename T, typename F = std::less<T>>
+class MySet;
 
-template<typename KeyType, typename ValueType, typename F, typename DRT>
-class MyMapIterator {
+template<typename T, typename F>
+class MySetIterator {
     private:
-        using Node = typename MyMap<KeyType, ValueType, F>::MapNode;
+        friend class MySet<T, F>;
+        using Node = typename MySet<T, F>::SetNode;
         Node* m_ptr;
 
     public:
-        using iterator = MyMapIterator;
+        using iterator = MySetIterator;
         using iterator_category = std::bidirectional_iterator_tag;
         using difference_type = std::ptrdiff_t;
-        using value_type = DRT;
-        using reference = DRT&;
-        using pointer = DRT*;
+        using value_type = const T;
+        using reference = const T&;
+        using pointer = const T*;
 
-        MyMapIterator(Node* ptr) noexcept :
+        MySetIterator(Node* ptr) noexcept :
             m_ptr(ptr) {}
 
-        MyMapIterator(const MyMapIterator& other) noexcept :
+        MySetIterator(const MySetIterator& other) noexcept :
             m_ptr(other.m_ptr) {}
 
         reference operator * () noexcept {
-            return m_ptr->data;
+            return m_ptr->key;
         }
 
         pointer operator -> () noexcept {
-            return &(m_ptr->data);
+            return &(m_ptr->key);
         }
 
         iterator& operator = (const iterator& other) noexcept {
@@ -68,81 +70,71 @@ class MyMapIterator {
             --(*this);
             return tmp;
         }
-
-        operator MyMapIterator<KeyType, ValueType, F, const DRT>() const noexcept {
-            return MyMapIterator<KeyType, ValueType, F, const DRT>(m_ptr);
-        }
 };
 
-template<typename KeyType, typename ValueType, typename F>
-class MyMap {
+template<typename T, typename F>
+class MySet {
     public:
+        using iterator = MySetIterator<T, F>;
+        using const_iterator = iterator;
+        using reverse_iterator = std::reverse_iterator<iterator>;
+        using const_reverse_iterator = std::reverse_iterator<iterator>;
 
-        struct map_node {
-            const KeyType key;
-            ValueType value;
-        };
-
-        using iterator = MyMapIterator<KeyType, ValueType, F, map_node>;
-        using const_iterator = MyMapIterator<KeyType, ValueType, F, const map_node>;
-        using reverse_iterator = std::reverse_iterator<MyMapIterator<KeyType, ValueType, F, map_node>>;
-        using const_reverse_iterator = std::reverse_iterator<MyMapIterator<KeyType, ValueType, F, const map_node>>;
-
-        MyMap() noexcept : m_root(nil), m_size(0) {
+        MySet() noexcept : m_root(nil), m_size(0) {
             m_root->parent = nil;
             m_root->left = nil;
             m_root->right = nil;
         }
 
-        ~MyMap() noexcept {
+        ~MySet() noexcept {
             clear();
         }
 
-        MyMap(const MyMap<KeyType, ValueType, F>& other) noexcept {
+        MySet(const MySet<T, F>& other) noexcept {
             m_root = nil;
             m_root = copyTree(other.m_root);
         }
 
-        MyMap(MyMap<KeyType, ValueType, F>&& other) noexcept {
+        MySet(MySet<T, F>&& other) noexcept {
             std::swap(m_root, other.m_root);
         }
 
-        MyMap(std::initializer_list<map_node> l) noexcept {
-            for (const map_node& node : l) {
-                insert(node.key, node.value);
+        MySet(std::initializer_list<T> l) noexcept {
+            for (const T& key : l) {
+                insert(key);
             }
         }
 
-        MyMap<KeyType, ValueType, F>& operator = (const MyMap<KeyType, ValueType, F>& other) {
+        MySet<T, F>& operator = (const MySet<T, F>& other) {
             clear();
             m_root = nil;
             m_root = copyTree(other.m_root);
             return *this;
         }
 
-        MyMap<KeyType, ValueType, F>& operator = (std::initializer_list<map_node> l) noexcept {
+        MySet<T, F>& operator = (std::initializer_list<T> l) noexcept {
             clear();
-            for (const map_node& node : l) {
-                insert(node.key, node.value);
+            for (const T& key : l) {
+                insert(key);
             }
             return *this;
         }
 
-        MyMap<KeyType, ValueType, F>& operator = (MyMap<KeyType, ValueType, F>&& rhs) noexcept {
+        MySet<T, F>& operator = (MySet<T, F>&& rhs) noexcept {
             std::swap(m_root, rhs.m_root);
             return *this;
         }
 
-        void insert(const KeyType& key, const ValueType& value) {
+        void insert(const T& key) {
             if (search(key) != nil) {
                 return;
             }
-            MapNode* x = m_root;
-            MapNode* y = nil;
-            MapNode* newNode = new MapNode(key, value);
+            SetNode* x = m_root;
+            SetNode* y = nil;
+            SetNode* newNode = new SetNode(key);
             while (x != nil) {
                 y = x;
-                if (isLess(newNode->data.key, x->data.key)) {
+                if (isLess(newNode->key, x->key)) {
                     x = x->left;
                 }
                 else {
@@ -154,7 +146,7 @@ class MyMap {
                 m_root = newNode;
             }
             else {
-                if (isLess(newNode->data.key, y->data.key)) {
+                if (isLess(newNode->key, y->key)) {
                     y->left = newNode;
                 }
                 else {
@@ -166,14 +158,14 @@ class MyMap {
             insertHelper(newNode);
         }
 
-        void erase(const KeyType& key) {
+        void erase(const T& key) {
             erase(find(key));
         }
 
         void erase(iterator it) noexcept {
-            MapNode* x;
-            MapNode* y;
-            MapNode* z = it->key;
+            SetNode* x;
+            SetNode* y;
+            SetNode* z = it.m_ptr;
             if (z == nil) {
                 return;
             }
@@ -204,13 +196,13 @@ class MyMap {
                 y->color = z->color;
             }
             delete z;
-            if (currentColor == MapNode::Black) {
+            if (currentColor == SetNode::Black) {
                 deleteHelper(x);
             }
             --m_size;
         }
 
-        bool contains(const KeyType& key) const noexcept {
+        bool contains(const T& key) const noexcept {
             return search(key) != nil;
         }
 
@@ -226,11 +218,11 @@ class MyMap {
             return m_size;
         }
 
-        iterator find(const KeyType& key) noexcept {
+        iterator find(const T& key) noexcept {
             return iterator(search(key));
         }
 
-        const_iterator find(const KeyType& key) const noexcept {
+        const_iterator find(const T& key) const noexcept {
             return const_iterator(search(key));
         }
 
@@ -282,49 +274,40 @@ class MyMap {
             return std::reverse_iterator<const_iterator>(cbegin());
         }
 
-        ValueType& operator [] (const KeyType& key) noexcept {
-            if (search(key) == nil) {
-                insert(key, ValueType());
-            }
-            MapNode* node = search(key);
-            return node->data.value;
-        }
-
     private:
-        friend class MyMapIterator<KeyType, ValueType, F, map_node>;
-        friend class MyMapIterator<KeyType, ValueType, F, const map_node>;
+        friend class MySetIterator<T, F>;
 
-        static constexpr F isLess = F();
+        F isLess = F();
 
-        struct MapNode {
+        struct SetNode {
 
             static constexpr bool Red = true, Black = false;
 
-            MapNode() :
-                data(), color(Red),
+            SetNode() :
+                key(), color(Red),
                 left(nullptr), right(nullptr), parent(nullptr) {}
 
-            MapNode(bool color_) :
-                data({KeyType(), ValueType()}), color(color_),
+            SetNode(bool color_) :
+                key(), color(color_),
                 left(nullptr), right(nullptr), parent(nullptr) {}
 
-            MapNode(const KeyType& key_, const ValueType& value_) :
-                data({key_, value_}), color(Red),
+            SetNode(const T& key_) :
+                key(key_), color(Red),
                 left(nullptr), right(nullptr), parent(nullptr) {}
 
-            MapNode(const MapNode& other) :
-                data(other.data), color(other.color),
+            SetNode(const SetNode& other) :
+                key(other.key), color(other.color),
                 left(other.left), right(other.right), parent(other.parent) {}
 
-            MapNode& operator = (const MapNode& rhs) {
-                data = rhs.data;
+            SetNode& operator = (const SetNode& rhs) {
+                key = rhs.key;
                 color = rhs.color;
                 left = rhs.color;
                 right = rhs.right;
                 parent = rhs.parent;
             }
 
-            friend MapNode* leftmost(MapNode* node) {
+            friend SetNode* leftmost(SetNode* node) {
                 if (node == nil) {
                     return node;
                 }
@@ -334,7 +317,7 @@ class MyMap {
                 return node;
             }
 
-            friend MapNode* rightmost(MapNode* node) {
+            friend SetNode* rightmost(SetNode* node) {
                 if (node == nil) {
                     return node;
                 }
@@ -344,7 +327,7 @@ class MyMap {
                 return node;
             }
 
-            friend MapNode* predecessor(MapNode* node) {
+            friend SetNode* predecessor(SetNode* node) {
                 if (node->left != nil) {
                     return rightmost(node->left);
                 }
@@ -354,7 +337,7 @@ class MyMap {
                 return node->parent;
             }
 
-            friend MapNode* successor(const MapNode* node) {
+            friend SetNode* successor(const SetNode* node) {
                 if (node->right != nil) {
                     return leftmost(node->right);
                 }
@@ -364,27 +347,27 @@ class MyMap {
                 return node->parent;
             }
 
-            map_node data;
+            const T key;
             bool color;
-            MapNode* left;
-            MapNode* right;
-            MapNode* parent;
+            SetNode* left;
+            SetNode* right;
+            SetNode* parent;
         };
 
-        MapNode* m_root;
-        static MapNode nilGuard;
-        static MapNode * const nil;
+        SetNode* m_root;
+        static SetNode nilGuard;
+        static SetNode * const nil;
         size_t m_size;
 
-        void insertHelper(MapNode* z) {
-            MapNode* y;
-            while (z->parent->color == MapNode::Red) {
+        void insertHelper(SetNode* z) {
+            SetNode* y;
+            while (z->parent->color == SetNode::Red) {
                 if (z->parent == z->parent->parent->left) {
                     y = z->parent->parent->right;
-                    if (y->color == MapNode::Red) {
-                        z->parent->color = MapNode::Black;
-                        y->color = MapNode::Black;
-                        z->parent->parent->color = MapNode::Red;
+                    if (y->color == SetNode::Red) {
+                        z->parent->color = SetNode::Black;
+                        y->color = SetNode::Black;
+                        z->parent->parent->color = SetNode::Red;
                         z = z->parent->parent;
                     }
                     else {
@@ -392,18 +375,18 @@ class MyMap {
                             z = z->parent;
                             rotateLeft(z);
                         }
-                        z->parent->color = MapNode::Black;
-                        z->parent->parent->color = MapNode::Red;
+                        z->parent->color = SetNode::Black;
+                        z->parent->parent->color = SetNode::Red;
                         rotateRight(z->parent->parent);
                     }
                 }
                 else {
                     y = z->parent->parent->left;
-                    if (y->color == MapNode::Red) {
+                    if (y->color == SetNode::Red) {
                             // duplicated from if above
-                        z->parent->color = MapNode::Black;
-                        y->color = MapNode::Black;
-                        z->parent->parent->color = MapNode::Red;
+                        z->parent->color = SetNode::Black;
+                        y->color = SetNode::Black;
+                        z->parent->parent->color = SetNode::Red;
                         z = z->parent->parent;
                     }
                     else {
@@ -411,75 +394,75 @@ class MyMap {
                             z = z->parent;
                             rotateRight(z);
                         }
-                        z->parent->color = MapNode::Black;
-                        z->parent->parent->color = MapNode::Red;
+                        z->parent->color = SetNode::Black;
+                        z->parent->parent->color = SetNode::Red;
                         rotateLeft(z->parent->parent);
                     }
                 }
             }
-            m_root->color = MapNode::Black;
+            m_root->color = SetNode::Black;
         }
 
-        void deleteHelper(MapNode*& node) {
-            while (node != m_root && node->color == MapNode::Black) {
-                MapNode* helper;
+        void deleteHelper(SetNode*& node) {
+            while (node != m_root && node->color == SetNode::Black) {
+                SetNode* helper;
                 if (node == node->parent->left) {
                     helper = node->parent->right;
-                    if (helper->color == MapNode::Red) {
-                        helper->color = MapNode::Black;
-                        node->parent->color = MapNode::Red;
+                    if (helper->color == SetNode::Red) {
+                        helper->color = SetNode::Black;
+                        node->parent->color = SetNode::Red;
                         rotateLeft(node->parent);
                         helper = node->parent->right;
                     }
-                    if (helper->left->color == MapNode::Black && helper->right->color == MapNode::Black) {
-                        helper->color = MapNode::Red;
+                    if (helper->left->color == SetNode::Black && helper->right->color == SetNode::Black) {
+                        helper->color = SetNode::Red;
                         node = node->parent;
                     }
                     else {
-                        if (helper->right->color == MapNode::Black) {
-                            helper->left->color = MapNode::Black;
-                            helper->color = MapNode::Red;
+                        if (helper->right->color == SetNode::Black) {
+                            helper->left->color = SetNode::Black;
+                            helper->color = SetNode::Red;
                             rotateRight(helper);
                             helper = node->parent->right;
                         }
                         helper->color = node->parent->color;
-                        node->parent->color = MapNode::Black;
-                        helper->right->color = MapNode::Black;
+                        node->parent->color = SetNode::Black;
+                        helper->right->color = SetNode::Black;
                         rotateLeft(node->parent);
                         node = m_root;
                     }
                 }
                 else {
                     helper = node->parent->left;
-                    if (helper->color == MapNode::Red) {
-                        helper->color = MapNode::Black;
-                        node->parent->color = MapNode::Red;
+                    if (helper->color == SetNode::Red) {
+                        helper->color = SetNode::Black;
+                        node->parent->color = SetNode::Red;
                         rotateRight(node->parent);
                         helper = node->parent->left;
                     }
-                    if (helper->left->color == MapNode::Black && helper->right->color == MapNode::Black) {
-                        helper->color = MapNode::Red;
+                    if (helper->left->color == SetNode::Black && helper->right->color == SetNode::Black) {
+                        helper->color = SetNode::Red;
                         node = node->parent;
                     }
                     else {
-                        if (helper->left->color == MapNode::Black) {
-                            helper->right->color = MapNode::Black;
-                            helper->color = MapNode::Red;
+                        if (helper->left->color == SetNode::Black) {
+                            helper->right->color = SetNode::Black;
+                            helper->color = SetNode::Red;
                             rotateLeft(helper);
                             helper = node->parent->left;
                         }
                         helper->color = node->parent->color;
-                        node->parent->color = MapNode::Black;
-                        helper->left->color = MapNode::Black;
+                        node->parent->color = SetNode::Black;
+                        helper->left->color = SetNode::Black;
                         rotateRight(node->parent);
                         node = m_root;
                     }
                 }
             }
-            node->color = MapNode::Black;
+            node->color = SetNode::Black;
         }
 
-        void transplant(MapNode* x, MapNode* y) {
+        void transplant(SetNode* x, SetNode* y) {
             if (x->parent == nil) {
                 m_root = y;
             }
@@ -494,11 +477,11 @@ class MyMap {
             y->parent = x->parent;
         }
 
-        void rotateLeft(MapNode* node) {
+        void rotateLeft(SetNode* node) {
             if (node->right == nil) {
                 return;
             }
-            MapNode* aux = node->right;
+            SetNode* aux = node->right;
             node->right = aux->left;
             if (aux->left != nil) {
                 aux->left->parent = node;
@@ -517,11 +500,11 @@ class MyMap {
             node->parent = aux;
         }
 
-        void rotateRight(MapNode* node) {
+        void rotateRight(SetNode* node) {
             if (node->left == nil) {
                 return;
             }
-            MapNode* aux = node->left;
+            SetNode* aux = node->left;
             node->left = aux->right;
             if (aux->right != nil) {
                 aux->right->parent = node;
@@ -540,13 +523,13 @@ class MyMap {
             node->parent = aux;
         }
 
-        MapNode* search(const KeyType& key) const {
-            MapNode* x = m_root;
+        SetNode* search(const T& key) const {
+            SetNode* x = m_root;
             while (x != nil) {
-                if (isLess(key, x->data.key)) {
+                if (isLess(key, x->key)) {
                     x = x->left;
                 }
-                else if (isLess(x->data.key, key)) {
+                else if (isLess(x->key, key)) {
                     x = x->right;
                 }
                 else {
@@ -556,7 +539,7 @@ class MyMap {
             return x;
         }
 
-        void clearHelper(MapNode*& x) noexcept {
+        void clearHelper(SetNode*& x) noexcept {
             if (x == nil) {
                 return;
             }
@@ -567,11 +550,11 @@ class MyMap {
             x = nil;
         }
 
-        MapNode* copyTree(MapNode* node) {
+        SetNode* copyTree(SetNode* node) {
             if (node == nil) {
                 return nil;
             }
-            MapNode* newNode = new MapNode(node->data.key, node->data.value, node->color);
+            SetNode* newNode = new SetNode(node->key, node->value, node->color);
             newNode->left = nil;
             newNode->right = nil;
             newNode->parent = nil;
@@ -587,10 +570,10 @@ class MyMap {
 
 };
 
-template<typename KeyType, typename ValueType, typename F>
-typename MyMap<KeyType, ValueType, F>::MapNode MyMap<KeyType, ValueType, F>::nilGuard(MyMap<KeyType, ValueType, F>::MapNode::Black);
+template<typename KeyType, typename F>
+typename MySet<KeyType, F>::SetNode MySet<KeyType, F>::nilGuard(MySet<KeyType, F>::SetNode::Black);
 
-template<typename KeyType, typename ValueType, typename F>
-typename MyMap<KeyType, ValueType, F>::MapNode * const MyMap<KeyType, ValueType, F>::nil = &nilGuard;
+template<typename KeyType, typename F>
+typename MySet<KeyType, F>::SetNode * const MySet<KeyType, F>::nil = &nilGuard;
 
-#endif // MYMAP_H
+#endif // MYSET_H

@@ -76,8 +76,8 @@ class MyHashMapIterator {
             return a.m_listIt != b.m_listIt;
         }
 
-        operator MyHashMapConstIterator<const KeyType, ValueType> () const noexcept {
-            return MyHashMapConstIterator<const KeyType, ValueType>(m_listIt, m_bucket, m_hashmap, m_lastUsedBucket);
+        operator MyHashMapConstIterator<KeyType, ValueType> () const noexcept {
+            return MyHashMapConstIterator<KeyType, ValueType>(m_listIt, m_bucket, m_hashmap, m_lastUsedBucket);
         }
 };
 
@@ -102,7 +102,7 @@ class MyHashMapConstIterator {
         MyHashMapConstIterator(typename MyList<HashNode>::const_iterator it, size_t bucket, const MyVector<MyList<HashNode>>& hashmap, size_t lastUsedBucket) noexcept :
             m_listIt(it), m_bucket(bucket), m_hashmap(hashmap), m_lastUsedBucket(lastUsedBucket) {}
 
-        MyHashMapConstIterator(const MyHashMapConstIterator<const KeyType, ValueType>& other) noexcept :
+        MyHashMapConstIterator(const MyHashMapConstIterator<KeyType, ValueType>& other) noexcept :
             m_listIt(other.m_listIt), m_bucket(other.m_bucket), m_hashmap(other.m_hashmap), m_lastUsedBucket(other.m_lastUsedBucket) {}
 
         reference operator * () const {
@@ -143,7 +143,7 @@ template<typename KeyType, typename ValueType>
 class MyHashMap {
     public:
         struct hash_node {
-            KeyType key;
+            const KeyType key;
             ValueType value;
 
             hash_node() :
@@ -151,6 +151,9 @@ class MyHashMap {
 
             hash_node(const KeyType& key_, const ValueType& value_) :
                 key(key_), value(value_) {}
+
+            hash_node(const hash_node& other) :
+                key(other.key), value(other.value) {}
         };
 
     private:
