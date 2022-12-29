@@ -174,7 +174,7 @@ class MyHashSet {
         }
 
         bool contains(const T& key) const noexcept {
-            for (T& x : m_hset[hash(key)]) {
+            for (const T& x : m_hset[hash(key)]) {
                 if (x == key) {
                     return true;
                 }

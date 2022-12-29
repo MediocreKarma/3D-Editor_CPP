@@ -108,22 +108,29 @@ class Space3D
 
 class FixedSpace3D {
     public:
-        FixedSpace3D(const int& theme, const Mesh& mesh, ObjectCreator* objectCreatorHandler);
+        FixedSpace3D(const int theme, const Mesh& mesh, ObjectCreator* objectCreatorHandler);
         FixedSpace3D(const FixedSpace3D& other);
         FixedSpace3D& operator = (const FixedSpace3D& other);
         void render();
         void draw();
         void run();
-        bool insideWorkArea(const int& x, const int& y) const;
+        bool insideWorkArea(const int x, const int y) const;
         bool insideWorkArea(const Point2D& point) const;
-        void getCommand();
-        void getCommand(const int& x, const int& y);
+        bool getCommand();
+        bool getCommand(const int x, const int y);
+        bool getKeyCommand();
+        void setCorners(const int x0, const int y0, const int x1, const int y1);
+        FixedMesh& mesh();
 
     private:
+        void callHandlerDrawer();
         void initButtons();
-        void drawButtons();
+        void drawArrows();
         Point2D projectPoint(const IntegerPoint3D& point, const Quaternion& camQuat, const Quaternion& camInverse) const;
-        Section projectSection();
+        void projectSection();
+        bool checkAxisRotation(const int x, const int y);
+        bool checkCamMovement(const char c);
+        Point3D rotateByCamera(const Point3D& pct) const;
 
         int x0;
         int y0;
@@ -137,7 +144,6 @@ class FixedSpace3D {
         ObjectCreator* m_objCreatorHolder;
         Camera m_cam;
         FixedMesh m_mesh;
-        Section m_section;
         bool m_updated;
 };
 

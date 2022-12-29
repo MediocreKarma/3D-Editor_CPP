@@ -328,6 +328,19 @@ void Point3D::display(bool endlAfter) const {
     std::cout<<x<<" "<<y<<" "<<z<<(endlAfter?"\n":"");
 }
 
+bool operator < (const Point3D& x, const Point3D& y) {
+    if (x.x < y.x) {
+        return true;
+    }
+    else if (x.y < y.y) {
+        return true;
+    }
+    else if (x.z < y.z) {
+        return true;
+    }
+    return false;
+}
+
 Line3D::Line3D() :
     P(), Q() {}
 
@@ -786,27 +799,35 @@ FixedMesh::FixedMesh(const Mesh& other) : FixedMesh() {
     helperPoints.resize(other.size());
     for (size_t i = 0; i < other.size(); ++i) {
         helperPoints[i] = other[i];
+        m_points.insert(helperPoints[i]);
     }
     const MyVector<MyVector<size_t>>& adjList = other.adjacencyList();
     for (size_t i = 0; i < adjList.size(); ++i) {
         iterator_type it = m_points.find(helperPoints[i]);
-        m_adjList.insert(it, MyHashSet<MySet<IntegerPoint3D>::iterator>());
+        adjListContainer& container = m_adjList[it];
         for (const size_t& j : adjList[i]) {
             if (helperPoints[i] < helperPoints[j]) {
-                m_adjList[it].insert(m_points.find(helperPoints[j]));
+                container.adjacentPoints.insert(m_points.find(helperPoints[j]));
             }
         }
     }
 }
 
 void FixedMesh::addEdge(const IntegerPoint3D& x, const IntegerPoint3D& y) {
-    m_adjList[m_points.find(x)].insert(m_points.find(y));
+    addEdge(m_points.find(x), m_points.find(y));
+}
+
+void FixedMesh::addEdge(iterator_type it1, iterator_type it2) {
+    if (*it1 < *it2) {
+        m_adjList[it1].adjacentPoints.insert(it2);
+    }
+    else {
+        m_adjList[it2].adjacentPoints.insert(it1);
+    }
 }
 
 void FixedMesh::addPoint(const IntegerPoint3D& x) {
     m_points.insert(x);
-    iterator_type it = m_points.find(x);
-    m_adjList.insert(it, MyHashSet<MySet<IntegerPoint3D>::iterator>());
 }
 
 void FixedMesh::addPoint(const int& x, const int& y, const int& z) {
@@ -822,6 +843,11 @@ void FixedMesh::erasePoint(const IntegerPoint3D& x) {
 }
 
 void FixedMesh::erasePoint(iterator_type it) {
+    for (auto& container : m_adjList) {
+        if (container.value.adjacentPoints.contains(it)) {
+            container.value.adjacentPoints.erase(it);
+        }
+    }
     m_adjList.erase(it);
     m_points.erase(it);
 }
@@ -832,10 +858,25 @@ void FixedMesh::eraseConnection(const IntegerPoint3D& x, const IntegerPoint3D& y
 
 void FixedMesh::eraseConnection(iterator_type it1, iterator_type it2) {
     if (*it1 < *it2) {
-        m_adjList[it1].erase(it2);
+        m_adjList[it1].adjacentPoints.erase(it2);
     }
     else {
-        m_adjList[it2].erase(it1);
+        m_adjList[it2].adjacentPoints.erase(it1);
+    }
+}
+
+void FixedMesh::renderPoint(iterator_type pointIt, const Point2D& conversion) {
+    m_adjList[pointIt].conversion = conversion;
+}
+
+void FixedMesh::drawMesh(const int primaryThemeColor) {
+    setcolor(primaryThemeColor);
+    for (auto& connections : m_adjList) {
+        Point2D P = connections.value.conversion;
+        for (iterator_type it : connections.value.adjacentPoints) {
+            Point2D Q = m_adjList[it].conversion;
+            line(P.x, P.y, Q.x, Q.y);
+        }
     }
 }
 
@@ -845,4 +886,8 @@ FixedMesh::iterator_type FixedMesh::begin() {
 
 FixedMesh::iterator_type FixedMesh::end() {
     return m_points.end();
+}
+
+size_t FixedMesh::size() {
+    return m_points.size();
 }

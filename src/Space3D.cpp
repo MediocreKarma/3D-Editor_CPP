@@ -682,19 +682,203 @@ const Section& Space3D::sectionAt(const size_t& index) const {
     return m_sections[index];
 }
 
-FixedSpace3D::FixedSpace3D(const int& theme, const Mesh& mesh, ObjectCreator* objectCreatorHandler) :
+FixedSpace3D::FixedSpace3D(const int theme, const Mesh& mesh, ObjectCreator* objectCreatorHandler) :
     x0(), y0(), x1(), y1(), m_theme(theme), m_arrowLeft(), m_arrowRight(), m_arrowUp(), m_arrowDown(),
-    m_objCreatorHolder(objectCreatorHandler), m_cam(), m_mesh(mesh), m_section(), m_updated(true) {}
+    m_objCreatorHolder(objectCreatorHandler), m_cam(), m_mesh(mesh), m_updated(true) {
+    initButtons();
+}
+
+void FixedSpace3D::setCorners(const int x0_, const int y0_, const int x1_, const int y1_) {
+    x0 = x0_;
+    y0 = y0_;
+    x1 = x1_;
+    y1 = y1_;
+    initButtons();
+}
+
+void FixedSpace3D::initButtons() {
+    static const int LEN_BUTTON = 17;
+    const int xCenter = (x0 + x1) / 2;
+    const int yCenter = (y0 + y1) / 2;
+    m_arrowUp = Button(xCenter, y0 + LEN_BUTTON, 60, 2 * LEN_BUTTON);
+    m_arrowDown = Button(xCenter, y1 - LEN_BUTTON, 60, 2 * LEN_BUTTON);
+    m_arrowLeft = Button(x0 + LEN_BUTTON, yCenter, 2 * LEN_BUTTON, 60);
+    m_arrowRight = Button(x1 - LEN_BUTTON, yCenter, 2 * LEN_BUTTON, 60);
+}
+
+void FixedSpace3D::callHandlerDrawer() {
+    m_objCreatorHolder->draw();
+}
 
 void FixedSpace3D::render() {
-    if (m_updated) {
-        //m_section = projectSection();
-        m_updated = false;
-    }
+    projectSection();
 }
 
 void FixedSpace3D::draw() {
     const MyArray<int, 3>& tC = ColorSchemes::themeColors[m_theme];
-    m_section.draw(tC[ColorSchemes::PRIMARYCOLOR], tC[ColorSchemes::SECONDARYCOLOR], tC[ColorSchemes::ACCENTCOLOR]);
+    m_mesh.drawMesh(tC[ColorSchemes::PRIMARYCOLOR]);
+    drawArrows();
 }
 
+void FixedSpace3D::drawArrows() {
+    const int BORDER_OFFSET = 5;
+    const int POSITION_OFFSET = 25;
+    const int xCenter = (x0 + x1) / 2;
+    const int yCenter = (y0 + y1) / 2;
+    setcolor(ColorSchemes::themeColors[m_theme][ColorSchemes::SECONDARYCOLOR]);
+    setlinestyle(SOLID_LINE, 0, 2);
+    line(x0 + BORDER_OFFSET, yCenter, x0 + POSITION_OFFSET, yCenter - POSITION_OFFSET);
+    line(x0 + BORDER_OFFSET, yCenter, x0 + POSITION_OFFSET, yCenter + POSITION_OFFSET);
+    line(x1 - BORDER_OFFSET, yCenter, x1 - POSITION_OFFSET, yCenter - POSITION_OFFSET);
+    line(x1 - BORDER_OFFSET, yCenter, x1 - POSITION_OFFSET, yCenter + POSITION_OFFSET);
+    line(xCenter, y0 + BORDER_OFFSET, xCenter - POSITION_OFFSET, y0 + POSITION_OFFSET);
+    line(xCenter, y0 + BORDER_OFFSET, xCenter + POSITION_OFFSET, y0 + POSITION_OFFSET);
+    line(xCenter, y1 - BORDER_OFFSET, xCenter - POSITION_OFFSET, y1 - POSITION_OFFSET);
+    line(xCenter, y1 - BORDER_OFFSET, xCenter + POSITION_OFFSET, y1 - POSITION_OFFSET);
+}
+
+bool FixedSpace3D::getCommand() {
+    int x, y;
+    getmouseclick(WM_LBUTTONDOWN, x, y);
+    return getCommand(x, y);
+}
+
+bool FixedSpace3D::getCommand(const int x, const int y) {
+    if (x == -1) {
+        return false;
+    }
+    if (checkAxisRotation(x, y)) {
+        return true;
+    }
+    return false;
+}
+
+bool FixedSpace3D::insideWorkArea(const int x, const int y) const {
+    return x0 <= x && x <= x1 && y0 <= y && y <= y1;
+}
+
+bool FixedSpace3D::insideWorkArea(const Point2D& point) const {
+    return insideWorkArea(point.x, point.y);
+}
+
+void FixedSpace3D::run() {
+    render();
+    draw();
+}
+
+Point2D FixedSpace3D::projectPoint(const IntegerPoint3D& point, const Quaternion& camQuat, const Quaternion& camInverse) const {
+    const int xCenter = (x0 + x1) / 2;
+    const int yCenter = (y0 + y1) / 2;
+    const int yLen = (y1 - y0);
+    const int xr = point.x - m_cam.position().getX();
+    const int yr = point.y - m_cam.position().getY();
+    const int zr = point.z - m_cam.position().getZ();
+    double EZ = m_cam.EZ();
+    Quaternion pointQuat(0, Point3D(xr, yr, zr).toArray());
+    Quaternion rotatedPct = Quaternion(camInverse * pointQuat * camQuat);
+    double dx = rotatedPct[1];
+    double dy = rotatedPct[2];
+    double dz = rotatedPct[3];
+    if (dy <= 0) {
+        return Point2D(-100, -100);
+    }
+    double xprim = EZ * dx * yLen / dy + xCenter;
+    double yprim = EZ * dz * yLen / dy * -1 + yCenter;
+    return Point2D(xprim, yprim);
+}
+
+void FixedSpace3D::projectSection() {
+    Quaternion camQuat = m_cam.quat();
+    Quaternion camInverse = camQuat.inverse();
+    for (FixedMesh::iterator_type it = m_mesh.begin(); it != m_mesh.end(); ++it) {
+        m_mesh.renderPoint(it, projectPoint(*it, camQuat, camInverse));
+    }
+}
+
+bool FixedSpace3D::getKeyCommand() {
+    if (!kbhit()) {
+        return false;
+    }
+    char x;
+    do {
+        x = getch();
+    } while (kbhit());
+    return checkCamMovement(x);
+}
+
+bool FixedSpace3D::checkCamMovement(const char x) {
+    const int distance = 25;
+    Point3D auxPoint;
+    switch (x) {
+        case 'a':
+            auxPoint = Point3D(-distance, 0, 0);
+            break;
+        case 'd':
+            auxPoint = Point3D(distance, 0, 0);
+            break;
+        case 's':
+            auxPoint = Point3D(0, -distance, 0);
+            break;
+        case 'w':
+            auxPoint = Point3D(0, distance, 0);
+            break;
+        case 'e':
+            auxPoint = Point3D(0, 0, distance);
+            break;
+        case 'q':
+            auxPoint = Point3D(0, 0, -distance);
+            break;
+        default:
+            return 0;
+    }
+    Point3D rotatedPoint = rotateByCamera(auxPoint);
+    m_cam.modifyPosition(rotatedPoint.x, rotatedPoint.y, rotatedPoint.z);
+    callHandlerDrawer();
+    return 1;
+}
+
+bool FixedSpace3D::checkAxisRotation(const int x, const int y) {
+    constexpr double GRAD_ONEHALF = 0.0078539816339745;
+    clearmouseclick(WM_LBUTTONUP);
+    if (m_arrowDown.hitCollision(x, y)) {
+        while (!ismouseclick(WM_LBUTTONUP)) {
+            m_cam.rotateOnAxis(0, -GRAD_ONEHALF);
+            callHandlerDrawer();
+        }
+        return true;
+    }
+    if (m_arrowUp.hitCollision(x, y)) {
+        while (!ismouseclick(WM_LBUTTONUP)) {
+            m_cam.rotateOnAxis(0, GRAD_ONEHALF);;
+            callHandlerDrawer();
+        }
+        return true;
+    }
+    if (m_arrowLeft.hitCollision(x, y)) {
+        while (!ismouseclick(WM_LBUTTONUP)) {
+            m_cam.rotateOnAxis(2, GRAD_ONEHALF);
+            callHandlerDrawer();
+        }
+        return true;
+    }
+    if (m_arrowRight.hitCollision(x, y)) {
+        while (!ismouseclick(WM_LBUTTONUP)) {
+            m_cam.rotateOnAxis(2, -GRAD_ONEHALF);
+            callHandlerDrawer();
+        }
+        return true;
+    }
+    return false;
+}
+
+FixedMesh& FixedSpace3D::mesh() {
+    return m_mesh;
+}
+
+Point3D FixedSpace3D::rotateByCamera(const Point3D& pct) const {
+    double xr = pct.x;
+    double yr = pct.y;
+    double zr = pct.z;
+    Point3D aux = Point3D(xr, yr, zr).rotatedByUnitQuat(m_cam.quat());
+    return Point3D(aux.x, aux.y, aux.z);
+}

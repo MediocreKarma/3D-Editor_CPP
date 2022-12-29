@@ -790,7 +790,7 @@ void ObjectCreator::lineCutter3D(const int& x, const int& y){
 }
 
 void ObjectCreator::lineCutter2D(const int& x, const int& y) {
-clearmouseclick(WM_LBUTTONUP);
+    clearmouseclick(WM_LBUTTONUP);
     int xDrag, yDrag;
     while (!ismouseclick(WM_LBUTTONUP)) {
         getmouseclick(WM_MOUSEMOVE, xDrag, yDrag);

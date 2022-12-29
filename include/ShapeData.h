@@ -8,37 +8,35 @@
 #include <winbgim.h>
 #include "AppTools.h"
 #include <cstdio>
-#include "Quaternion.h"
 #include "MySet.h"
 #include "MyHashMap.h"
 #include "MyHashSet.h"
+#include "Quaternion.h"
 
-class Point2D {
-    public:
-        Point2D();
-        Point2D(const int& x_, const int& y_);
-        Point2D(const double& x_, const double& y_);
-        Point2D(const Point2D& pct);
-        int getX() const;
-        int getY() const;
-        void setX(const int& x_);
-        void setY(const int& y_);
-        bool operator == (const Point2D& other);
-        Point2D& operator = (const Point2D& other);
-        Point2D& operator += (const Point2D& other);
-        Point2D& operator -= (const Point2D& other);
-        Point2D operator + (const Point2D& p);
-        Point2D operator - (const Point2D& p);
-        void translate (const Point2D& other);
-        void translate (const int& x_, const int& y_);
-        friend bool linesIntersect(const Point2D& A, const Point2D& B, const Point2D& C, const Point2D& D);
-        //iostream
-        void display() const;
-        void display(bool endlAfter) const;
+struct Point2D {
+    Point2D();
+    Point2D(const int& x_, const int& y_);
+    Point2D(const double& x_, const double& y_);
+    Point2D(const Point2D& pct);
+    int getX() const;
+    int getY() const;
+    void setX(const int& x_);
+    void setY(const int& y_);
+    bool operator == (const Point2D& other);
+    Point2D& operator = (const Point2D& other);
+    Point2D& operator += (const Point2D& other);
+    Point2D& operator -= (const Point2D& other);
+    Point2D operator + (const Point2D& p);
+    Point2D operator - (const Point2D& p);
+    void translate(const Point2D& other);
+    void translate(const int& x_, const int& y_);
+    friend bool linesIntersect(const Point2D& A, const Point2D& B, const Point2D& C, const Point2D& D);
+    //iostream
+    void display() const;
+    void display(bool endlAfter) const;
 
-    private:
-        int x;
-        int y;
+    int x;
+    int y;
 };
 
 class Line2D {
@@ -219,6 +217,7 @@ class FixedMesh {
         FixedMesh();
         FixedMesh(const Mesh& other);
         void addEdge(const IntegerPoint3D& x, const IntegerPoint3D& y);
+        void addEdge(iterator_type it1, iterator_type it2);
         void addPoint(const IntegerPoint3D& x);
         void addPoint(const int& x, const int& y, const int& z);
         void erasePoint(const IntegerPoint3D& x);
@@ -226,12 +225,24 @@ class FixedMesh {
         void erasePoint(iterator_type it);
         void eraseConnection(const IntegerPoint3D& x, const IntegerPoint3D& y);
         void eraseConnection(iterator_type it1, iterator_type it2);
+        void renderPoint(iterator_type pointIt, const Point2D& conversion);
+        void drawMesh(const int primaryThemeColor);
         iterator_type begin();
         iterator_type end();
+        size_t size();
 
     private:
         MySet<IntegerPoint3D> m_points;
-        MyHashMap<iterator_type, MyHashSet<iterator_type>> m_adjList;
+
+        struct adjListContainer {
+            Point2D conversion;
+            MyHashSet<iterator_type> adjacentPoints;
+
+            adjListContainer() :
+                conversion(-100, -100), adjacentPoints() {}
+        };
+
+        MyHashMap<iterator_type, adjListContainer> m_adjList;
         Quaternion m_quat;
 };
 
