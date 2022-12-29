@@ -681,3 +681,20 @@ Section& Space3D::sectionAt(const size_t& index) {
 const Section& Space3D::sectionAt(const size_t& index) const {
     return m_sections[index];
 }
+
+FixedSpace3D::FixedSpace3D(const int& theme, const Mesh& mesh, ObjectCreator* objectCreatorHandler) :
+    x0(), y0(), x1(), y1(), m_theme(theme), m_arrowLeft(), m_arrowRight(), m_arrowUp(), m_arrowDown(),
+    m_objCreatorHolder(objectCreatorHandler), m_cam(), m_mesh(mesh), m_section(), m_updated(true) {}
+
+void FixedSpace3D::render() {
+    if (m_updated) {
+        //m_section = projectSection();
+        m_updated = false;
+    }
+}
+
+void FixedSpace3D::draw() {
+    const MyArray<int, 3>& tC = ColorSchemes::themeColors[m_theme];
+    m_section.draw(tC[ColorSchemes::PRIMARYCOLOR], tC[ColorSchemes::SECONDARYCOLOR], tC[ColorSchemes::ACCENTCOLOR]);
+}
+

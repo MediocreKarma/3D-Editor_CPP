@@ -2,13 +2,16 @@
 #define SHAPEDATA_H
 
 #include <cmath>
+#include <iostream>
 #include "MyVector.h"
 #include <graphics.h>
 #include <winbgim.h>
 #include "AppTools.h"
 #include <cstdio>
 #include "Quaternion.h"
-#include <iostream>
+#include "MySet.h"
+#include "MyHashMap.h"
+#include "MyHashSet.h"
 
 class Point2D {
     public:
@@ -79,41 +82,41 @@ class Section {
         bool m_active;
 };
 
-class Point3D {
-    public:
-        Point3D();
-        Point3D(const double& x_, const double& y_, const double& z_);
-        Point3D(const Point3D& pct);
-        Point3D(const MyArray<double, 3>& arr);
-        double getX() const;
-        double getY() const;
-        double getZ() const;
-        void setX(const double& x_);
-        void setY(const double& y_);
-        void setZ(const double& z_);
-        void setPoint(const Point3D& pct);
-        void round();
-        MyArray<double, 3> toArray() const;
-        void rotateOX(const Point3D& center, const double& alpha);
-        void rotateOY(const Point3D& center, const double& alpha);
-        void rotateOZ(const Point3D& center, const double& alpha);
-        void rotateByAxisVector(const double& angle, const MyArray<double, 3>& axis);
-        void rotateByUnitQuat(const Quaternion& quat);
-        Point3D rotatedByAxisVector(const double& angle, const MyArray<double, 3>& axis);
-        Point3D rotatedByUnitQuat(const Quaternion& quat);
-        void translate(const double& xTranslate, const double& yTranslate, const double& zTranslate);
-        Point3D& operator += (const Point3D& other);
-        bool operator == (const Point3D& other) const;
-        void fprint(FILE* fp);
-        bool fscan(FILE* fp);
-        //iostream
-        void display() const;
-        void display(bool endlAfter) const;
+struct Point3D {
+    Point3D();
+    Point3D(const double& x_, const double& y_, const double& z_);
+    Point3D(const Point3D& pct);
+    Point3D(const MyArray<double, 3>& arr);
+    double getX() const;
+    double getY() const;
+    double getZ() const;
+    void setX(const double& x_);
+    void setY(const double& y_);
+    void setZ(const double& z_);
+    void setPoint(const Point3D& pct);
+    void round();
+    MyArray<double, 3> toArray() const;
+    void rotateOX(const Point3D& center, const double& alpha);
+    void rotateOY(const Point3D& center, const double& alpha);
+    void rotateOZ(const Point3D& center, const double& alpha);
+    void rotateByAxisVector(const double& angle, const MyArray<double, 3>& axis);
+    void rotateByUnitQuat(const Quaternion& quat);
+    Point3D rotatedByAxisVector(const double& angle, const MyArray<double, 3>& axis);
+    Point3D rotatedByUnitQuat(const Quaternion& quat);
+    void translate(const double& xTranslate, const double& yTranslate, const double& zTranslate);
+    Point3D& operator += (const Point3D& other);
+    bool operator == (const Point3D& other) const;
+    void fprint(FILE* fp);
+    bool fscan(FILE* fp);
+    //iostream
+    void display() const;
+    void display(bool endlAfter) const;
 
-    private:
-        double x;
-        double y;
-        double z;
+    friend bool operator < (const Point3D& x, const Point3D& y);
+
+    double x;
+    double y;
+    double z;
 };
 
 class Line3D {
@@ -136,11 +139,14 @@ class Line3D {
         Point3D Q;
 };
 
+class FixedMesh;
+
 class Mesh {
     public:
         Mesh();
         Mesh(const MyVector<Point3D>& points, const MyVector<MyVector<size_t>>& adjList);
         Mesh(const Mesh& other);
+        Mesh& operator = (const FixedMesh& other);
 
         size_t size() const;
         void erase(const size_t& index);
@@ -183,16 +189,50 @@ class Mesh {
         Quaternion m_quat;
 };
 
-//specializari std::hash
+struct IntegerPoint3D {
+    int x, y, z;
+
+    IntegerPoint3D();
+    IntegerPoint3D(const Point3D& point);
+    IntegerPoint3D(const int& x, const int& y, const int& z);
+    IntegerPoint3D(const IntegerPoint3D& other);
+    IntegerPoint3D& operator = (const Point3D& point3d);
+    IntegerPoint3D& operator = (const IntegerPoint3D& iPoint3d);
+    friend bool operator < (const IntegerPoint3D& x, const IntegerPoint3D& y);
+};
+
 namespace std {
-    template<> struct hash<Point3D> {
-        size_t operator()(const Point3D& s) const noexcept {
-            size_t hash1 = hash<double>{}(s.getX());
-            size_t hash2 = hash<double>{}(s.getY());
-            size_t hash3 = hash<double>{}(s.getZ());
+    template<> struct hash<IntegerPoint3D> {
+        size_t operator()(const IntegerPoint3D& P) const noexcept {
+            size_t hash1 = hash<int>{}(P.x);
+            size_t hash2 = hash<int>{}(P.y);
+            size_t hash3 = hash<int>{}(P.z);
             return hash1 ^ (hash2 << 1) ^ (hash3 << 2);
         }
     };
 }
+
+class FixedMesh {
+    public:
+        using iterator_type = MySet<IntegerPoint3D>::iterator;
+
+        FixedMesh();
+        FixedMesh(const Mesh& other);
+        void addEdge(const IntegerPoint3D& x, const IntegerPoint3D& y);
+        void addPoint(const IntegerPoint3D& x);
+        void addPoint(const int& x, const int& y, const int& z);
+        void erasePoint(const IntegerPoint3D& x);
+        void erasePoint(const int& x, const int& y, const int& z);
+        void erasePoint(iterator_type it);
+        void eraseConnection(const IntegerPoint3D& x, const IntegerPoint3D& y);
+        void eraseConnection(iterator_type it1, iterator_type it2);
+        iterator_type begin();
+        iterator_type end();
+
+    private:
+        MySet<IntegerPoint3D> m_points;
+        MyHashMap<iterator_type, MyHashSet<iterator_type>> m_adjList;
+        Quaternion m_quat;
+};
 
 #endif // SHAPEDATA_H

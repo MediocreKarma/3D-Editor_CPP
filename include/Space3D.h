@@ -106,4 +106,39 @@ class Space3D
         bool isDragAndDrop(const int& xDrag, const int& yDrag) const;
 };
 
+class FixedSpace3D {
+    public:
+        FixedSpace3D(const int& theme, const Mesh& mesh, ObjectCreator* objectCreatorHandler);
+        FixedSpace3D(const FixedSpace3D& other);
+        FixedSpace3D& operator = (const FixedSpace3D& other);
+        void render();
+        void draw();
+        void run();
+        bool insideWorkArea(const int& x, const int& y) const;
+        bool insideWorkArea(const Point2D& point) const;
+        void getCommand();
+        void getCommand(const int& x, const int& y);
+
+    private:
+        void initButtons();
+        void drawButtons();
+        Point2D projectPoint(const IntegerPoint3D& point, const Quaternion& camQuat, const Quaternion& camInverse) const;
+        Section projectSection();
+
+        int x0;
+        int y0;
+        int x1;
+        int y1;
+        int m_theme;
+        Button m_arrowLeft;
+        Button m_arrowRight;
+        Button m_arrowUp;
+        Button m_arrowDown;
+        ObjectCreator* m_objCreatorHolder;
+        Camera m_cam;
+        FixedMesh m_mesh;
+        Section m_section;
+        bool m_updated;
+};
+
 #endif // SPACE3D_H

@@ -22,6 +22,9 @@ class MySetIterator {
         using reference = const T&;
         using pointer = const T*;
 
+        MySetIterator() :
+            m_ptr(nullptr) {}
+
         MySetIterator(Node* ptr) noexcept :
             m_ptr(ptr) {}
 
@@ -70,7 +73,18 @@ class MySetIterator {
             --(*this);
             return tmp;
         }
+
+        friend struct std::hash<MySetIterator<T, F>>;
+
 };
+
+namespace std {
+    template<typename T, typename F> struct hash<MySetIterator<T, F>> {
+        size_t operator()(const MySetIterator<T, F>& it) const noexcept {
+            return std::hash<void*>{}((void*)it.m_ptr);
+        }
+    };
+}
 
 template<typename T, typename F>
 class MySet {

@@ -43,7 +43,7 @@ class MyArray {
             return *this;
         }
 
-        size_t size() const {
+        constexpr size_t size() const {
             return m_size;
         }
 

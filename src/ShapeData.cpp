@@ -1,6 +1,4 @@
 #include "ShapeData.h"
-#include "Quaternion.h"
-#include <math.h>
 
 const double PI = 3.14159265359;
 const double err = 0.0000000000000000000001;
@@ -328,6 +326,19 @@ void Point3D::display() const {
 
 void Point3D::display(bool endlAfter) const {
     std::cout<<x<<" "<<y<<" "<<z<<(endlAfter?"\n":"");
+}
+
+bool operator < (const Point3D& x, const Point3D& y) {
+    if (x.x < y.x) {
+        return true;
+    }
+    else if (x.y < y.y) {
+        return true;
+    }
+    else if (x.z < y.z) {
+        return true;
+    }
+    return false;
 }
 
 Line3D::Line3D() :
@@ -731,4 +742,120 @@ MyArray<Point3D, 2> Mesh::getBoundingBoxCorners() {
         }
     }
     return MyArray<Point3D, 2>{bottomLeft, topRight};
+}
+
+IntegerPoint3D::IntegerPoint3D() :
+    x(0), y(0), z(0) {}
+
+IntegerPoint3D::IntegerPoint3D(const Point3D& point3d) : IntegerPoint3D() {
+    *this = point3d;
+}
+
+IntegerPoint3D::IntegerPoint3D(const int& x_, const int& y_, const int& z_) :
+    x(x_), y(y_), z(z_) {}
+
+IntegerPoint3D::IntegerPoint3D(const IntegerPoint3D& other) :
+    x(other.x), y(other.y), z(other.z) {}
+
+IntegerPoint3D& IntegerPoint3D::operator = (const Point3D& point3d) {
+    if (point3d.x > 0) {
+        x = (int)(point3d.x + 0.5);
+    }
+    else {
+        x = (int)(point3d.x - 0.5);
+    }
+    if (point3d.y > 0) {
+        y = (int)(point3d.y + 0.5);
+    }
+    else {
+        y = (int)(point3d.y - 0.5);
+    }
+    if (point3d.z > 0) {
+        z = (int)(point3d.z + 0.5);
+    }
+    else {
+        z = (int)(point3d.z - 0.5);
+    }
+    return *this;
+}
+
+IntegerPoint3D& IntegerPoint3D::operator = (const IntegerPoint3D& rhs) {
+    x = rhs.x;
+    y = rhs.y;
+    z = rhs.z;
+    return *this;
+}
+
+bool operator < (const IntegerPoint3D& a, const IntegerPoint3D& b) {
+    return a.x < b.x || (a.x == b.x && a.y < b.y) ||
+            (a.x == b.x && a.y == b.y && a.z < b.z);
+}
+
+FixedMesh::FixedMesh() :
+    m_points(), m_adjList(), m_quat() {}
+
+FixedMesh::FixedMesh(const Mesh& other) : FixedMesh() {
+    MyVector<IntegerPoint3D> helperPoints;
+    helperPoints.resize(other.size());
+    for (size_t i = 0; i < other.size(); ++i) {
+        helperPoints[i] = other[i];
+    }
+    const MyVector<MyVector<size_t>>& adjList = other.adjacencyList();
+    for (size_t i = 0; i < adjList.size(); ++i) {
+        iterator_type it = m_points.find(helperPoints[i]);
+        m_adjList.insert(it, MyHashSet<MySet<IntegerPoint3D>::iterator>());
+        for (const size_t& j : adjList[i]) {
+            if (helperPoints[i] < helperPoints[j]) {
+                m_adjList[it].insert(m_points.find(helperPoints[j]));
+            }
+        }
+    }
+}
+
+void FixedMesh::addEdge(const IntegerPoint3D& x, const IntegerPoint3D& y) {
+    m_adjList[m_points.find(x)].insert(m_points.find(y));
+}
+
+void FixedMesh::addPoint(const IntegerPoint3D& x) {
+    m_points.insert(x);
+    iterator_type it = m_points.find(x);
+    m_adjList.insert(it, MyHashSet<MySet<IntegerPoint3D>::iterator>());
+}
+
+void FixedMesh::addPoint(const int& x, const int& y, const int& z) {
+    addPoint(IntegerPoint3D(x, y, z));
+}
+
+void FixedMesh::erasePoint(const int& x, const int& y, const int& z) {
+    erasePoint(IntegerPoint3D(x, y, z));
+}
+
+void FixedMesh::erasePoint(const IntegerPoint3D& x) {
+    erasePoint(m_points.find(x));
+}
+
+void FixedMesh::erasePoint(iterator_type it) {
+    m_adjList.erase(it);
+    m_points.erase(it);
+}
+
+void FixedMesh::eraseConnection(const IntegerPoint3D& x, const IntegerPoint3D& y) {
+    eraseConnection(m_points.find(x), m_points.find(y));
+}
+
+void FixedMesh::eraseConnection(iterator_type it1, iterator_type it2) {
+    if (*it1 < *it2) {
+        m_adjList[it1].erase(it2);
+    }
+    else {
+        m_adjList[it2].erase(it1);
+    }
+}
+
+FixedMesh::iterator_type FixedMesh::begin() {
+    return m_points.begin();
+}
+
+FixedMesh::iterator_type FixedMesh::end() {
+    return m_points.end();
 }
