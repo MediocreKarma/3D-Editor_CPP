@@ -328,19 +328,6 @@ void Point3D::display(bool endlAfter) const {
     std::cout<<x<<" "<<y<<" "<<z<<(endlAfter?"\n":"");
 }
 
-bool operator < (const Point3D& x, const Point3D& y) {
-    if (x.x < y.x) {
-        return true;
-    }
-    else if (x.y < y.y) {
-        return true;
-    }
-    else if (x.z < y.z) {
-        return true;
-    }
-    return false;
-}
-
 Line3D::Line3D() :
     P(), Q() {}
 
