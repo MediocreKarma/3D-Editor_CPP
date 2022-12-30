@@ -170,14 +170,18 @@ class Mesh {
         void rotateByUnitQuat(const Quaternion& quat);
         void rotateDisplayAngle();
         void scaleEven(const double& scaleFactor);
-        void scaleAxis(bool isLocal, const double& scaleFactor, const size_t& axis);
-        void mirror(bool isLocal, const size_t& axis);
+        void scaleAxis(const double& scaleFactor, const size_t& axis);
+        void mirror(const size_t& axis);
         double angleX() const;
         double angleY() const;
         double angleZ() const;
         Quaternion quat() const;
         void resetRotation();
+        void resetScale();
         MyArray<Point3D, 2> getBoundingBoxCorners();
+        double scaleX() const;
+        double scaleY() const;
+        double scaleZ() const;
 
     private:
         MyVector<Point3D> m_points;
@@ -185,6 +189,7 @@ class Mesh {
         Point3D m_centerPoint;
         double m_angleX, m_angleY, m_angleZ;
         Quaternion m_quat;
+        double m_scaleX, m_scaleY, m_scaleZ;
 };
 
 struct IntegerPoint3D {

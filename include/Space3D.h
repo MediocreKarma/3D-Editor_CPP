@@ -80,10 +80,13 @@ class Space3D
         MyArray<char, 512> m_linkedFile;
         Menu* m_menuHolder;
         ObjectCreator* m_objCreatorHolder;
+
         size_t size() const;
         void callHandlerDrawer();
         void setButtons();
         void drawRotationArrows();
+        void drawDottedLine(int x0, int y0, int x1, int y1);
+        void scaleMesh();
         void dragMesh();
         void dragAndDrop(const int& xDrag, const int& yDrag, Mesh& mesh,  const Quaternion& camQuat, const Quaternion& camInverse);
         double findRotation(const int& xDrag, const int& yDrag, const DonutButton& angleDonut, CircularButton& button);

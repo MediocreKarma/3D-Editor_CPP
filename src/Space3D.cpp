@@ -4,6 +4,7 @@
 #include "Quaternion.h"
 
 const double pi = 3.141926535897;
+const double err = 0.0000000000000000000001;
 
 Space3D::Space3D() :
     x0(), y0(), x1(), y1(), m_theme(), m_selected(-1), m_spinballSelected(false), m_fadedDrag(false),  m_objRotateDrag(false), m_meshes(), m_draggedMesh(), m_sections(), m_draggedSection(),
@@ -508,6 +509,10 @@ bool Space3D::getKeyCommand() {
 }
 
 bool Space3D::checkKeyCommand(const char& x) {
+    if (m_selected != -1 && x == 19) {
+        scaleMesh();
+        return 1;
+    }
     return checkCamMovement(x);
 }
 
@@ -572,6 +577,128 @@ void Space3D::dragMesh() {
     if (!m_sections[m_selected].grabButtonCollision(xDrag, yDrag)) {
         m_meshes[m_selected] = m_draggedMesh;
         m_updated[m_selected] = true;
+    }
+}
+
+void Space3D::drawDottedLine(int x0_, int y0_, int x1_, int y1_) {
+    //swapbuffers trickery; deseneaza un "assistLine" peste imag curenta si aduce setarile inapoi
+    //am facut o functie literalmente pt ca ma enerva sa am de vreo... 5 ori? bucata asta de cod in scaleMesh()
+    swapbuffers();
+    struct linesettingstype oldSettings;
+    getlinesettings(&oldSettings);
+    int oldColor = getcolor();
+    setlinestyle(3, 0, 2);
+    setcolor(RGB(128, 128, 128));
+    line(x0_, y0_, x1_, y1_);
+    setlinestyle(oldSettings.linestyle, oldSettings.upattern, oldSettings.thickness);
+    setcolor(oldColor);
+    swapbuffers();
+}
+
+void Space3D::scaleMesh() {
+    short scaleAxis = -1;
+    int xOrig, yOrig;
+    xOrig = mousex();
+    yOrig = mousey();
+    int dx = abs(xOrig - m_sections[m_selected].centerPoint().x);
+    int dy = abs(yOrig - m_sections[m_selected].centerPoint().y);
+    if (insideWorkArea(xOrig, yOrig)) {
+        drawDottedLine(m_sections[m_selected].centerPoint().x, m_sections[m_selected].centerPoint().y, xOrig, yOrig);
+    }
+    double distOrig = sqrt(dx * dx + dy * dy);
+    double distCurrent = distOrig;
+    double scaleFactor = 1;
+    Mesh original = m_meshes[m_selected];
+    while (!ismouseclick(WM_LBUTTONDOWN)) {
+        if (kbhit()) {
+            char x = getch();
+            switch(x) {
+                case 27: //ESC for "discard"
+                    m_meshes[m_selected] = original;
+                    m_updated[m_selected] = true;
+                    callHandlerDrawer();
+                    return;
+                //-1 - global; 0, 1, 2 - axele X, Y, Z. Mereu locale
+                //nu cred ca afecteaza asa tare faptu ca copiem mereu meshu Original in selected
+                //dar daca vrei neaparat, pot sa schimb asta
+                case 'x':
+                    m_meshes[m_selected] = original;
+                    if (scaleAxis != 0) {
+                        scaleAxis = 0;
+                        m_meshes[m_selected].scaleAxis(scaleFactor, 0);
+                    }
+                    else {
+                        scaleAxis = -1;
+                        m_meshes[m_selected].scaleEven(scaleFactor);
+                    }
+                    m_updated[m_selected] = true;
+                    callHandlerDrawer();
+                    drawDottedLine(m_sections[m_selected].centerPoint().x, m_sections[m_selected].centerPoint().y, mousex(), mousey());
+                    break;
+                case 'y':
+                    m_meshes[m_selected] = original;
+                    if (scaleAxis != 1) {
+                        scaleAxis = 1;
+                        m_meshes[m_selected].scaleAxis(scaleFactor, 1);
+                    }
+                    else {
+                        scaleAxis = -1;
+                        m_meshes[m_selected].scaleEven(scaleFactor);
+                    }
+                    m_updated[m_selected] = true;
+                    callHandlerDrawer();
+                    drawDottedLine(m_sections[m_selected].centerPoint().x, m_sections[m_selected].centerPoint().y, mousex(), mousey());
+                    break;
+                case 'z':
+                    m_meshes[m_selected] = original;
+                    if (scaleAxis != 2) {
+                        scaleAxis = 2;
+                        m_meshes[m_selected].scaleAxis(scaleFactor, 2);
+                    }
+                    else {
+                        scaleAxis = -1;
+                        m_meshes[m_selected].scaleEven(scaleFactor);
+                    }
+                    m_updated[m_selected] = true;
+                    callHandlerDrawer();
+                    drawDottedLine(m_sections[m_selected].centerPoint().x, m_sections[m_selected].centerPoint().y, mousex(), mousey());
+                    break;
+                default:;
+            }
+            continue;
+        }
+        int xMove, yMove;
+        getmouseclick(WM_MOUSEMOVE, xMove, yMove);
+        if (xMove >= 0 && yMove >= 0 && insideWorkArea(xMove, yMove)) {
+            dx = abs(xMove - m_sections[m_selected].centerPoint().x);
+            dy = abs(yMove - m_sections[m_selected].centerPoint().y);
+            distCurrent = sqrt(dx * dx + dy * dy);
+            scaleFactor = distCurrent / distOrig;
+            if (fabs(scaleFactor) > err && distCurrent > 5) {
+                if (scaleAxis == -1) {
+                    m_meshes[m_selected].scaleAxis(scaleFactor * original.scaleX() / m_meshes[m_selected].scaleX(), 0);
+                    m_meshes[m_selected].scaleAxis(scaleFactor * original.scaleY() / m_meshes[m_selected].scaleY(), 1);
+                    m_meshes[m_selected].scaleAxis(scaleFactor * original.scaleZ() / m_meshes[m_selected].scaleZ(), 2);
+                }
+                else {
+                    switch (scaleAxis) {
+                    case 0:
+                        m_meshes[m_selected].scaleAxis(scaleFactor * original.scaleX() / m_meshes[m_selected].scaleX(), scaleAxis);
+                        break;
+                    case 1:
+                        m_meshes[m_selected].scaleAxis(scaleFactor * original.scaleY() / m_meshes[m_selected].scaleY(), scaleAxis);
+                        break;
+                    case 2:
+                        m_meshes[m_selected].scaleAxis(scaleFactor * original.scaleZ() / m_meshes[m_selected].scaleZ(), scaleAxis);
+                        break;
+                    default:;
+                    }
+                }
+                m_updated[m_selected] = true;
+                callHandlerDrawer();
+                drawDottedLine(m_sections[m_selected].centerPoint().x, m_sections[m_selected].centerPoint().y, xMove, yMove);
+            }
+        }
     }
 }
 

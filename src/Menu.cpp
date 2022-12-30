@@ -167,6 +167,7 @@ bool Menu::getCommand(const int& x, const int& y) {
             Point3D center = aux.centerPoint();
             Quaternion quat = aux.quat();
             aux.resetRotation();
+            aux.resetScale();
             ObjectCreator objCreator(aux, m_theme);
             aux = objCreator.run();
             if (objCreator.getCloseFlag() == 2) {

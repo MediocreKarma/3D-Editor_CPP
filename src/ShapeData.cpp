@@ -391,15 +391,16 @@ void Line3D::fprint(FILE* fp) {
 }
 
 Mesh::Mesh() :
-    m_points(), m_adjList(), m_centerPoint(0, 0, 0), m_angleX(0.0), m_angleY(0.0), m_angleZ(0.0), m_quat(1, 0, 0, 0) {}
+    m_points(), m_adjList(), m_centerPoint(0, 0, 0), m_angleX(0.0), m_angleY(0.0), m_angleZ(0.0), m_quat(1, 0, 0, 0), m_scaleX(1), m_scaleY(1), m_scaleZ(1) {}
 
 Mesh::Mesh(const MyVector<Point3D>& points, const MyVector<MyVector<size_t>>& adjList) :
-    m_points(points), m_adjList(adjList), m_centerPoint(0, 0, 0), m_angleX(0.0), m_angleY(0.0), m_angleZ(0.0), m_quat(1, 0, 0, 0) {
+    m_points(points), m_adjList(adjList), m_centerPoint(0, 0, 0), m_angleX(0.0), m_angleY(0.0), m_angleZ(0.0), m_quat(1, 0, 0, 0), m_scaleX(1), m_scaleY(1), m_scaleZ(1) {
     updateCenterPoint();
 }
 
 Mesh::Mesh(const Mesh& other) :
-    m_points(other.m_points), m_adjList(other.m_adjList), m_centerPoint(other.m_centerPoint), m_angleX(other.m_angleX), m_angleY(other.m_angleY), m_angleZ(other.m_angleZ), m_quat(other.quat()) {}
+    m_points(other.m_points), m_adjList(other.m_adjList), m_centerPoint(other.m_centerPoint), m_angleX(other.m_angleX), m_angleY(other.m_angleY), m_angleZ(other.m_angleZ), m_quat(other.m_quat),
+    m_scaleX(other.m_scaleX), m_scaleY(other.m_scaleY), m_scaleZ(other.m_scaleZ){}
 
 void Mesh::updateCenterPoint() {
     Point3D auxPoint;
@@ -411,6 +412,18 @@ void Mesh::updateCenterPoint() {
 
 size_t Mesh::size() const {
     return m_points.size();
+}
+
+double Mesh::scaleX() const {
+    return m_scaleX;
+}
+
+double Mesh::scaleY() const {
+    return m_scaleY;
+}
+
+double Mesh::scaleZ() const {
+    return m_scaleZ;
 }
 
 Point3D& Mesh::operator [] (const size_t& index) {
@@ -426,6 +439,9 @@ Mesh& Mesh::operator = (const Mesh& other) {
     m_centerPoint = other.m_centerPoint;
     m_adjList = other.m_adjList;
     m_quat = other.m_quat;
+    m_scaleX = other.m_scaleX;
+    m_scaleY = other.m_scaleY;
+    m_scaleZ = other.m_scaleZ;
     return *this;
 }
 
@@ -626,44 +642,63 @@ void Mesh::rotateOnAxis(const Point3D& center, const Point3D& axis, const double
             m_points[i].rotateByUnitQuat(rotationQuat);
         }
     }
-    rotationQuat*=m_quat;
+    rotationQuat *= m_quat;
     m_quat = rotationQuat;
-
     translate(center.getX(), center.getY(), center.getZ());
 }
 
 
 void Mesh::scaleEven(const double& scaleFactor) {
-    Point3D center = centerPoint();
-    int translateAmt = scaleFactor - 1;
-    for (size_t i = 0; i < m_points.size(); i++) {
-        m_points[i].translate(translateAmt * (m_points[i].getX() - center.getX()), translateAmt * (m_points[i].getY() - center.getY()), translateAmt * (m_points[i].getZ() - center.getZ()));
-    }
-}
-
-void Mesh::scaleAxis(bool isLocal, const double& scaleFactor, const size_t& axis) {
-    MyArray<bool, 3> axes = {false, false, false};
-    axes[axis] = 1;
-    Point3D center = centerPoint();
+    Point3D center = m_centerPoint;
+    translate(-center.x, -center.y, -center.z);
     double translateAmt = scaleFactor - 1;
-
-    MyArray<double, 3> angles = {m_angleX, m_angleY, m_angleZ};
-
-    if (isLocal == true) {
-        rotate(-angles[0], -angles[1], -angles[2]);
+    if (fabs(translateAmt) > 0.0000001) {
+        for (size_t i = 0; i < m_points.size(); i++) {
+            m_points[i].x *= scaleFactor;
+            m_points[i].y *= scaleFactor;
+            m_points[i].z *= scaleFactor;
+        }
     }
-
-    for (size_t i = 0; i < m_points.size(); i++) {
-        m_points[i].translate(axes[0] * translateAmt * (m_points[i].getX() - center.getX()), axes[1] * translateAmt * (m_points[i].getY() - center.getY()), axes[2] * translateAmt * (m_points[i].getZ() - center.getZ()));
-    }
-
-    if (isLocal == true) {
-        rotate(angles[0], angles[1], angles[2]);
-    }
+    translate(center);
+    m_scaleX *= scaleFactor;
+    m_scaleY *= scaleFactor;
+    m_scaleZ *= scaleFactor;
 }
 
-void Mesh::mirror(bool isLocal, const size_t& axis) {
-    scaleAxis(isLocal, -1, axis);
+void Mesh::scaleAxis(const double& scaleFactor, const size_t& axis) {
+    //ALL SCALE IS LOCAL!!
+    MyArray<bool, 3> axes = {false, false, false};
+    axes[axis] = true;
+    Point3D center = m_centerPoint;
+    translate(-center.x, -center.y, -center.z);
+    Quaternion quat = m_quat;
+    resetRotation();
+    switch(axis) {
+        case 0:
+            for (size_t i = 0; i < m_points.size(); i++) {
+                m_points[i].x *= scaleFactor;
+            }
+            m_scaleX *= scaleFactor;
+            break;
+        case 1:
+            for (size_t i = 0; i < m_points.size(); i++) {
+                m_points[i].y *= scaleFactor;
+            }
+            m_scaleY *= scaleFactor;
+            break;
+        case 2:
+            for (size_t i = 0; i < m_points.size(); i++) {
+                m_points[i].z *= scaleFactor;
+            }
+            m_scaleZ *= scaleFactor;
+            break;
+    }
+    translate(center);
+    rotateByUnitQuat(quat);
+}
+
+void Mesh::mirror(const size_t& axis) {
+    scaleAxis(-1, axis);
 }
 
 Quaternion Mesh::quat() const {
@@ -671,8 +706,9 @@ Quaternion Mesh::quat() const {
 }
 
 void Mesh::resetRotation() {
-    MyArray<double, 3> aux = Point3D(centerPoint()).toArray();
-    translate(-aux[0], -aux[1], -aux[2]);
+    Point3D center = m_centerPoint;
+    translate(-center.x, -center.y, -center.z);
+    //stiu ca round e potentially unsafe dar rezolv altadata
     const double e = 0.000000001;
     for (Point3D& pct : m_points) {
         pct.rotateByUnitQuat(m_quat.inverse());
@@ -690,7 +726,27 @@ void Mesh::resetRotation() {
     m_angleY = 0;
     m_angleZ = 0;
     m_quat = Quaternion(1, 0, 0, 0);
-    translate(aux[0], aux[1], aux[2]);
+    translate(center);
+}
+
+void Mesh::resetScale() {
+    //DOAMNE ITI MULTUMESC CA SCALARILE PE AXE SUNT COMUTATIVE
+    scaleAxis(1 / m_scaleX, 0);
+    scaleAxis(1 / m_scaleY, 1);
+    scaleAxis(1 / m_scaleZ, 2);
+    const double e = 0.000000001;
+    for (Point3D& pct : m_points) {
+        pct.rotateByUnitQuat(m_quat.inverse());
+        if (fabs(pct.getX() - round(pct.getX())) < e) {
+            pct.setX((int)round(pct.getX()));
+        }
+        if (fabs(pct.getY() - round(pct.getY())) < e) {
+            pct.setY((int)round(pct.getY()));
+        }
+        if (fabs(pct.getZ() - round(pct.getZ())) < e) {
+            pct.setZ((int)round(pct.getZ()));
+        }
+    }
 }
 
 void Mesh::rotateByUnitQuat(const Quaternion& quat) {
