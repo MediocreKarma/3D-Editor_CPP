@@ -77,6 +77,8 @@ class Space3D
         Button m_arrowDown;
         Button m_arrowSpinLeft;
         Button m_arrowSpinRight;
+        DropdownButton<5> m_rightClickMenu;
+        bool m_rMenuOpen;
         MyArray<char, 512> m_linkedFile;
         Menu* m_menuHolder;
         ObjectCreator* m_objCreatorHolder;

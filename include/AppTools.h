@@ -115,6 +115,7 @@ class TextButton : public Button {
         void drawTextButton(const int& txtFont, const int& txtSize, const int& fillColor, const bool& centerText = true);
         const char* getText();
         void modifyText(const MyArray<char, 32>& newText);
+        void move(int x, int y);
 
     protected:
         MyArray<char, 32> m_text;
@@ -127,7 +128,7 @@ template<size_t lenList>
 class DropdownButton : public TextButton {
     public:
         DropdownButton() :
-            TextButton(), m_index(), m_listHeight(), m_listWidth(), m_listVisibility(false), m_list() {}
+            TextButton(), m_index(), m_listWidth(), m_listHeight(), m_listVisibility(false), m_list() {}
 
         DropdownButton(const int& xCenter_, const int& yCenter_, const int& xLen_, const int& yLen_, const char* p, const int& listWidth, const int& listHeight) :
             TextButton(xCenter_, yCenter_, xLen_, yLen_, p), m_index(0), m_listWidth(listWidth), m_listHeight(listHeight), m_listVisibility(false), m_list() {}
@@ -139,9 +140,9 @@ class DropdownButton : public TextButton {
             ++m_index;
         }
 
-        void showList(const int& font, const int& fontSize, const int& fillColor) {
+        void showList(const int& font, const int& fontSize, const int& fillColor, const bool& centerText = true) {
             for (size_t i = 0; i < lenList; ++i) {
-                m_list[i].drawTextButton(font, fontSize, fillColor);
+                m_list[i].drawTextButton(font, fontSize, fillColor, centerText);
             }
             m_listVisibility = 1;
         }
@@ -162,6 +163,24 @@ class DropdownButton : public TextButton {
             else {
                 hideList(barColor);
             }
+        }
+
+        void move(int x, int y) {
+            int deltax = x - xCenter;
+            int deltay = y - yCenter;
+            xCenter = x;
+            yCenter = y;
+            for (size_t i = 0; i < lenList; ++i) {
+                m_list[i].move(m_list[i].getXCenter() + deltax, m_list[i].getYCenter() + deltay);
+            }
+        }
+
+        int width() const {
+            return (yLen > m_listWidth) ? yLen : m_listWidth;
+        }
+
+        int height() const {
+            return m_listHeight + yLen;
         }
 
         bool isListVisible() const {

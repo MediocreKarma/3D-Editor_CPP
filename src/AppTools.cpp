@@ -205,3 +205,8 @@ const char* TextButton::getText() {
 void TextButton::modifyText(const MyArray<char, 32>& newText) {
     m_text = newText;
 }
+
+void TextButton::move(int x, int y) {
+    xCenter = x;
+    yCenter = y;
+}
