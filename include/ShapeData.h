@@ -103,18 +103,38 @@ struct Point3D {
     Point3D rotatedByUnitQuat(const Quaternion& quat);
     void translate(const double& xTranslate, const double& yTranslate, const double& zTranslate);
     Point3D& operator += (const Point3D& other);
+    Point3D& operator -= (const Point3D& other);
+    Point3D operator + (const Point3D& other) const;
+    Point3D operator - (const Point3D& other) const;
+    Point3D operator * (const double& scalar) const;
     bool operator == (const Point3D& other) const;
     void fprint(FILE* fp);
     bool fscan(FILE* fp);
+    double norm() const;
+    void normalize();
     //iostream
     void display() const;
     void display(bool endlAfter) const;
 
     friend bool operator < (const Point3D& x, const Point3D& y);
+    friend Point3D cross(const Point3D& p1, const Point3D& p2);
+    friend double dot(const Point3D& p1, const Point3D& p2);
 
     double x;
     double y;
     double z;
+};
+
+struct Ray {
+    Point3D origin, direction;
+    double t;
+    Ray() : origin(0, 0, 0), direction(1, 0, 0), t(1) {}
+    Ray(const Point3D& p1, const Point3D& p2) : origin(p1), direction(p2 - p1), t(1) {
+        if (direction == Point3D(0, 0, 0)) {
+            direction = Point3D(1, 0, 0);
+        }
+        direction.normalize();
+    }
 };
 
 class Line3D {

@@ -5,6 +5,7 @@
 
 const double pi = 3.141926535897;
 const double err = 0.0000000000000000000001;
+const double moveErr = 0.007; //chosen by trial and error, used for moveMesh()
 
 Space3D::Space3D() :
     x0(), y0(), x1(), y1(), m_theme(), m_selected(-1), m_spinballSelected(false), m_fadedDrag(false),  m_objRotateDrag(false), m_meshes(), m_draggedMesh(), m_sections(), m_draggedSection(),
@@ -522,9 +523,14 @@ bool Space3D::getKeyCommand() {
 }
 
 bool Space3D::checkKeyCommand(const char& x) {
-    if (m_selected != -1 && x == 19) {
+    //comenzi pt scale si move ca in blender. fscale si gmove
+    if (m_selected != -1 && x == 'f') {
         scaleMesh();
-        return 1;
+        return true;
+    }
+    if (m_selected != -1 && x == 'g') {
+        moveMesh();
+        return true;
     }
     if (m_rMenuOpen) {
         m_rMenuOpen = false;
@@ -572,7 +578,6 @@ bool Space3D::getCommand(const int& x, const int& y) {
             m_rMenuOpen = false;
         }
     }
-
     if (m_selected != -1 && m_spinballButton.hitCollision(x, y)) {
         m_spinballSelected = !m_spinballSelected;
         return true;
@@ -781,10 +786,128 @@ void Space3D::scaleMesh() {
     }
 }
 
-/*void Space3D::moveMesh() {
-    aveam un plan de atac dar nu l mai pun aici ca i gresit cred. vad daca pot zilele astea sa fac
+void Space3D::moveMeshHelper(int xMove, int yMove, int moveAxis, bool isLocal) {
+    MyArray<Point3D, 2> axisNormals{Point3D(0, 1, 0), Point3D(1, 0, 0)}; //normalele lu XZ si YZ, deci Y si Z
+    if (isLocal) {
+        //nu stiu deocamdata dar vedem. scot isLocal daca nu pot sa fac, ca si asa solutia mea e cam ciudata
+        //dar efectiv n am gasit alta care sa fie buna si pe care sa o inteleg
+    }
+    if (insideWorkArea(xMove, yMove)) {
+        Point3D center = m_meshes[m_selected].centerPoint();
+        Point3D aux;
+        switch (moveAxis) {
+            case 0: {
+                //cast ray onto XZ plane, find intersection, translate only x to point
+                Ray cursorRay(m_cam.position(), unprojectPoint(xMove, yMove, m_cam.quat()));
+                if (fabs(dot(axisNormals[0], cursorRay.direction)) > moveErr) {
+                    aux = rayTraceOnPlane(xMove, yMove, axisNormals[0], center);
+                    m_meshes[m_selected].translate(aux.x - center.x, aux.y - center.y, 0);
+                }
+                break;
+            }
+            case 1: {
+                //cast ray onto YZ plane, same principle
+                Ray cursorRay(m_cam.position(), unprojectPoint(xMove, yMove, m_cam.quat()));
+                //if plane isn't basically parallel with cursor ray
+                if (fabs(dot(axisNormals[1], cursorRay.direction)) > moveErr) {
+                    aux = rayTraceOnPlane(xMove, yMove, axisNormals[1], center);
+                    m_meshes[m_selected].translate(0, aux.y - center.y, 0);
+                }
+                break;
+            }
+            case 2: {
+                //alege dot-u mai diferit de 0 dintre dotu camNormal * XZNormal vs camNormal * YZNormal
+                //amandoi vectorii is normalizati; Ray autonormalizeaza direction when defined
+                //Dot product ul imi va spune, deci, cat de perpendicular e un plan fata de camera
+                //Vrem cel mai perpendicular plan ca intersectia sa fie cat mai putin "vaga"
+                //dupaia facem raycasting ca mai sus da alegem coord Z
+                Ray cursorRay(m_cam.position(), unprojectPoint(xMove, yMove, m_cam.quat()));
+                const double dot1 = dot(cursorRay.direction, axisNormals[0]); //XZ
+                const double dot2 = dot(cursorRay.direction, axisNormals[1]); //YZ
+                bool chosenPlane = (fabs(dot1) > fabs(dot2) ? 0 : 1);
+                if (fabs(dot(axisNormals[chosenPlane], cursorRay.direction)) > moveErr) {
+                    aux = rayTraceOnPlane(xMove, yMove, axisNormals[chosenPlane], center);
+                    m_meshes[m_selected].translate(0, 0, aux.z - center.z);
+                }
+                break;
+            }
+            default:;
+        }
+        m_updated[m_selected] = true;
+        callHandlerDrawer();
+    }
 }
-*/
+
+void Space3D::moveMesh() {
+    //nu ma folosesc de draggedMesh... ma gandesc cum am sa implementez move cu un gizmo si vad daca am sa schimb cu un draggedMesh
+    //TODO: Local movement (switch: 'L'), draw Axis
+    short moveAxis = 0;
+    bool isLocal = 0;
+    Mesh original = m_meshes[m_selected];
+    int xMove = -1, yMove = -1;
+    while (!ismouseclick(WM_LBUTTONDOWN)) {
+        if (kbhit()) {
+            char x = getch();
+            switch(x) {
+                case 27: //ESC for "discard"
+                    m_meshes[m_selected] = original;
+                    m_updated[m_selected] = true;
+                    callHandlerDrawer();
+                    return;
+                case 'l':
+                    isLocal = !isLocal;
+                    m_meshes[m_selected] = original;
+                    moveMeshHelper(xMove, yMove, moveAxis, isLocal);
+                    break;
+                case 'x': {
+                    moveAxis = 0;
+                    m_meshes[m_selected] = original;
+                    xMove = mousex(); yMove = mousey();
+                    moveMeshHelper(xMove, yMove, 0, isLocal);
+                    break;
+                }
+                case 'y': {
+                    moveAxis = 1;
+                    m_meshes[m_selected] = original;
+                    xMove = mousex(); yMove = mousey();
+                    moveMeshHelper(xMove, yMove, 1, isLocal);
+                    break;
+                }
+                case 'z': {
+                    moveAxis = 2;
+                    m_meshes[m_selected] = original;
+                    xMove = mousex(); yMove = mousey();
+                    moveMeshHelper(xMove, yMove, 2, isLocal);
+                    break;
+                }
+            }
+        }
+        getmouseclick(WM_MOUSEMOVE, xMove, yMove);
+        if (insideWorkArea(xMove, yMove)) {
+            moveMeshHelper(xMove, yMove, moveAxis, isLocal);
+        }
+    }
+}
+
+Point3D Space3D::unprojectPoint(int x, int y, const Quaternion& camQuat, double dy) const {
+    const double xCenter = (x0 + x1) / 2;
+    const double yCenter = (y0 + y1) / 2;
+    const int yLen = y1 - y0;
+    double dx = (x - xCenter) * dy  / m_cam.EZ() / yLen;
+    double dz = (y - yCenter) * -1 * dy  / m_cam.EZ() / yLen;
+    Point3D aux(dx, dy, dz);
+    aux.rotateByUnitQuat(camQuat);
+    aux += Point3D(m_cam.position());
+    return aux;
+}
+
+Point3D Space3D::rayTraceOnPlane(int x, int y, const Point3D& planeNormal, const Point3D& planeCenter) {
+    Point3D rayCenter = m_cam.position();
+    Ray cameraRay(rayCenter, unprojectPoint(x, y, m_cam.quat()));
+    const double t = dot(planeNormal, planeCenter - rayCenter) / dot(planeNormal, cameraRay.direction);
+    Point3D projectedPoint = rayCenter + cameraRay.direction * t;
+    return projectedPoint;
+}
 
 void Space3D::dragAndDrop(const int& xDrag, const int& yDrag, Mesh& mesh, const Quaternion& camQuat, const Quaternion& camInverse) {
     const double xCenter = (x0 + x1) / 2;
@@ -806,7 +929,7 @@ void Space3D::dragAndDrop(const int& xDrag, const int& yDrag, Mesh& mesh, const 
     double dy2 = dy1;
     double dx2 = dx1 + (bx2 - bx1) * dy2 / EZ;
     double dz2 = dz1 + (by2 - by1) * dy2 / EZ;
-    Point3D aux = Point3D(dx2, dy2, dz2).rotatedByUnitQuat(m_cam.quat());
+    Point3D aux = Point3D(dx2, dy2, dz2).rotatedByUnitQuat(camQuat);
     double tx = aux.getX();
     double ty = aux.getY();
     double tz = aux.getZ();

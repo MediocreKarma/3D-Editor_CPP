@@ -89,6 +89,8 @@ class Space3D
         void drawRotationArrows();
         void drawDottedLine(int x0, int y0, int x1, int y1);
         void scaleMesh();
+        void moveMeshHelper(int x, int y, int axis, bool isLocal = 0);
+        void moveMesh();
         void dragMesh();
         void dragAndDrop(const int& xDrag, const int& yDrag, Mesh& mesh,  const Quaternion& camQuat, const Quaternion& camInverse);
         double findRotation(const int& xDrag, const int& yDrag, const DonutButton& angleDonut, CircularButton& button);
@@ -100,6 +102,8 @@ class Space3D
         void showAngleOptions();
         void drawAngleButtons();
         Point2D projectPoint(const Point3D& pct, const Quaternion& camQuat, const Quaternion& camInverse) const;
+        Point3D rayTraceOnPlane(int x, int y, const Point3D& planeNormal, const Point3D& planeCenter);
+        Point3D unprojectPoint(int x, int y, const Quaternion& camQuat, double dy = 1) const;
         Point3D rotateByCamera(const Point3D& pct) const;
         Point3D normalisePoint(const Point3D& pct,  const Quaternion& camQuat, const Quaternion& camInverse) const;
         Section projectSection(const Mesh& mesh);

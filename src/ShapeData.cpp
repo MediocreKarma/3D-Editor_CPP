@@ -302,6 +302,29 @@ Point3D& Point3D::operator += (const Point3D& other) {
     return *this;
 }
 
+Point3D& Point3D::operator -= (const Point3D& other) {
+    x -= other.x;
+    y -= other.y;
+    z -= other.z;
+    return *this;
+}
+
+Point3D Point3D::operator + (const Point3D& other) const {
+    Point3D pct;
+    pct.x = x + other.x;
+    pct.y = y + other.y;
+    pct.z = z + other.z;
+    return pct;
+}
+
+Point3D Point3D::operator - (const Point3D& other) const {
+    Point3D pct;
+    pct.x = x - other.x;
+    pct.y = y - other.y;
+    pct.z = z - other.z;
+    return pct;
+}
+
 void Point3D::translate(const double& xTranslate, const double& yTranslate, const double& zTranslate) {
     x += xTranslate;
     y += yTranslate;
@@ -326,6 +349,36 @@ void Point3D::display() const {
 
 void Point3D::display(bool endlAfter) const {
     std::cout<<x<<" "<<y<<" "<<z<<(endlAfter?"\n":"");
+}
+
+double Point3D::norm() const {
+    return sqrt(x * x + y * y + z * z);
+}
+void Point3D::normalize() {
+    const double n = norm();
+    x /= n;
+    y /= n;
+    z /= n;
+}
+
+double dot(const Point3D& p1, const Point3D& p2) {
+    return p1.x * p2.x + p1.y * p2.y + p1.z * p2.z;
+}
+
+Point3D cross(const Point3D& p1, const Point3D& p2) {
+    double cx, cy, cz;
+    cx = p1.y * p2.z - p1.z * p2.y;
+    cy = -(p1.x * p2.z - p1.z * p2.x);
+    cz = p1.x * p2.y - p1.y * p2.x;
+    return Point3D(cx, cy, cz);
+}
+
+Point3D Point3D::operator * (const double& scalar) const {
+    double cx, cy, cz;
+    cx = x * scalar;
+    cy = y * scalar;
+    cz = z * scalar;
+    return Point3D(cx, cy, cz);
 }
 
 Line3D::Line3D() :
