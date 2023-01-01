@@ -733,8 +733,8 @@ bool Space3D::getCommand(const int& x, const int& y) {
             m_meshMenuVisible = false;
         }
     }
-    if (m_spaceContextMenu.listHitCollision(x, y) != -1) {
-        m_spaceMenuVisible = !m_spaceMenuVisible;
+    if (m_spaceContextMenu.listHitCollision(x, y) != -1 && m_spaceMenuVisible) {
+        m_spaceMenuVisible = false;
         switch (m_spaceContextMenu.listHitCollision(x, y)) {
             case 0:
                 updateTransform();
@@ -752,7 +752,6 @@ bool Space3D::getCommand(const int& x, const int& y) {
         return true;
     }
     else {
-
         if (m_spaceMenuVisible) {
             m_spaceMenuVisible = false;
         }
@@ -792,8 +791,6 @@ bool Space3D::getCommand(const int& x, const int& y) {
         m_spaceMenuVisible = false;
         return true;
     }
-    std::cout<< m_spaceContextMenu.listHitCollision(x, y)<<" "<<m_spaceMenuVisible<<"\n";
-
     return false;
 }
 
