@@ -140,6 +140,12 @@ class DropdownButton : public TextButton {
             ++m_index;
         }
 
+        void changeOptionText(int index, const char* p) {
+            int yOffset = yCenter + yLen / 2;
+            int option_yLen = m_listHeight / lenList;
+            m_list[index] =  TextButton(xCenter - xLen / 2 + m_listWidth / 2, yOffset + (2 * index + 1) * option_yLen / 2, m_listWidth, option_yLen, p);
+        }
+
         void showList(const int& font, const int& fontSize, const int& fillColor, const bool& centerText = true) {
             for (size_t i = 0; i < lenList; ++i) {
                 m_list[i].drawTextButton(font, fontSize, fillColor, centerText);

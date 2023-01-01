@@ -77,8 +77,10 @@ class Space3D
         Button m_arrowDown;
         Button m_arrowSpinLeft;
         Button m_arrowSpinRight;
-        DropdownButton<5> m_rightClickMenu;
-        bool m_rMenuOpen;
+        DropdownButton<6> m_meshContextMenu;
+        bool m_meshMenuVisible;
+        DropdownButton<2> m_spaceContextMenu;
+        bool m_spaceMenuVisible;
         MyArray<CircularButton, 3> m_gizmoButtons;
         bool m_localTransforms;
         MyArray<char, 512> m_linkedFile;
@@ -88,6 +90,7 @@ class Space3D
         size_t size() const;
         void callHandlerDrawer();
         void setButtons();
+        void updateTransform();
         void drawRotationArrows();
         void drawDottedLine(int x0, int y0, int x1, int y1);
         void scaleMesh();

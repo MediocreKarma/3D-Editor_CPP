@@ -190,7 +190,6 @@ void TextButton::drawText(const int& /*txtFont*/, const int& /*txtSize*/, const 
     else {
         outtextxy(xCenter - textwidth(m_text.data()) / 2, yCenter - textheight(m_text.data()) / 2, m_text.data());
     }
-
 }
 
 void TextButton::drawTextButton(const int& txtFont, const int& txtSize, const int& fillColor, const bool& centerText) {
