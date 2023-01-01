@@ -79,6 +79,7 @@ class Space3D
         Button m_arrowSpinRight;
         DropdownButton<5> m_rightClickMenu;
         bool m_rMenuOpen;
+        MyArray<CircularButton, 3> m_gizmoButtons;
         MyArray<char, 512> m_linkedFile;
         Menu* m_menuHolder;
         ObjectCreator* m_objCreatorHolder;
@@ -98,11 +99,13 @@ class Space3D
         bool checkCamMovement(const char& c);
         bool checkObjectRotation(int x, int y);
         Point2D moveInsideWorkArea(const Point2D& P, const Point2D& Q, const int& xBorder, const int& yBorder);
+        void updateGizmoButtons();
+        void drawGizmo();
         void drawSpinball();
         void showAngleOptions();
         void drawAngleButtons();
         Point2D projectPoint(const Point3D& pct, const Quaternion& camQuat, const Quaternion& camInverse) const;
-        Point3D rayTraceOnPlane(int x, int y, const Point3D& planeNormal, const Point3D& planeCenter);
+        Point3D rayCastOnPlane(int x, int y, const Point3D& planeNormal, const Point3D& planeCenter);
         Point3D unprojectPoint(int x, int y, const Quaternion& camQuat, double dy = 1) const;
         Point3D rotateByCamera(const Point3D& pct) const;
         Point3D normalisePoint(const Point3D& pct,  const Quaternion& camQuat, const Quaternion& camInverse) const;
@@ -113,6 +116,8 @@ class Space3D
         void selectMesh(const size_t& index);
         void highlightMesh();
         bool isDragAndDrop(const int& xDrag, const int& yDrag) const;
+
+        friend void drawArrow(const Point2D& p1, const Point2D& p2, int color);
 };
 
 class FixedSpace3D {

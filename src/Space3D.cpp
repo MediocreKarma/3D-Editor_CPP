@@ -10,17 +10,17 @@ const double moveErr = 0.007; //chosen by trial and error, used for moveMesh()
 Space3D::Space3D() :
     x0(), y0(), x1(), y1(), m_theme(), m_selected(-1), m_spinballSelected(false), m_fadedDrag(false),  m_objRotateDrag(false), m_meshes(), m_draggedMesh(), m_sections(), m_draggedSection(),
     m_updated(), m_cam(), m_buttonOX(), m_buttonOY(), m_buttonOZ(), m_donutOX(), m_donutOY(), m_donutOZ(), m_spinballButton(), m_arrowLeft(), m_arrowRight(),
-    m_arrowUp(), m_arrowDown(), m_arrowSpinLeft(), m_arrowSpinRight(), m_rightClickMenu(), m_rMenuOpen(false), m_linkedFile{0}, m_menuHolder(nullptr), m_objCreatorHolder(nullptr) {}
+    m_arrowUp(), m_arrowDown(), m_arrowSpinLeft(), m_arrowSpinRight(), m_rightClickMenu(), m_rMenuOpen(false), m_gizmoButtons(), m_linkedFile{0}, m_menuHolder(nullptr), m_objCreatorHolder(nullptr) {}
 
 Space3D::Space3D(const double& maxRadius, const int& theme, Menu* menuHolder) :
     x0(), y0(), x1(), y1(), m_theme(theme), m_selected(-1), m_spinballSelected(false), m_fadedDrag(false),  m_objRotateDrag(false), m_meshes(), m_draggedMesh(), m_sections(), m_draggedSection(),
     m_updated(), m_cam(maxRadius), m_buttonOX(), m_buttonOY(), m_buttonOZ(), m_donutOX(), m_donutOY(), m_donutOZ(), m_spinballButton(), m_arrowLeft(), m_arrowRight(),
-    m_arrowUp(), m_arrowDown(), m_arrowSpinLeft(), m_arrowSpinRight(), m_rightClickMenu(), m_rMenuOpen(false), m_linkedFile{0}, m_menuHolder(menuHolder), m_objCreatorHolder(nullptr) {}
+    m_arrowUp(), m_arrowDown(), m_arrowSpinLeft(), m_arrowSpinRight(), m_rightClickMenu(), m_rMenuOpen(false), m_gizmoButtons(), m_linkedFile{0}, m_menuHolder(menuHolder), m_objCreatorHolder(nullptr) {}
 
 Space3D::Space3D(const double& maxRadius, const int& theme, ObjectCreator* objCreatorHolder) :
     x0(), y0(), x1(), y1(), m_theme(theme), m_selected(-1), m_spinballSelected(false), m_fadedDrag(false), m_objRotateDrag(false), m_meshes(), m_draggedMesh(), m_sections(), m_draggedSection(),
     m_updated(), m_cam(maxRadius), m_buttonOX(), m_buttonOY(), m_buttonOZ(), m_donutOX(), m_donutOY(), m_donutOZ(), m_spinballButton(), m_arrowLeft(), m_arrowRight(),
-    m_arrowUp(), m_arrowDown(), m_arrowSpinLeft(), m_arrowSpinRight(), m_rightClickMenu(), m_rMenuOpen(false), m_linkedFile{0}, m_menuHolder(nullptr), m_objCreatorHolder(objCreatorHolder){}
+    m_arrowUp(), m_arrowDown(), m_arrowSpinLeft(), m_arrowSpinRight(), m_rightClickMenu(), m_rMenuOpen(false), m_gizmoButtons(), m_linkedFile{0}, m_menuHolder(nullptr), m_objCreatorHolder(objCreatorHolder){}
 
 Space3D::Space3D(const Space3D& sp) :
     x0(sp.x0), y0(sp.y0), x1(sp.x1), y1(sp.y1), m_theme(sp.m_theme), m_selected(sp.m_selected), m_spinballSelected(sp.m_spinballSelected), m_fadedDrag(sp.m_fadedDrag),  m_objRotateDrag(false),
@@ -28,7 +28,7 @@ Space3D::Space3D(const Space3D& sp) :
     m_updated(sp.m_updated), m_cam(sp.m_cam), m_buttonOX(sp.m_buttonOX), m_buttonOY(sp.m_buttonOY), m_buttonOZ(sp.m_buttonOZ), m_donutOX(sp.m_donutOX), m_donutOY(sp.m_donutOY),
     m_donutOZ(sp.m_donutOZ), m_spinballButton(sp.m_spinballButton), m_arrowLeft(sp.m_arrowLeft), m_arrowRight(sp.m_arrowRight),
     m_arrowUp(sp.m_arrowUp), m_arrowDown(sp.m_arrowDown), m_arrowSpinLeft(sp.m_arrowSpinLeft), m_arrowSpinRight(sp.m_arrowSpinRight),
-    m_rightClickMenu(sp.m_rightClickMenu), m_rMenuOpen(sp.m_rMenuOpen), m_linkedFile(sp.m_linkedFile), m_menuHolder(sp.m_menuHolder), m_objCreatorHolder(sp.m_objCreatorHolder) {}
+    m_rightClickMenu(sp.m_rightClickMenu), m_rMenuOpen(sp.m_rMenuOpen), m_gizmoButtons(sp.m_gizmoButtons), m_linkedFile(sp.m_linkedFile), m_menuHolder(sp.m_menuHolder), m_objCreatorHolder(sp.m_objCreatorHolder) {}
 
 Space3D& Space3D::operator = (const Space3D& sp) {
     m_theme = sp.m_theme;
@@ -147,6 +147,7 @@ void Space3D::run() {
         setlinestyle(oldSettings.linestyle, oldSettings.upattern, oldSettings.thickness);
     }
     if (m_selected != -1) {
+        drawGizmo();
         drawSpinball();
         if (m_spinballSelected) {
             showAngleOptions();
@@ -159,6 +160,58 @@ void Space3D::run() {
 
 void Space3D::update() {
     m_updated.fill(true);
+}
+
+void drawArrow(const Point2D& p1, const Point2D& p2, int color) {
+    struct linesettingstype lineinfo;
+    getlinesettings(&lineinfo);
+    setlinestyle(0, 0, 3);
+    int oldColor = getcolor();
+    setcolor(color);
+    int x0 = p1.x, x1 = p2.x, y0 = p1.y, y1 = p2.y;
+    line(x0, y0, x1, y1);
+    line(x0, y0, x1, y1);
+    const int arrLen = 7;
+    double theta = atan2(y1 - y0, x1 - x0);
+    const double phi_A = 0.785398163397448;
+    int xA = x1 - arrLen * cos(theta + phi_A);
+    int yA = y1 - arrLen * sin(theta + phi_A);
+    const double phi_B = -0.785398163397448;
+    int xB = x1 - arrLen * cos(theta + phi_B);
+    int yB = y1 - arrLen * sin(theta + phi_B);
+    line(xA, yA, x1, y1);
+    line(xB, yB, x1, y1);
+    setcolor(oldColor);
+    setlinestyle(lineinfo.linestyle, lineinfo.upattern, lineinfo.thickness);
+}
+
+void Space3D::updateGizmoButtons() {
+    Point3D center(m_meshes[m_selected].centerPoint());
+    MyArray<Point3D, 3> axes{Point3D(1, 0, 0), Point3D(0, 1, 0), Point3D(0, 0, 1)};
+    const MyArray<Point3D, 2> corners(m_meshes[m_selected].getBoundingBoxCorners());
+    const double xLen = fabs(corners[0].x - corners[1].x);
+    const double yLen = fabs(corners[0].y - corners[1].y);
+    const double zLen = fabs(corners[0].z - corners[1].z);
+    const double maxLength = (xLen > yLen) ?
+                             (xLen > zLen ? xLen : zLen) :
+                             (yLen > zLen ? yLen : zLen);
+    const double arrowLength = maxLength / 2;
+    MyArray<Point3D, 3> axisPoints {Point3D(arrowLength, 0, 0),
+                                    Point3D(0, -arrowLength, 0),
+                                    Point3D(0, 0, arrowLength)};
+    MyArray<Point2D, 3> projectedAxisPoints;
+    for (size_t i = 0; i < 3; ++i) {
+        projectedAxisPoints[i] = projectPoint(axisPoints[i] + center, m_cam.quat(), m_cam.quat().inverse());
+        m_gizmoButtons[i] = CircularButton(projectedAxisPoints[i].x, projectedAxisPoints[i].y, 7);
+    }
+}
+
+void Space3D::drawGizmo() {
+    updateGizmoButtons();
+    Point2D projectedCenter(projectPoint(m_meshes[m_selected].centerPoint(), m_cam.quat(), m_cam.quat().inverse()));
+    drawArrow(projectedCenter, Point2D(m_gizmoButtons[0].getX(), m_gizmoButtons[0].getY()), LIGHTGREEN);
+    drawArrow(projectedCenter, Point2D(m_gizmoButtons[1].getX(), m_gizmoButtons[1].getY()), LIGHTRED);
+    drawArrow(projectedCenter, Point2D(m_gizmoButtons[2].getX(), m_gizmoButtons[2].getY()), LIGHTCYAN);
 }
 
 void Space3D::drawRotationArrows() {
@@ -593,6 +646,7 @@ bool Space3D::getCommand(const int& x, const int& y) {
     for (size_t i = 0; i < size(); ++i) {
         if (m_sections[i].grabButtonCollision(x, y)) {
             selectMesh(i);
+            updateGizmoButtons();
             if (m_rMenuOpen) {
                 m_rMenuOpen = false;
             }
@@ -787,47 +841,70 @@ void Space3D::scaleMesh() {
 }
 
 void Space3D::moveMeshHelper(int xMove, int yMove, int moveAxis, bool isLocal) {
-    MyArray<Point3D, 2> axisNormals{Point3D(0, 1, 0), Point3D(1, 0, 0)}; //normalele lu XZ si YZ, deci Y si Z
+    MyArray<Point3D, 2> axisNormals{Point3D(0, 1, 0), Point3D(1, 0, 0)}; //normalele lu XZ si YZ, deci Y si X
+    Quaternion quat = m_meshes[m_selected].quat();
     if (isLocal) {
-        //nu stiu deocamdata dar vedem. scot isLocal daca nu pot sa fac, ca si asa solutia mea e cam ciudata
-        //dar efectiv n am gasit alta care sa fie buna si pe care sa o inteleg
+        axisNormals[0].rotateByUnitQuat(quat);
+        axisNormals[1].rotateByUnitQuat(quat);
     }
     if (insideWorkArea(xMove, yMove)) {
         Point3D center = m_meshes[m_selected].centerPoint();
         Point3D aux;
         switch (moveAxis) {
-            case 0: {
-                //cast ray onto XZ plane, find intersection, translate only x to point
+            case 0: { //cast ray onto XZ plane, find intersection, translate only by x
                 Ray cursorRay(m_cam.position(), unprojectPoint(xMove, yMove, m_cam.quat()));
                 if (fabs(dot(axisNormals[0], cursorRay.direction)) > moveErr) {
-                    aux = rayTraceOnPlane(xMove, yMove, axisNormals[0], center);
-                    m_meshes[m_selected].translate(aux.x - center.x, aux.y - center.y, 0);
+                    aux = rayCastOnPlane(xMove, yMove, axisNormals[0], center);
+                    if (!isLocal) {
+                        m_meshes[m_selected].translate(aux.x - center.x, 0, 0);
+                    }
+                    else { //unrotate, get only the x, rotate => rotated delta vector
+                        aux -= center;
+                        aux.rotateByUnitQuat(quat.inverse());
+                        aux.y = aux.z = 0;
+                        aux.rotateByUnitQuat(quat);
+                        m_meshes[m_selected].translate(aux);
+                    }
                 }
                 break;
             }
-            case 1: {
-                //cast ray onto YZ plane, same principle
+            case 1: { //cast ray onto YZ plane, same principle
                 Ray cursorRay(m_cam.position(), unprojectPoint(xMove, yMove, m_cam.quat()));
-                //if plane isn't basically parallel with cursor ray
                 if (fabs(dot(axisNormals[1], cursorRay.direction)) > moveErr) {
-                    aux = rayTraceOnPlane(xMove, yMove, axisNormals[1], center);
-                    m_meshes[m_selected].translate(0, aux.y - center.y, 0);
+                    aux = rayCastOnPlane(xMove, yMove, axisNormals[1], center);
+                    if (!isLocal) {
+                        m_meshes[m_selected].translate(0, aux.y - center.y, 0);
+                    }
+                    else {
+                        aux -= center;
+                        aux.rotateByUnitQuat(quat.inverse());
+                        aux.x = aux.z = 0;
+                        aux.rotateByUnitQuat(quat);
+                        m_meshes[m_selected].translate(aux);
+                    }
                 }
                 break;
             }
             case 2: {
                 //alege dot-u mai diferit de 0 dintre dotu camNormal * XZNormal vs camNormal * YZNormal
-                //amandoi vectorii is normalizati; Ray autonormalizeaza direction when defined
-                //Dot product ul imi va spune, deci, cat de perpendicular e un plan fata de camera
+                //Dot product ul imi va spune, cat de perpendicular e un plan fata de camera
                 //Vrem cel mai perpendicular plan ca intersectia sa fie cat mai putin "vaga"
-                //dupaia facem raycasting ca mai sus da alegem coord Z
                 Ray cursorRay(m_cam.position(), unprojectPoint(xMove, yMove, m_cam.quat()));
                 const double dot1 = dot(cursorRay.direction, axisNormals[0]); //XZ
                 const double dot2 = dot(cursorRay.direction, axisNormals[1]); //YZ
                 bool chosenPlane = (fabs(dot1) > fabs(dot2) ? 0 : 1);
                 if (fabs(dot(axisNormals[chosenPlane], cursorRay.direction)) > moveErr) {
-                    aux = rayTraceOnPlane(xMove, yMove, axisNormals[chosenPlane], center);
-                    m_meshes[m_selected].translate(0, 0, aux.z - center.z);
+                    aux = rayCastOnPlane(xMove, yMove, axisNormals[chosenPlane], center);
+                    if (!isLocal) {
+                        m_meshes[m_selected].translate(0, 0, aux.z - center.z);
+                    }
+                    else {
+                        aux -= center;
+                        aux.rotateByUnitQuat(quat.inverse());
+                        aux.x = aux.y = 0;
+                        aux.rotateByUnitQuat(quat);
+                        m_meshes[m_selected].translate(aux);
+                    }
                 }
                 break;
             }
@@ -840,7 +917,7 @@ void Space3D::moveMeshHelper(int xMove, int yMove, int moveAxis, bool isLocal) {
 
 void Space3D::moveMesh() {
     //nu ma folosesc de draggedMesh... ma gandesc cum am sa implementez move cu un gizmo si vad daca am sa schimb cu un draggedMesh
-    //TODO: Local movement (switch: 'L'), draw Axis
+    //TODO: draw Axis? perhaps? da nici nu stiu cum as face
     short moveAxis = 0;
     bool isLocal = 0;
     Mesh original = m_meshes[m_selected];
@@ -901,7 +978,7 @@ Point3D Space3D::unprojectPoint(int x, int y, const Quaternion& camQuat, double 
     return aux;
 }
 
-Point3D Space3D::rayTraceOnPlane(int x, int y, const Point3D& planeNormal, const Point3D& planeCenter) {
+Point3D Space3D::rayCastOnPlane(int x, int y, const Point3D& planeNormal, const Point3D& planeCenter) {
     Point3D rayCenter = m_cam.position();
     Ray cameraRay(rayCenter, unprojectPoint(x, y, m_cam.quat()));
     const double t = dot(planeNormal, planeCenter - rayCenter) / dot(planeNormal, cameraRay.direction);
