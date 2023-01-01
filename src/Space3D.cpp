@@ -9,26 +9,25 @@ const double moveErr = 0.007; //chosen by trial and error, used for moveMesh()
 
 Space3D::Space3D() :
     x0(), y0(), x1(), y1(), m_theme(), m_selected(-1), m_spinballSelected(false), m_fadedDrag(false),  m_objRotateDrag(false), m_meshes(), m_draggedMesh(), m_sections(), m_draggedSection(),
-    m_updated(), m_cam(), m_buttonOX(), m_buttonOY(), m_buttonOZ(), m_donutOX(), m_donutOY(), m_donutOZ(), m_spinballButton(), m_arrowLeft(), m_arrowRight(),
-    m_arrowUp(), m_arrowDown(), m_arrowSpinLeft(), m_arrowSpinRight(), m_rightClickMenu(), m_rMenuOpen(false), m_gizmoButtons(), m_linkedFile{0}, m_menuHolder(nullptr), m_objCreatorHolder(nullptr) {}
+    m_updated(), m_cam(), m_buttonOX(), m_buttonOY(), m_buttonOZ(), m_donutOX(), m_donutOY(), m_donutOZ(), m_spinballButton(), m_arrowLeft(), m_arrowRight(), m_arrowUp(), m_arrowDown(),
+    m_arrowSpinLeft(), m_arrowSpinRight(), m_rightClickMenu(), m_rMenuOpen(false), m_gizmoButtons(), m_localTransforms(false), m_linkedFile{0}, m_menuHolder(nullptr), m_objCreatorHolder(nullptr) {}
 
 Space3D::Space3D(const double& maxRadius, const int& theme, Menu* menuHolder) :
     x0(), y0(), x1(), y1(), m_theme(theme), m_selected(-1), m_spinballSelected(false), m_fadedDrag(false),  m_objRotateDrag(false), m_meshes(), m_draggedMesh(), m_sections(), m_draggedSection(),
-    m_updated(), m_cam(maxRadius), m_buttonOX(), m_buttonOY(), m_buttonOZ(), m_donutOX(), m_donutOY(), m_donutOZ(), m_spinballButton(), m_arrowLeft(), m_arrowRight(),
-    m_arrowUp(), m_arrowDown(), m_arrowSpinLeft(), m_arrowSpinRight(), m_rightClickMenu(), m_rMenuOpen(false), m_gizmoButtons(), m_linkedFile{0}, m_menuHolder(menuHolder), m_objCreatorHolder(nullptr) {}
+    m_updated(), m_cam(maxRadius), m_buttonOX(), m_buttonOY(), m_buttonOZ(), m_donutOX(), m_donutOY(), m_donutOZ(), m_spinballButton(), m_arrowLeft(), m_arrowRight(), m_arrowUp(), m_arrowDown(),
+    m_arrowSpinLeft(), m_arrowSpinRight(), m_rightClickMenu(), m_rMenuOpen(false), m_gizmoButtons(), m_localTransforms(false), m_linkedFile{0}, m_menuHolder(menuHolder), m_objCreatorHolder(nullptr) {}
 
 Space3D::Space3D(const double& maxRadius, const int& theme, ObjectCreator* objCreatorHolder) :
     x0(), y0(), x1(), y1(), m_theme(theme), m_selected(-1), m_spinballSelected(false), m_fadedDrag(false), m_objRotateDrag(false), m_meshes(), m_draggedMesh(), m_sections(), m_draggedSection(),
-    m_updated(), m_cam(maxRadius), m_buttonOX(), m_buttonOY(), m_buttonOZ(), m_donutOX(), m_donutOY(), m_donutOZ(), m_spinballButton(), m_arrowLeft(), m_arrowRight(),
-    m_arrowUp(), m_arrowDown(), m_arrowSpinLeft(), m_arrowSpinRight(), m_rightClickMenu(), m_rMenuOpen(false), m_gizmoButtons(), m_linkedFile{0}, m_menuHolder(nullptr), m_objCreatorHolder(objCreatorHolder){}
+    m_updated(), m_cam(maxRadius), m_buttonOX(), m_buttonOY(), m_buttonOZ(), m_donutOX(), m_donutOY(), m_donutOZ(), m_spinballButton(), m_arrowLeft(), m_arrowRight(), m_arrowUp(), m_arrowDown(),
+    m_arrowSpinLeft(), m_arrowSpinRight(), m_rightClickMenu(), m_rMenuOpen(false), m_gizmoButtons(), m_localTransforms(false), m_linkedFile{0}, m_menuHolder(nullptr), m_objCreatorHolder(objCreatorHolder){}
 
 Space3D::Space3D(const Space3D& sp) :
     x0(sp.x0), y0(sp.y0), x1(sp.x1), y1(sp.y1), m_theme(sp.m_theme), m_selected(sp.m_selected), m_spinballSelected(sp.m_spinballSelected), m_fadedDrag(sp.m_fadedDrag),  m_objRotateDrag(false),
-    m_meshes(sp.m_meshes), m_draggedMesh(sp.m_draggedMesh), m_sections(sp.m_sections), m_draggedSection(sp.m_draggedSection),
-    m_updated(sp.m_updated), m_cam(sp.m_cam), m_buttonOX(sp.m_buttonOX), m_buttonOY(sp.m_buttonOY), m_buttonOZ(sp.m_buttonOZ), m_donutOX(sp.m_donutOX), m_donutOY(sp.m_donutOY),
-    m_donutOZ(sp.m_donutOZ), m_spinballButton(sp.m_spinballButton), m_arrowLeft(sp.m_arrowLeft), m_arrowRight(sp.m_arrowRight),
-    m_arrowUp(sp.m_arrowUp), m_arrowDown(sp.m_arrowDown), m_arrowSpinLeft(sp.m_arrowSpinLeft), m_arrowSpinRight(sp.m_arrowSpinRight),
-    m_rightClickMenu(sp.m_rightClickMenu), m_rMenuOpen(sp.m_rMenuOpen), m_gizmoButtons(sp.m_gizmoButtons), m_linkedFile(sp.m_linkedFile), m_menuHolder(sp.m_menuHolder), m_objCreatorHolder(sp.m_objCreatorHolder) {}
+    m_meshes(sp.m_meshes), m_draggedMesh(sp.m_draggedMesh), m_sections(sp.m_sections), m_draggedSection(sp.m_draggedSection), m_updated(sp.m_updated), m_cam(sp.m_cam), m_buttonOX(sp.m_buttonOX),
+    m_buttonOY(sp.m_buttonOY), m_buttonOZ(sp.m_buttonOZ), m_donutOX(sp.m_donutOX), m_donutOY(sp.m_donutOY), m_donutOZ(sp.m_donutOZ), m_spinballButton(sp.m_spinballButton), m_arrowLeft(sp.m_arrowLeft),
+    m_arrowRight(sp.m_arrowRight), m_arrowUp(sp.m_arrowUp), m_arrowDown(sp.m_arrowDown), m_arrowSpinLeft(sp.m_arrowSpinLeft), m_arrowSpinRight(sp.m_arrowSpinRight), m_rightClickMenu(sp.m_rightClickMenu),
+    m_rMenuOpen(sp.m_rMenuOpen), m_gizmoButtons(sp.m_gizmoButtons), m_localTransforms(sp.m_localTransforms), m_linkedFile(sp.m_linkedFile), m_menuHolder(sp.m_menuHolder), m_objCreatorHolder(sp.m_objCreatorHolder) {}
 
 Space3D& Space3D::operator = (const Space3D& sp) {
     m_theme = sp.m_theme;
@@ -42,6 +41,7 @@ Space3D& Space3D::operator = (const Space3D& sp) {
     m_menuHolder = sp.m_menuHolder;
     m_objCreatorHolder = sp.m_objCreatorHolder;
     m_objRotateDrag = 0;
+    m_localTransforms = sp.m_localTransforms;
     setCorners(sp.x0, sp.y0, sp.x1, sp.y1);
     return *this;
 }
@@ -139,6 +139,9 @@ void Space3D::fprint(FILE* fp) {
 void Space3D::run() {
     draw();
     drawRotationArrows();
+    if (m_selected != -1) {
+        drawGizmo();
+    }
     if (m_rMenuOpen) { //nu pot folosi toggleVisibility ca hideList imi deseneaza din pacate un bar peste
         struct linesettingstype oldSettings;
         getlinesettings(&oldSettings);
@@ -147,7 +150,6 @@ void Space3D::run() {
         setlinestyle(oldSettings.linestyle, oldSettings.upattern, oldSettings.thickness);
     }
     if (m_selected != -1) {
-        drawGizmo();
         drawSpinball();
         if (m_spinballSelected) {
             showAngleOptions();
@@ -162,7 +164,7 @@ void Space3D::update() {
     m_updated.fill(true);
 }
 
-void drawArrow(const Point2D& p1, const Point2D& p2, int color) {
+void drawGizmoArrow(const Point2D& p1, const Point2D& p2, int color) {
     struct linesettingstype lineinfo;
     getlinesettings(&lineinfo);
     setlinestyle(0, 0, 3);
@@ -185,20 +187,22 @@ void drawArrow(const Point2D& p1, const Point2D& p2, int color) {
     setlinestyle(lineinfo.linestyle, lineinfo.upattern, lineinfo.thickness);
 }
 
+double Space3D::gizmoLength() const {
+    const double gizmoSize = 0.06f;
+    return gizmoSize * ((m_cam.position() - m_meshes[m_selected].centerPoint()).norm() / tanf(m_cam.EZ() / 2.0f));
+}
+
 void Space3D::updateGizmoButtons() {
     Point3D center(m_meshes[m_selected].centerPoint());
-    MyArray<Point3D, 3> axes{Point3D(1, 0, 0), Point3D(0, 1, 0), Point3D(0, 0, 1)};
-    const MyArray<Point3D, 2> corners(m_meshes[m_selected].getBoundingBoxCorners());
-    const double xLen = fabs(corners[0].x - corners[1].x);
-    const double yLen = fabs(corners[0].y - corners[1].y);
-    const double zLen = fabs(corners[0].z - corners[1].z);
-    const double maxLength = (xLen > yLen) ?
-                             (xLen > zLen ? xLen : zLen) :
-                             (yLen > zLen ? yLen : zLen);
-    const double arrowLength = maxLength / 2;
-    MyArray<Point3D, 3> axisPoints {Point3D(arrowLength, 0, 0),
-                                    Point3D(0, -arrowLength, 0),
-                                    Point3D(0, 0, arrowLength)};
+    MyArray<Point3D, 3> axisPoints {Point3D(1, 0, 0),
+                                    Point3D(0, -1, 0),
+                                    Point3D(0, 0, 1)};
+    for (auto& pnt : axisPoints) {
+        if (m_localTransforms) {
+            pnt.rotateByUnitQuat(m_meshes[m_selected].quat());
+        }
+        pnt = pnt * gizmoLength();
+    }
     MyArray<Point2D, 3> projectedAxisPoints;
     for (size_t i = 0; i < 3; ++i) {
         projectedAxisPoints[i] = projectPoint(axisPoints[i] + center, m_cam.quat(), m_cam.quat().inverse());
@@ -209,9 +213,9 @@ void Space3D::updateGizmoButtons() {
 void Space3D::drawGizmo() {
     updateGizmoButtons();
     Point2D projectedCenter(projectPoint(m_meshes[m_selected].centerPoint(), m_cam.quat(), m_cam.quat().inverse()));
-    drawArrow(projectedCenter, Point2D(m_gizmoButtons[0].getX(), m_gizmoButtons[0].getY()), LIGHTGREEN);
-    drawArrow(projectedCenter, Point2D(m_gizmoButtons[1].getX(), m_gizmoButtons[1].getY()), LIGHTRED);
-    drawArrow(projectedCenter, Point2D(m_gizmoButtons[2].getX(), m_gizmoButtons[2].getY()), LIGHTCYAN);
+    drawGizmoArrow(projectedCenter, Point2D(m_gizmoButtons[0].getX(), m_gizmoButtons[0].getY()), LIGHTGREEN);
+    drawGizmoArrow(projectedCenter, Point2D(m_gizmoButtons[1].getX(), m_gizmoButtons[1].getY()), LIGHTRED);
+    drawGizmoArrow(projectedCenter, Point2D(m_gizmoButtons[2].getX(), m_gizmoButtons[2].getY()), LIGHTCYAN);
 }
 
 void Space3D::drawRotationArrows() {
@@ -307,13 +311,70 @@ bool Space3D::checkCamMovement(const char& c) {
     return 1;
 }
 
+bool Space3D::checkGizmo(int x_, int y_) {
+    bool& isLocal = m_localTransforms;
+    Mesh original = m_meshes[m_selected];
+    int x = x_, y = y_;
+    for (size_t i = 0; i < 3; ++i) {
+        if (m_gizmoButtons[i].hitCollision(x, y)) {
+            clearmouseclick(WM_LBUTTONUP);
+            while (!ismouseclick(WM_LBUTTONUP)) {
+                //check for keyboard
+                if (kbhit()) {
+                    char c = getch();
+                    if (c == 27) {
+                        m_meshes[m_selected] = original;
+                        m_updated[m_selected] = true;
+                        callHandlerDrawer();
+                        return true;
+                    }
+                }
+                int xMove, yMove;
+                getmouseclick(WM_MOUSEMOVE, xMove, yMove);
+                if (insideWorkArea(xMove, yMove)) {
+                    Point3D axis;
+                    if (isLocal) {
+                        axis = m_meshes[m_selected].localAxis(i);
+                    }
+                    else {
+                        switch (i) {
+                            case 0:
+                                axis = Point3D(1, 0, 0);
+                                break;
+                            case 1:
+                                axis = Point3D(0, 1, 0);
+                                break;
+                            case 2:
+                                axis = Point3D(0, 0, 1);
+                                break;
+                            default:;
+                        }
+                    }
+                    moveMeshHelper(xMove, yMove, i, isLocal);
+                    axis = axis * gizmoLength();
+                    if (i != 1) {
+                        m_meshes[m_selected].translate(-axis.x, -axis.y, -axis.z);
+                    }
+                    else {
+                        m_meshes[m_selected].translate(axis.x, axis.y, axis.z);
+                    }
+                    x = xMove;
+                    y = yMove;
+                    updateGizmoButtons();
+                    callHandlerDrawer();
+                }
+            }
+            return true;
+        }
+    }
+    return false;
+}
+
 bool Space3D::checkObjectRotation(int x, int y) {
     double tempAngle = 0;
-
     const int xSpinball = m_spinballButton.getXCenter();
     const int ySpinball = m_spinballButton.getYCenter();
-
-   if (m_donutOX.hitCollision(x, y)) {
+    if (m_donutOX.hitCollision(x, y)) {
         m_objRotateDrag = 1;
         double rotation1 = findRotation(x, y, m_donutOX, m_buttonOX);
         tempAngle += rotation1;
@@ -325,7 +386,12 @@ bool Space3D::checkObjectRotation(int x, int y) {
             getmouseclick(WM_MOUSEMOVE, xDrag, yDrag);
             if (m_donutOX.hitCollision(xDrag, yDrag) && dragDiff >= 5) {
                 double rotation = findRotation(xDrag, yDrag, m_donutOX, m_buttonOX);
-                m_meshes[m_selected].rotate(rotation, 0, 0);
+                if (!m_localTransforms) {
+                    m_meshes[m_selected].rotate(rotation, 0, 0);
+                }
+                else {
+                    m_meshes[m_selected].rotateOnAxis(m_meshes[m_selected].centerPoint(), m_meshes[m_selected].localAxis(0), rotation);
+                }
                 tempAngle += rotation;
                 m_meshes[m_selected].rotateDisplayAngle();
                 m_updated[m_selected] = true;
@@ -353,7 +419,12 @@ bool Space3D::checkObjectRotation(int x, int y) {
             getmouseclick(WM_MOUSEMOVE, xDrag, yDrag);
             if (m_donutOY.hitCollision(xDrag, yDrag) && dragDiff >= 5) {
                 double rotation = findRotation(xDrag, yDrag, m_donutOY, m_buttonOY);
-                m_meshes[m_selected].rotate(0, rotation, 0);
+                if (!m_localTransforms) {
+                    m_meshes[m_selected].rotate(0, rotation, 0);
+                }
+                else {
+                    m_meshes[m_selected].rotateOnAxis(m_meshes[m_selected].centerPoint(), m_meshes[m_selected].localAxis(1), rotation);
+                }
                 tempAngle += rotation;
                 m_meshes[m_selected].rotateDisplayAngle();
                 m_updated[m_selected] = true;
@@ -381,7 +452,12 @@ bool Space3D::checkObjectRotation(int x, int y) {
             getmouseclick(WM_MOUSEMOVE, xDrag, yDrag);
             if (m_donutOZ.hitCollision(xDrag, yDrag) && dragDiff >= 5) {
                 double rotation = findRotation(xDrag, yDrag, m_donutOZ, m_buttonOZ);
-                m_meshes[m_selected].rotate(0, 0, -rotation);
+                if (!m_localTransforms) {
+                    m_meshes[m_selected].rotate(0, 0, -rotation);
+                }
+                else {
+                    m_meshes[m_selected].rotateOnAxis(m_meshes[m_selected].centerPoint(), m_meshes[m_selected].localAxis(2), -rotation);
+                }
                 tempAngle += rotation;
                 m_meshes[m_selected].rotateDisplayAngle();
                 m_updated[m_selected] = true;
@@ -585,6 +661,10 @@ bool Space3D::checkKeyCommand(const char& x) {
         moveMesh();
         return true;
     }
+    if (x == 'l') {
+        m_localTransforms = !m_localTransforms;
+        return true;
+    }
     if (m_rMenuOpen) {
         m_rMenuOpen = false;
     }
@@ -601,11 +681,11 @@ bool Space3D::getCommand(const int& x, const int& y) {
             m_meshes[m_selected].mirror(rMenuIndex);
             m_updated[m_selected] = true;
         }
-        if (m_rightClickMenu.listHitCollision(x, y) == 3) {
+        if (rMenuIndex == 3) {
             m_rMenuOpen = false;
             scaleMesh();
         }
-        if (m_rightClickMenu.listHitCollision(x, y) == 4) {
+        if (rMenuIndex == 4) {
             m_rMenuOpen = false;
             //copiat aproape direct din Menu::getCommand()
             int getCurrentWindowNumber = getcurrentwindow();
@@ -652,6 +732,11 @@ bool Space3D::getCommand(const int& x, const int& y) {
             }
             callHandlerDrawer();
             dragMesh();
+            return true;
+        }
+    }
+    if (m_selected != -1) {
+        if (checkGizmo(x, y)) {
             return true;
         }
     }
@@ -734,6 +819,7 @@ void Space3D::drawDottedLine(int x0_, int y0_, int x1_, int y1_) {
 }
 
 void Space3D::scaleMesh() {
+    //TODO: scaleMeshHelper(int x, int y,
     short scaleAxis = -1;
     int xOrig, yOrig;
     xOrig = mousex();
@@ -840,7 +926,7 @@ void Space3D::scaleMesh() {
     }
 }
 
-void Space3D::moveMeshHelper(int xMove, int yMove, int moveAxis, bool isLocal) {
+bool Space3D::moveMeshHelper(int xMove, int yMove, int moveAxis, bool isLocal) {
     MyArray<Point3D, 2> axisNormals{Point3D(0, 1, 0), Point3D(1, 0, 0)}; //normalele lu XZ si YZ, deci Y si X
     Quaternion quat = m_meshes[m_selected].quat();
     if (isLocal) {
@@ -911,15 +997,15 @@ void Space3D::moveMeshHelper(int xMove, int yMove, int moveAxis, bool isLocal) {
             default:;
         }
         m_updated[m_selected] = true;
-        callHandlerDrawer();
+        return true;
     }
+    return false;
 }
 
 void Space3D::moveMesh() {
-    //nu ma folosesc de draggedMesh... ma gandesc cum am sa implementez move cu un gizmo si vad daca am sa schimb cu un draggedMesh
-    //TODO: draw Axis? perhaps? da nici nu stiu cum as face
+    //TODO: draw Axis? perhaps?
     short moveAxis = 0;
-    bool isLocal = 0;
+    bool& isLocal = m_localTransforms;
     Mesh original = m_meshes[m_selected];
     int xMove = -1, yMove = -1;
     while (!ismouseclick(WM_LBUTTONDOWN)) {
@@ -932,36 +1018,46 @@ void Space3D::moveMesh() {
                     callHandlerDrawer();
                     return;
                 case 'l':
-                    isLocal = !isLocal;
+                    m_localTransforms = !m_localTransforms;
                     m_meshes[m_selected] = original;
-                    moveMeshHelper(xMove, yMove, moveAxis, isLocal);
+                    if (moveMeshHelper(xMove, yMove, moveAxis, isLocal)) {
+                        callHandlerDrawer();
+                    }
                     break;
                 case 'x': {
                     moveAxis = 0;
                     m_meshes[m_selected] = original;
                     xMove = mousex(); yMove = mousey();
-                    moveMeshHelper(xMove, yMove, 0, isLocal);
+                    if (moveMeshHelper(xMove, yMove, moveAxis, isLocal)) {
+                        callHandlerDrawer();
+                    }
                     break;
                 }
                 case 'y': {
                     moveAxis = 1;
                     m_meshes[m_selected] = original;
                     xMove = mousex(); yMove = mousey();
-                    moveMeshHelper(xMove, yMove, 1, isLocal);
+                    if (moveMeshHelper(xMove, yMove, moveAxis, isLocal)) {
+                        callHandlerDrawer();
+                    }
                     break;
                 }
                 case 'z': {
                     moveAxis = 2;
                     m_meshes[m_selected] = original;
                     xMove = mousex(); yMove = mousey();
-                    moveMeshHelper(xMove, yMove, 2, isLocal);
+                    if (moveMeshHelper(xMove, yMove, moveAxis, isLocal)) {
+                        callHandlerDrawer();
+                    }
                     break;
                 }
             }
         }
         getmouseclick(WM_MOUSEMOVE, xMove, yMove);
         if (insideWorkArea(xMove, yMove)) {
-            moveMeshHelper(xMove, yMove, moveAxis, isLocal);
+            if (moveMeshHelper(xMove, yMove, moveAxis, isLocal)) {
+                callHandlerDrawer();
+            }
         }
     }
 }

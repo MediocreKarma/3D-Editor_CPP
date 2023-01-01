@@ -80,6 +80,7 @@ class Space3D
         DropdownButton<5> m_rightClickMenu;
         bool m_rMenuOpen;
         MyArray<CircularButton, 3> m_gizmoButtons;
+        bool m_localTransforms;
         MyArray<char, 512> m_linkedFile;
         Menu* m_menuHolder;
         ObjectCreator* m_objCreatorHolder;
@@ -90,15 +91,17 @@ class Space3D
         void drawRotationArrows();
         void drawDottedLine(int x0, int y0, int x1, int y1);
         void scaleMesh();
-        void moveMeshHelper(int x, int y, int axis, bool isLocal = 0);
+        bool moveMeshHelper(int x, int y, int axis, bool isLocal = 0);
         void moveMesh();
         void dragMesh();
         void dragAndDrop(const int& xDrag, const int& yDrag, Mesh& mesh,  const Quaternion& camQuat, const Quaternion& camInverse);
         double findRotation(const int& xDrag, const int& yDrag, const DonutButton& angleDonut, CircularButton& button);
         bool checkAxisRotation(const int& x, const int& y);
         bool checkCamMovement(const char& c);
+        bool checkGizmo(int x, int y);
         bool checkObjectRotation(int x, int y);
         Point2D moveInsideWorkArea(const Point2D& P, const Point2D& Q, const int& xBorder, const int& yBorder);
+        double gizmoLength() const;
         void updateGizmoButtons();
         void drawGizmo();
         void drawSpinball();
@@ -117,7 +120,7 @@ class Space3D
         void highlightMesh();
         bool isDragAndDrop(const int& xDrag, const int& yDrag) const;
 
-        friend void drawArrow(const Point2D& p1, const Point2D& p2, int color);
+        friend void drawGizmoArrow(const Point2D& p1, const Point2D& p2, int color);
 };
 
 class FixedSpace3D {

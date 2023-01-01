@@ -146,7 +146,7 @@ class Line3D {
         void translate(const int& xTranslate, const int& yTranslate, const int& zTranslate);
         Point3D getP() const;
         Point3D getQ() const;
-        double getLength() const;
+        double length() const;
         void setP(const Point3D& P_);
         void setQ(const Point3D& Q_);
         void fprint(FILE* fp);
@@ -198,10 +198,12 @@ class Mesh {
         Quaternion quat() const;
         void resetRotation();
         void resetScale();
-        MyArray<Point3D, 2> getBoundingBoxCorners();
+        MyArray<Point3D, 2> getBoundingBoxCorners() const;
         double scaleX() const;
         double scaleY() const;
         double scaleZ() const;
+        Point3D localAxis(int axis) const;
+        MyArray<Point3D, 3> localAxes() const;
 
     private:
         MyVector<Point3D> m_points;

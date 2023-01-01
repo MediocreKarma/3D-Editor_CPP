@@ -31,11 +31,11 @@ class Quaternion
         void setReal(const double& real);
         void setComplex(const TVector3& complex);
         void setCoord(const size_t& index, const double& value);
-        double norm() const;
+        double norm() const noexcept;
         void normalize();
         void convertToUnitQ();
-        Quaternion conjugate();
-        Quaternion inverse();
+        Quaternion conjugate() const noexcept;
+        Quaternion inverse() const noexcept;
 
     protected:
 

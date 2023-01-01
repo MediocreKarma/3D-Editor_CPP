@@ -325,6 +325,14 @@ Point3D Point3D::operator - (const Point3D& other) const {
     return pct;
 }
 
+Point3D Point3D::operator * (const double& scalar) const {
+    double cx, cy, cz;
+    cx = x * scalar;
+    cy = y * scalar;
+    cz = z * scalar;
+    return Point3D(cx, cy, cz);
+}
+
 void Point3D::translate(const double& xTranslate, const double& yTranslate, const double& zTranslate) {
     x += xTranslate;
     y += yTranslate;
@@ -373,14 +381,6 @@ Point3D cross(const Point3D& p1, const Point3D& p2) {
     return Point3D(cx, cy, cz);
 }
 
-Point3D Point3D::operator * (const double& scalar) const {
-    double cx, cy, cz;
-    cx = x * scalar;
-    cy = y * scalar;
-    cz = z * scalar;
-    return Point3D(cx, cy, cz);
-}
-
 Line3D::Line3D() :
     P(), Q() {}
 
@@ -417,7 +417,7 @@ void Line3D::translate(const int& xTranslate, const int& yTranslate, const int& 
     Q.translate(xTranslate, yTranslate, zTranslate);
 }
 
-double Line3D::getLength() const{
+double Line3D::length() const{
     double dx = abs(Q.getX() - P.getX());
     double dy = abs(Q.getY() - P.getY());
     double dz = abs(Q.getZ() - P.getZ());
@@ -687,6 +687,7 @@ void Mesh::rotate(const double& angleX_, const double& angleY_, const double& an
 
 void Mesh::rotateOnAxis(const Point3D& center, const Point3D& axis, const double& angle) {
     translate(-center.getX(), -center.getY(), -center.getZ());
+
     Quaternion rotationQuat(angle, axis.toArray());
     rotationQuat.convertToUnitQ();
     const double e = 0.0000000000001;
@@ -812,7 +813,19 @@ void Mesh::rotateByUnitQuat(const Quaternion& quat) {
     translate(center.getX(), center.getY(), center.getZ());
 }
 
-MyArray<Point3D, 2> Mesh::getBoundingBoxCorners() {
+Point3D Mesh::localAxis(int axis) const {
+    MyArray<int, 3> axisArray{0, 0, 0};
+    axisArray[axis] = true;
+    Point3D aux(axisArray[0], axisArray[1], axisArray[2]);
+    aux.rotateByUnitQuat(m_quat);
+    return aux;
+}
+
+MyArray<Point3D, 3> Mesh::localAxes() const {
+    return MyArray<Point3D, 3>{localAxis(0), localAxis(1), localAxis(2)};
+}
+
+MyArray<Point3D, 2> Mesh::getBoundingBoxCorners() const {
     if (!m_points.size()) {
         return MyArray<Point3D, 2>{Point3D(0, 0, 0), Point3D(0, 0, 0)};
     }

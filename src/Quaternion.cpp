@@ -3,6 +3,7 @@
 #include <math.h>
 
 const double pi = 3.1415926535897;
+const double err = 0.0000000000000000000001;
 
 Quaternion::Quaternion() :
     m_data() {
@@ -87,7 +88,7 @@ void Quaternion::operator*=(const double& scalar) {
     }
 }
 
-double Quaternion::norm() const {
+double Quaternion::norm() const noexcept {
     double norm = m_data[0] * m_data[0] + m_data[1] * m_data[1] + m_data[2] * m_data[2] + m_data[3] * m_data[3];
     norm = sqrt(norm);
     return norm;
@@ -128,19 +129,24 @@ void Quaternion::convertToUnitQ() {
     setComplex(vector.complex());
 }
 
-Quaternion Quaternion::conjugate() {
+Quaternion Quaternion::conjugate() const noexcept {
     Quaternion aux((*this));
     aux *= -1;
     aux.setReal(m_data[0]);
     return aux;
 }
 
-Quaternion Quaternion::inverse() {
+Quaternion Quaternion::inverse() const noexcept {
     double abs = norm();
     abs *= abs;
-    abs = 1 / abs;
     Quaternion conj = conjugate();
-    conj *= abs;
+    if (abs < err) {
+        conj = Quaternion(1, 0, 0, 0);
+    }
+    else {
+        abs = 1 / abs;
+        conj *= abs;
+    }
     return conj;
 }
 void Quaternion::display() {
