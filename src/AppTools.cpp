@@ -1,30 +1,20 @@
 #include "AppTools.h"
 
-int ColorSchemes::mixColors(const int& color1, const int& color2, const uint8_t& percentage) {
-    MyArray<int, 3> rgb1 = {color1 & 255, (color1 & (255<<8))>>8, (color1 & (255<<16))>>16},
-                    rgb2 = {color2 & 255, (color2 & (255<<8))>>8, (color2 & (255<<16))>>16};
+int ColorSchemes::mixColors(int color1, int color2, uint8_t percentage) {
+    //we're probably not gonna work with slightly reddened shades of black
+    //so i'm gonna turn any bgi color to a rgb color
     if (IS_BGI_COLOR(color1)) {
-        //very slightly change colour
-        if (rgb1[0] < 255) {
-            rgb1[0]++; //next shade up
-        }
-        else {
-            rgb1[0]--; //next shade down
-        }
+        color1 = converttorgb(color1);
     }
     if (IS_BGI_COLOR(color2)) {
-        //very slightly change colour
-        if (rgb2[0] < 255) {
-            rgb2[0]++; //next shade up
-        }
-        else {
-            rgb2[0]--; //next shade down
-        }
+        color2 = converttorgb(color2);
     }
+    MyArray<int, 3> rgb1 = {color1 & 255, (color1 & (255<<8))>>8, (color1 & (255<<16))>>16},
+                    rgb2 = {color2 & 255, (color2 & (255<<8))>>8, (color2 & (255<<16))>>16};
     MyArray<int, 3> rgb3 = {((rgb1[0] * (100 - percentage) + rgb2[0] * percentage) / 100 ),
                             ((rgb1[1] * (100 - percentage) + rgb2[1] * percentage) / 100 ),
                             ((rgb1[2] * (100 - percentage) + rgb2[2] * percentage) / 100 )};
-    int rgbFinal =  rgb3[0] | (rgb3[1] << 8) | (rgb3[2] << 16);
+    int rgbFinal = COLOR(rgb3[0], rgb3[1], rgb3[2]);
     if (!IS_BGI_COLOR(rgbFinal)) {
         return rgbFinal;
     }
@@ -40,12 +30,15 @@ Label::Label(const int& xCenter_, const int& yCenter_, const int& xLen_, const i
     xCenter(xCenter_), yCenter(yCenter_), xLen(xLen_), yLen(yLen_) {}
 
 void Label::drawLabel(const int& fillColor, const int& outlineColor) const {
+    fillsettingstype oldSettings;
+    getfillsettings(&oldSettings);
     border(outlineColor);
     if (fillColor == -1) {
         return;
     }
     setfillstyle(SOLID_FILL, fillColor);
     bar(xCenter - xLen / 2 + 1, yCenter - yLen / 2 + 1, xCenter + xLen / 2, yCenter + yLen / 2);
+    setfillstyle(oldSettings.pattern, oldSettings.color);
 }
 
 void Label::border(const int& outlineColor) const {
@@ -145,8 +138,10 @@ TextLabel::TextLabel(const int& xCenter_, const int& yCenter_, const int& xLen_,
 
 void TextLabel::drawText(const int& /*txtFont*/, const int& /*txtSize*/, const int& bkColor) {
     //settextstyle(txtFont, 0, txtSize);
+    int oldBkColor = getbkcolor();
     setbkcolor(bkColor);
     outtextxy(xCenter - textwidth(m_text.data()) / 2, yCenter - textheight(m_text.data()) / 2, m_text.data());
+    setbkcolor(oldBkColor);
 }
 
 void TextLabel::drawTextLabel(const int& txtFont, const int& txtSize, const int& fillColor) {
@@ -183,6 +178,7 @@ TextButton::TextButton(const int& xCenter_, const int& yCenter_, const int& xLen
 
 void TextButton::drawText(const int& /*txtFont*/, const int& /*txtSize*/, const int& bkColor, const bool& centerText) {
     //settextstyle(txtFont, 0, txtSize);
+    int oldBkColor = getbkcolor();
     setbkcolor(bkColor);
     if (!centerText) {
         outtextxy(xCenter - xLen / 2 + 5, yCenter - textheight(m_text.data()) / 2, m_text.data());
@@ -190,6 +186,7 @@ void TextButton::drawText(const int& /*txtFont*/, const int& /*txtSize*/, const 
     else {
         outtextxy(xCenter - textwidth(m_text.data()) / 2, yCenter - textheight(m_text.data()) / 2, m_text.data());
     }
+    setbkcolor(oldBkColor);
 }
 
 void TextButton::drawTextButton(const int& txtFont, const int& txtSize, const int& fillColor, const bool& centerText) {

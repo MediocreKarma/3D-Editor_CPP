@@ -77,7 +77,7 @@ class Space3D
         Button m_arrowDown;
         Button m_arrowSpinLeft;
         Button m_arrowSpinRight;
-        DropdownButton<6> m_meshContextMenu;
+        DropdownButton<7> m_meshContextMenu;
         bool m_meshMenuVisible;
         DropdownButton<2> m_spaceContextMenu;
         bool m_spaceMenuVisible;
@@ -110,6 +110,9 @@ class Space3D
         void drawSpinball();
         void showAngleOptions();
         void drawAngleButtons();
+        MyArray<char, 32> itoa(int x, const char* prefix = nullptr) const;
+        int atoi(MyArray<char, 256>& arr);
+        void showMeshInfoPanel();
         Point2D projectPoint(const Point3D& pct, const Quaternion& camQuat, const Quaternion& camInverse) const;
         Point3D rayCastOnPlane(int x, int y, const Point3D& planeNormal, const Point3D& planeCenter);
         Point3D unprojectPoint(int x, int y, const Quaternion& camQuat, double dy = 1) const;

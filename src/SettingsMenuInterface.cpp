@@ -138,14 +138,6 @@ void SettingsMenuInterface::settingsMenu(MyArray<TextButton, TEXTBUTTON_SIZE>& t
         while (!ismouseclick(WM_LBUTTONDOWN));
         int x, y;
         getmouseclick(WM_LBUTTONDOWN, x, y);
-        if (startButton.hitCollision(x, y)) {
-            closegraph();
-            saveSelection();
-            appHandler.setSettings(resOptions[resolution][0], resOptions[resolution][1], theme * ACCENT_COLOR_SIZE + accentColor, language);
-            appHandler.run();
-            initScreen();
-            draw(themeButtons, flagButtons, startButton, ddButton, accentButton, labels);
-        }
         for (size_t i = 0; i < themeButtons.size(); ++i) {
             if (themeButtons[i].hitCollision(x, y)) {
                 themeButtons[i].border(HIGHLIGHT_COLOR);
@@ -191,6 +183,14 @@ void SettingsMenuInterface::settingsMenu(MyArray<TextButton, TEXTBUTTON_SIZE>& t
                 accentButton.toggleVisibillity(BACKGROUND_COLOR, FONT, FONT_SIZE, DROPLIST_COLOR);
                 accentColor = accentCollide;
             }
+        }
+        if (startButton.hitCollision(x, y)) {
+            closegraph();
+            saveSelection();
+            appHandler.setSettings(resOptions[resolution][0], resOptions[resolution][1], theme * ACCENT_COLOR_SIZE + accentColor, language);
+            appHandler.run();
+            initScreen();
+            draw(themeButtons, flagButtons, startButton, ddButton, accentButton, labels);
         }
     }
 }

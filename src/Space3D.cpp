@@ -1,7 +1,6 @@
 #include "Space3D.h"
 #include "Menu.h"
 #include "ObjectCreator.h"
-#include "Quaternion.h"
 
 const double pi = 3.141926535897;
 const double err = 0.0000000000000000000001;
@@ -75,13 +74,14 @@ void Space3D::setButtons() {
     m_donutOY = DonutButton(xSpinballCenter, ySpinballCenter + 220, 40, 20);
     m_donutOZ = DonutButton(xSpinballCenter, ySpinballCenter + 320, 40, 20);
     static const int MENU_BTN_HEIGHT = 24;
-    m_meshContextMenu = DropdownButton<6>(-1000, -1000, 0, 0, "", 100, 6 * MENU_BTN_HEIGHT);
+    m_meshContextMenu = DropdownButton<7>(-1000, -1000, 0, 0, "", 120, 6 * MENU_BTN_HEIGHT);
     m_meshContextMenu.addOption("Flip X");
     m_meshContextMenu.addOption("Flip Y");
     m_meshContextMenu.addOption("Flip Z");
     m_meshContextMenu.addOption("Scale");
     m_meshContextMenu.addOption("Edit mesh");
     m_meshContextMenu.addOption("Delete mesh");
+    m_meshContextMenu.addOption("Show mesh info");
     m_spaceContextMenu = DropdownButton<2>(-1000, -1000, 0, 0, "", 180, 2 * MENU_BTN_HEIGHT);
     m_spaceContextMenu.addOption("Switch to local transform");
     m_spaceContextMenu.addOption("New mesh");
@@ -211,7 +211,7 @@ void drawGizmoArrow(const Point2D& p1, const Point2D& p2, int color) {
 
 double Space3D::gizmoLength() const {
     static const double gizmoSize = 0.06f;
-    return gizmoSize * ((m_cam.position() - m_meshes[m_selected].centerPoint()).norm() / tanf(m_cam.EZ() / 2.0f));
+    return gizmoSize * ((m_cam.position() - m_meshes[m_selected].centerPoint()).norm());
 }
 
 void Space3D::updateGizmoButtons() {
@@ -500,7 +500,7 @@ bool Space3D::checkObjectRotation(int x, int y) {
 }
 
 bool Space3D::checkAxisRotation(const int& x, const int& y) {
-    const double Grad_1 = 0.0078539816339745;
+    const double Grad_1 = 0.0078539816339745 / 1.5;
     clearmouseclick(WM_LBUTTONUP);
     if (m_arrowDown.hitCollision(x, y)) {
         while (!ismouseclick(WM_LBUTTONUP)) {
@@ -534,22 +534,6 @@ bool Space3D::checkAxisRotation(const int& x, const int& y) {
         }
         return true;
     }
-    /*if (m_arrowSpinLeft.hitCollision(x, y)) {
-        while (!ismouseclick(WM_LBUTTONUP)) {
-            m_cam.rotateOnAxis(1, Grad_1);
-            m_updated.fill(true);
-            callHandlerDrawer();
-        }
-        return true;
-    }
-    if (m_arrowSpinRight.hitCollision(x, y)) {
-        while (!ismouseclick(WM_LBUTTONUP)) {
-            m_cam.rotateOnAxis(1, -Grad_1);
-            m_updated.fill(true);
-            callHandlerDrawer();
-        }
-        return true;
-    }*/
     return false;
 }
 
@@ -562,6 +546,122 @@ double Space3D::findRotation(const int& xDrag, const int& yDrag, const DonutButt
     int xOnCircle = xCircle + xDiff / magV * angleDonut.getRadius();
     int yOnCircle = yCircle + yDiff / magV * angleDonut.getRadius();
     return atan2(yOnCircle - yCircle, xOnCircle - xCircle) - atan2(button.getY() - yCircle, button.getX() - xCircle);
+}
+
+MyArray<char, 32> Space3D::itoa(int x, const char* prefix) const {
+    MyArray<char, 32> text = prefix;
+    const size_t pLen = strlen(prefix);
+    bool isNegative = false;
+    if (x < 0) {
+        isNegative = true;
+        x = -x;
+    }
+    size_t i = 0;
+    do {
+        text[pLen + i++] = x % 10 + '0';
+    } while (x /= 10);
+    if (isNegative) {
+        text[pLen + i++] = '-';
+    }
+    for (size_t j = pLen; j < pLen + i / 2; ++j) {
+        char aux = text[j];
+        text[j] = text[2 * pLen + i - j - 1];
+        text[2 * pLen + i - j - 1] = aux;
+    }
+    return text;
+}
+
+int Space3D::atoi(MyArray<char, 256>& arr) {
+    size_t len = strlen(arr.data());
+    if (len > 8) {
+        return INT_MIN;
+    }
+    int x = 0;
+    size_t i = 0;
+    if (arr[0] == '-') {
+        ++i;
+    }
+    for (; i < len; ++i) {
+        if (arr[i] < '0' || '9' < arr[i]) {
+            return INT_MIN;
+        }
+        x = x * 10 + (arr[i] - '0');
+    }
+    if (arr[0] == '-') {
+        x *= -1;
+    }
+    return x;
+}
+
+void Space3D::showMeshInfoPanel() {
+    //nu stiu de ce am modularizat asa tare tbh
+    //poate ajuta in viitor daca o sa vrem sa putem edita valorile cu textboxes (chiar daca doar int values),
+    //sa adaugam butoane de Discard/Save/Whatever
+    //in ideea asta am si facut structul MeshTransformInfo,
+    //ca sa putem de exemplu sa aplicam potentialele noi transformari de aici direct pe mesh
+    callHandlerDrawer();
+    int mainWindow = getcurrentwindow();
+    static const int PANEL_WIDTH = 320;
+    static const int PANEL_HEIGHT = 180;
+    static const int LABEL_WIDTH = 60;
+    static const int LABEL_HEIGHT = 30;
+    static const int PANEL_MARGIN = 20;
+    static const int TOP_MARGIN = 30;
+    static const int BOTTOM_MARGIN = 0;
+    static const int LABEL_BG_COLOR = LIGHTGRAY;
+    static MyArray<MyArray<char, 8>, 3> AXIS_PREFIXES = {"X : ", "Y : ", "Z : "};
+    MyArray<MyArray<char, 32>, 3> transformType = {"Scale", "Rotation", "Position"}; //to be added to Language
+                                                                                     //speaking of, a "+" operator for concatenation for Strings would be awesome
+                                                                                     //so i could say stuff like, idk, Languages::scale[m_language] + ": "
+    int infoWindow = initwindow(PANEL_WIDTH, PANEL_HEIGHT, "Mesh Info", getmaxwidth() / 2 - PANEL_WIDTH / 2,
+                                getmaxheight() / 2 - PANEL_HEIGHT / 2, false, false);
+    setcurrentwindow(infoWindow);
+    setfillstyle(SOLID_FILL, LABEL_BG_COLOR);
+    int oldBkColor = getbkcolor();
+    setbkcolor(LABEL_BG_COLOR);
+    bar(0, 0, PANEL_WIDTH, PANEL_HEIGHT);
+    rectangle(0, 0, PANEL_WIDTH - 1, PANEL_HEIGHT - 1);
+    TextButton backButton(PANEL_WIDTH - 35, TOP_MARGIN / 2 + 25 / 2, 50, 25, "Back");
+    backButton.drawTextButton(0, 0, ColorSchemes::mixColors(LABEL_BG_COLOR, ColorSchemes::themeColors[m_theme][ColorSchemes::ACCENTCOLOR], 25), true);
+    MyArray<char, 32> indexPrefix = "Index: "; //thank god it's index in both languages
+    MyArray<char, 32> indexText = itoa(m_selected, indexPrefix.data());
+    outtextxy(PANEL_MARGIN, backButton.getYCenter() - textheight(indexText.data()) / 2, indexText.data());
+    MeshTransformInfo selectedTransforms = m_meshes[m_selected].transforms();
+    MyArray<TextLabel, 3> transformLabels = {TextLabel(PANEL_MARGIN + LABEL_WIDTH / 2, TOP_MARGIN + LABEL_HEIGHT / 2 + PANEL_MARGIN, LABEL_WIDTH, LABEL_HEIGHT, transformType[0].data()),
+                                             TextLabel(PANEL_MARGIN + LABEL_WIDTH / 2, TOP_MARGIN + (PANEL_HEIGHT - TOP_MARGIN - BOTTOM_MARGIN) / 2, LABEL_WIDTH, LABEL_HEIGHT, transformType[1].data()),
+                                             TextLabel(PANEL_MARGIN + LABEL_WIDTH / 2, PANEL_HEIGHT - LABEL_HEIGHT / 2 - PANEL_MARGIN - BOTTOM_MARGIN, LABEL_WIDTH, LABEL_HEIGHT, transformType[2].data())};
+    static const int VALUES_OFFSET = (PANEL_WIDTH - 4 * PANEL_MARGIN) / 3;
+    static const int VALUES_MARGIN = PANEL_MARGIN * 2 + LABEL_WIDTH;
+    for (auto& label : transformLabels) {
+        label.drawTextLabel(0, 0, ColorSchemes::mixColors(LABEL_BG_COLOR, ColorSchemes::themeColors[m_theme][ColorSchemes::ACCENTCOLOR], 25));
+    }
+    for (size_t i = 0; i < 3; ++i) {
+        MyArray<char, 32> scaleText = itoa((int)::round(selectedTransforms.scale[i] * 100), AXIS_PREFIXES[i].data());
+        MyArray<char, 32> angleText = itoa((int)::round(selectedTransforms.angle[i] * 180 / pi), AXIS_PREFIXES[i].data());
+        MyArray<char, 32> posText = itoa((int)::round(selectedTransforms.position[i]), AXIS_PREFIXES[i].data());
+        outtextxy(VALUES_MARGIN + i * VALUES_OFFSET, transformLabels[0].getYCenter() - textheight(scaleText.data()) / 2, scaleText.data());
+        outtextxy(VALUES_MARGIN + i * VALUES_OFFSET, transformLabels[1].getYCenter() - textheight(angleText.data()) / 2, angleText.data());
+        outtextxy(VALUES_MARGIN + i * VALUES_OFFSET, transformLabels[2].getYCenter() - textheight(posText.data()) / 2, posText.data());
+    }
+    setbkcolor(oldBkColor);
+    while(true) {
+        if(!ismouseclick(WM_LBUTTONDOWN)) {
+            continue;
+        }
+        else {
+            int x_, y_;
+            getmouseclick(WM_LBUTTONDOWN, x_, y_);
+            if (backButton.hitCollision(x_, y_)) {
+                break;
+            }
+            else {
+                continue;
+            }
+        }
+    }
+    closegraph(infoWindow);
+    setcurrentwindow(mainWindow);
+    clearmouseclick(WM_LBUTTONUP);
 }
 
 Point3D Space3D::rotateByCamera(const Point3D& pct) const {
@@ -690,6 +790,22 @@ bool Space3D::checkKeyCommand(const char& x) {
     if (m_meshMenuVisible) {
         m_meshMenuVisible = false;
     }
+    //lower limit from Minecraft
+    if (x == 'z' && m_cam.EZ() < 1.0f / tan(30 / 2 * pi / 180))  {
+        double radAngle = 2 * atan(1 / m_cam.EZ());
+        radAngle -= 10 * pi / 180; //10deg
+        m_cam.setEZ(1 / tanf(radAngle / 2));
+        update();
+        return true;
+    }
+    //higher limit from Minecraft
+    if (x == 'x' && m_cam.EZ() > 1.0f / tan(110 / 2 * pi / 180))  {
+        double radAngle = 2 * atan(1 / m_cam.EZ());
+        radAngle += 10 * pi / 180; //10deg
+        m_cam.setEZ(1 / tanf(radAngle / 2));
+        update();
+        return true;
+    }
     return checkCamMovement(x);
 }
 
@@ -725,6 +841,9 @@ bool Space3D::getCommand(const int& x, const int& y) {
         if (rMenuIndex == 5) {
             removeMesh(m_selected);
             m_selected = -1;
+        }
+        if (rMenuIndex == 6) {
+            showMeshInfoPanel();
         }
         return true;
     }

@@ -157,6 +157,14 @@ class Line3D {
         Point3D Q;
 };
 
+struct MeshTransformInfo {
+    MyArray<double, 3> scale;
+    MyArray<double, 3> angle;
+    MyArray<double, 3> position;
+
+    MeshTransformInfo() : scale({1., 1., 1.}), angle({1., 1., 1.}), position({0., 0., 0.}) {}
+};
+
 class FixedMesh;
 
 class Mesh {
@@ -204,6 +212,9 @@ class Mesh {
         double scaleZ() const;
         Point3D localAxis(int axis) const;
         MyArray<Point3D, 3> localAxes() const;
+        MeshTransformInfo transforms() const;
+        void resetTransforms();
+        //void applyTransforms(); - will add if we add textboxes to meshInfoPanel
 
     private:
         MyVector<Point3D> m_points;

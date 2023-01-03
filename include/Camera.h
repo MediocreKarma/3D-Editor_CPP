@@ -23,7 +23,7 @@ class Camera {
         bool fscan(FILE* fp);
         void fprint(FILE* fp);
         void modifyPosition(const double& posX, const double& posY, const double& posZ);
-
+        void setEZ(const double& value);
 
     private:
         Point3D m_point;

@@ -803,6 +803,12 @@ void Mesh::resetScale() {
     }
 }
 
+void Mesh::resetTransforms() {
+    resetRotation();
+    resetScale();
+    m_centerPoint = Point3D(0, 0, 0);
+}
+
 void Mesh::rotateByUnitQuat(const Quaternion& quat) {
     Point3D center(m_centerPoint);
     translate(-center.getX(), -center.getY(), -center.getZ());
@@ -852,6 +858,21 @@ MyArray<Point3D, 2> Mesh::getBoundingBoxCorners() const {
     }
     return MyArray<Point3D, 2>{bottomLeft, topRight};
 }
+
+MeshTransformInfo Mesh::transforms() const {
+    MeshTransformInfo transforms;
+    transforms.scale[0] = m_scaleX;
+    transforms.scale[1] = m_scaleY;
+    transforms.scale[2] = m_scaleZ;
+    transforms.angle[0] = m_angleX;
+    transforms.angle[1] = m_angleY;
+    transforms.angle[2] = m_angleZ;
+    transforms.position[0] = m_centerPoint.x;
+    transforms.position[1] = m_centerPoint.y;
+    transforms.position[2] = m_centerPoint.z;
+    return transforms;
+}
+
 
 IntegerPoint3D::IntegerPoint3D() :
     x(0), y(0), z(0) {}

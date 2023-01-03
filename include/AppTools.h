@@ -11,7 +11,7 @@ namespace ColorSchemes {
     static const int ACCENTCOLOR = 2;
     static const int ACCENTCOLOR_COUNT = 5;
     //only works for RGB values; used for highlighting purposes
-    int mixColors(const int& color1, const int& color2, const uint8_t& percentage);
+    int mixColors(int color1, int color2, uint8_t percentage);
     static const MyArray<int, ACCENTCOLOR_COUNT> accentColors = {
         /*RED, BLUE, PINK, YELLOW, GREEN - RGB values to use with above function*/
         RGB(219, 43, 57), RGB(110, 68, 255), RGB(249, 145, 204), RGB(233, 196, 106), RGB(42, 157, 143)

@@ -109,11 +109,11 @@ void Menu::drawMenu() {
     bar(0, 0, x1, y1);
     bar(0, 0, x2, y2);
     setlinestyle(SOLID_LINE, 0, 1);
-    m_fileButton.drawTextButton(3, 1, ColorSchemes::mixColors(RGB(160, 160, 160), ColorSchemes::themeColors[m_theme][ColorSchemes::ACCENTCOLOR], 25));
+    m_fileButton.drawTextButton(3, 1, ColorSchemes::mixColors(LIGHTGRAY, ColorSchemes::themeColors[m_theme][ColorSchemes::ACCENTCOLOR], 25));
     m_fileButton.border(BLACK);
     m_settingsButton.drawTextButton(3, 1, ColorSchemes::mixColors(RGB(140, 140, 140), ColorSchemes::themeColors[m_theme][ColorSchemes::ACCENTCOLOR], 25));
     m_settingsButton.border(BLACK);
-    m_helpButton.drawTextButton(3, 1, ColorSchemes::mixColors(RGB(160, 160, 160), ColorSchemes::themeColors[m_theme][ColorSchemes::ACCENTCOLOR], 25));
+    m_helpButton.drawTextButton(3, 1, ColorSchemes::mixColors(LIGHTGRAY, ColorSchemes::themeColors[m_theme][ColorSchemes::ACCENTCOLOR], 25));
     m_helpButton.border(BLACK);
     if (m_fileButton.isListVisible()) {
         m_fileButton.showList(3, 1, ColorSchemes::mixColors(RGB(210, 210, 210), ColorSchemes::themeColors[m_theme][ColorSchemes::ACCENTCOLOR], 25));

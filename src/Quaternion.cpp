@@ -23,8 +23,12 @@ Quaternion::Quaternion(const Quaternion& other) :
 Quaternion::Quaternion(const double& real, const double& i, const double& j, const double& k) :
     m_data({real, i, j, k}) {}
 
-//daca voi avea nevoie vreodata de el, il voi adauga
-//Quaternion::Quaternion(const double& yaw, const double& pitch, const double& roll) : m_data() {}
+Quaternion::Quaternion(const double& yaw, const double& pitch, const double& roll) : m_data() {
+    m_data[0] = cos(roll / 2) * cos(pitch / 2) * cos(yaw / 2) + sin(roll / 2) * sin(pitch / 2) * sin(yaw / 2);
+    m_data[1] = sin(roll / 2) * cos(pitch / 2) * cos(yaw / 2) - cos(roll / 2) * sin(pitch / 2) * sin(yaw / 2);
+    m_data[2] = cos(roll / 2) * sin(pitch / 2) * cos(yaw / 2) + sin(roll / 2) * cos(pitch / 2) * sin(yaw / 2);
+    m_data[3] = cos(roll / 2) * cos(pitch / 2) * sin(yaw / 2) - sin(roll / 2) * sin(pitch / 2) * cos(yaw / 2);
+}
 
 double Quaternion::real() const {
     return m_data[0];
