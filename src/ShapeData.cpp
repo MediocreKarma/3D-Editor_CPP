@@ -767,13 +767,13 @@ void Mesh::resetRotation() {
     for (Point3D& pct : m_points) {
         pct.rotateByUnitQuat(m_quat.inverse());
         if (fabs(pct.getX() - round(pct.getX())) < e) {
-            pct.setX((int)round(pct.getX()));
+            pct.setX((int)::round(pct.getX()));
         }
         if (fabs(pct.getY() - round(pct.getY())) < e) {
-            pct.setY((int)round(pct.getY()));
+            pct.setY((int)::round(pct.getY()));
         }
         if (fabs(pct.getZ() - round(pct.getZ())) < e) {
-            pct.setZ((int)round(pct.getZ()));
+            pct.setZ((int)::round(pct.getZ()));
         }
     }
     m_angleX = 0;
@@ -801,12 +801,6 @@ void Mesh::resetScale() {
             pct.setZ((int)round(pct.getZ()));
         }
     }
-}
-
-void Mesh::resetTransforms() {
-    resetRotation();
-    resetScale();
-    m_centerPoint = Point3D(0, 0, 0);
 }
 
 void Mesh::rotateByUnitQuat(const Quaternion& quat) {
@@ -871,6 +865,27 @@ MeshTransformInfo Mesh::transforms() const {
     transforms.position[1] = m_centerPoint.y;
     transforms.position[2] = m_centerPoint.z;
     return transforms;
+}
+
+void Mesh::resetTransforms() {
+    Point3D center(m_centerPoint);
+    translate(-center.x, -center.y, -center.z);
+    resetRotation();
+    resetScale();
+}
+
+void Mesh::applyTransforms(const MeshTransformInfo& transforms) {
+    resetTransforms();
+    m_scaleX = transforms.scale[0];
+    m_scaleY = transforms.scale[1];
+    m_scaleZ = transforms.scale[2];
+    for (size_t i = 0; i < 3; ++i) {
+        scaleAxis(transforms.scale[i], i);
+    }
+    Quaternion quat(transforms.angle[0], transforms.angle[1], transforms.angle[2]);
+    quat.display();
+    rotateByUnitQuat(quat);
+    translate(Point3D(transforms.position));
 }
 
 

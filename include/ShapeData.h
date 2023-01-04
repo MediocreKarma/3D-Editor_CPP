@@ -214,7 +214,7 @@ class Mesh {
         MyArray<Point3D, 3> localAxes() const;
         MeshTransformInfo transforms() const;
         void resetTransforms();
-        //void applyTransforms(); - will add if we add textboxes to meshInfoPanel
+        void applyTransforms(const MeshTransformInfo& transforms);
 
     private:
         MyVector<Point3D> m_points;

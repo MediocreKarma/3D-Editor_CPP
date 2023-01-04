@@ -81,7 +81,7 @@ void Space3D::setButtons() {
     m_meshContextMenu.addOption("Scale");
     m_meshContextMenu.addOption("Edit mesh");
     m_meshContextMenu.addOption("Delete mesh");
-    m_meshContextMenu.addOption("Show mesh info");
+    m_meshContextMenu.addOption("Reset transforms");
     m_spaceContextMenu = DropdownButton<2>(-1000, -1000, 0, 0, "", 180, 2 * MENU_BTN_HEIGHT);
     m_spaceContextMenu.addOption("Switch to local transform");
     m_spaceContextMenu.addOption("New mesh");
@@ -154,9 +154,6 @@ void Space3D::fprint(FILE* fp) {
 void Space3D::run() {
     draw();
     drawRotationArrows();
-    if (m_selected != -1) {
-        drawGizmo();
-    }
     if (m_meshMenuVisible) {
         struct linesettingstype oldSettings;
         getlinesettings(&oldSettings);
@@ -172,6 +169,8 @@ void Space3D::run() {
         setlinestyle(oldSettings.linestyle, oldSettings.upattern, oldSettings.thickness);
     }
     if (m_selected != -1) {
+        drawGizmo();
+        showMeshInfoPanel();
         drawSpinball();
         if (m_spinballSelected) {
             showAngleOptions();
@@ -595,46 +594,37 @@ int Space3D::atoi(MyArray<char, 256>& arr) {
 
 void Space3D::showMeshInfoPanel() {
     //nu stiu de ce am modularizat asa tare tbh
-    //poate ajuta in viitor daca o sa vrem sa putem edita valorile cu textboxes (chiar daca doar int values),
-    //sa adaugam butoane de Discard/Save/Whatever
-    //in ideea asta am si facut structul MeshTransformInfo,
-    //ca sa putem de exemplu sa aplicam potentialele noi transformari de aici direct pe mesh
-    callHandlerDrawer();
-    int mainWindow = getcurrentwindow();
-    static const int PANEL_WIDTH = 320;
-    static const int PANEL_HEIGHT = 180;
+    //poate ajuta in viitor daca o sa vrem sa putem edita valorile cu textboxes (chiar daca doar int values)
+    static const int PANEL_WIDTH = 260;
+    static const int PANEL_HEIGHT = 120;
     static const int LABEL_WIDTH = 60;
     static const int LABEL_HEIGHT = 30;
-    static const int PANEL_MARGIN = 20;
-    static const int TOP_MARGIN = 30;
+    static const int PANEL_MARGIN = 12;
+    static const int TOP_MARGIN = 0;
+    int              TOP_BEGIN = getmaxy() - PANEL_HEIGHT - PANEL_MARGIN;
+    static const int LEFT_BEGIN = PANEL_MARGIN;
     static const int BOTTOM_MARGIN = 0;
     static const int LABEL_BG_COLOR = LIGHTGRAY;
+    static const int VALUES_OFFSET = (PANEL_WIDTH - 7 * PANEL_MARGIN) / 3;
+    static const int VALUES_MARGIN = LEFT_BEGIN + PANEL_MARGIN * 2 + LABEL_WIDTH;
     static MyArray<MyArray<char, 8>, 3> AXIS_PREFIXES = {"X : ", "Y : ", "Z : "};
     MyArray<MyArray<char, 32>, 3> transformType = {"Scale", "Rotation", "Position"}; //to be added to Language
                                                                                      //speaking of, a "+" operator for concatenation for Strings would be awesome
                                                                                      //so i could say stuff like, idk, Languages::scale[m_language] + ": "
-    int infoWindow = initwindow(PANEL_WIDTH, PANEL_HEIGHT, "Mesh Info", getmaxwidth() / 2 - PANEL_WIDTH / 2,
-                                getmaxheight() / 2 - PANEL_HEIGHT / 2, false, false);
-    setcurrentwindow(infoWindow);
-    setfillstyle(SOLID_FILL, LABEL_BG_COLOR);
-    int oldBkColor = getbkcolor();
-    setbkcolor(LABEL_BG_COLOR);
-    bar(0, 0, PANEL_WIDTH, PANEL_HEIGHT);
-    rectangle(0, 0, PANEL_WIDTH - 1, PANEL_HEIGHT - 1);
-    TextButton backButton(PANEL_WIDTH - 35, TOP_MARGIN / 2 + 25 / 2, 50, 25, "Back");
-    backButton.drawTextButton(0, 0, ColorSchemes::mixColors(LABEL_BG_COLOR, ColorSchemes::themeColors[m_theme][ColorSchemes::ACCENTCOLOR], 25), true);
-    MyArray<char, 32> indexPrefix = "Index: "; //thank god it's index in both languages
-    MyArray<char, 32> indexText = itoa(m_selected, indexPrefix.data());
-    outtextxy(PANEL_MARGIN, backButton.getYCenter() - textheight(indexText.data()) / 2, indexText.data());
+    setfillstyle(SOLID_FILL, ColorSchemes::themeColors[m_theme][ColorSchemes::PRIMARYCOLOR]);
+    setbkcolor(ColorSchemes::themeColors[m_theme][ColorSchemes::PRIMARYCOLOR]);
+    setcolor(ColorSchemes::themeColors[m_theme][ColorSchemes::SECONDARYCOLOR]);
+    bar(LEFT_BEGIN, TOP_BEGIN, LEFT_BEGIN + PANEL_WIDTH, TOP_BEGIN + PANEL_HEIGHT);
+    rectangle(LEFT_BEGIN, TOP_BEGIN, LEFT_BEGIN + PANEL_WIDTH, TOP_BEGIN + PANEL_HEIGHT);
     MeshTransformInfo selectedTransforms = m_meshes[m_selected].transforms();
-    MyArray<TextLabel, 3> transformLabels = {TextLabel(PANEL_MARGIN + LABEL_WIDTH / 2, TOP_MARGIN + LABEL_HEIGHT / 2 + PANEL_MARGIN, LABEL_WIDTH, LABEL_HEIGHT, transformType[0].data()),
-                                             TextLabel(PANEL_MARGIN + LABEL_WIDTH / 2, TOP_MARGIN + (PANEL_HEIGHT - TOP_MARGIN - BOTTOM_MARGIN) / 2, LABEL_WIDTH, LABEL_HEIGHT, transformType[1].data()),
-                                             TextLabel(PANEL_MARGIN + LABEL_WIDTH / 2, PANEL_HEIGHT - LABEL_HEIGHT / 2 - PANEL_MARGIN - BOTTOM_MARGIN, LABEL_WIDTH, LABEL_HEIGHT, transformType[2].data())};
-    static const int VALUES_OFFSET = (PANEL_WIDTH - 4 * PANEL_MARGIN) / 3;
-    static const int VALUES_MARGIN = PANEL_MARGIN * 2 + LABEL_WIDTH;
+    MyArray<TextLabel, 3> transformLabels = {TextLabel(LEFT_BEGIN + PANEL_MARGIN + LABEL_WIDTH / 2, TOP_BEGIN + TOP_MARGIN + LABEL_HEIGHT / 2 + PANEL_MARGIN, LABEL_WIDTH, LABEL_HEIGHT,transformType[0].data()),
+                                             TextLabel(LEFT_BEGIN + PANEL_MARGIN + LABEL_WIDTH / 2, TOP_BEGIN + TOP_MARGIN + (PANEL_HEIGHT - TOP_MARGIN - BOTTOM_MARGIN) / 2, LABEL_WIDTH, LABEL_HEIGHT, transformType[1].data()),
+                                             TextLabel(LEFT_BEGIN + PANEL_MARGIN + LABEL_WIDTH / 2, TOP_BEGIN + PANEL_HEIGHT - LABEL_HEIGHT / 2 - PANEL_MARGIN - BOTTOM_MARGIN, LABEL_WIDTH, LABEL_HEIGHT, transformType[2].data())};
     for (auto& label : transformLabels) {
-        label.drawTextLabel(0, 0, ColorSchemes::mixColors(LABEL_BG_COLOR, ColorSchemes::themeColors[m_theme][ColorSchemes::ACCENTCOLOR], 25));
+        label.drawTextLabel(0, 0, ColorSchemes::mixColors(ColorSchemes::themeColors[m_theme][ColorSchemes::ACCENTCOLOR], RGB(155, 155, 155), 75));
     }
+    setbkcolor(ColorSchemes::themeColors[m_theme][ColorSchemes::PRIMARYCOLOR]);
+    setcolor(ColorSchemes::themeColors[m_theme][ColorSchemes::SECONDARYCOLOR]);
     for (size_t i = 0; i < 3; ++i) {
         MyArray<char, 32> scaleText = itoa((int)::round(selectedTransforms.scale[i] * 100), AXIS_PREFIXES[i].data());
         MyArray<char, 32> angleText = itoa((int)::round(selectedTransforms.angle[i] * 180 / pi), AXIS_PREFIXES[i].data());
@@ -643,25 +633,6 @@ void Space3D::showMeshInfoPanel() {
         outtextxy(VALUES_MARGIN + i * VALUES_OFFSET, transformLabels[1].getYCenter() - textheight(angleText.data()) / 2, angleText.data());
         outtextxy(VALUES_MARGIN + i * VALUES_OFFSET, transformLabels[2].getYCenter() - textheight(posText.data()) / 2, posText.data());
     }
-    setbkcolor(oldBkColor);
-    while(true) {
-        if(!ismouseclick(WM_LBUTTONDOWN)) {
-            continue;
-        }
-        else {
-            int x_, y_;
-            getmouseclick(WM_LBUTTONDOWN, x_, y_);
-            if (backButton.hitCollision(x_, y_)) {
-                break;
-            }
-            else {
-                continue;
-            }
-        }
-    }
-    closegraph(infoWindow);
-    setcurrentwindow(mainWindow);
-    clearmouseclick(WM_LBUTTONUP);
 }
 
 Point3D Space3D::rotateByCamera(const Point3D& pct) const {
@@ -843,7 +814,8 @@ bool Space3D::getCommand(const int& x, const int& y) {
             m_selected = -1;
         }
         if (rMenuIndex == 6) {
-            showMeshInfoPanel();
+            m_meshes[m_selected].resetTransforms();
+            m_updated[m_selected] = true;
         }
         return true;
     }
