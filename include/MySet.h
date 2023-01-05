@@ -13,6 +13,7 @@ class MySetIterator {
         friend class MySet<T, F>;
         using Node = typename MySet<T, F>::SetNode;
         Node* m_ptr;
+        Node* m_root;
 
     public:
         using iterator = MySetIterator;
@@ -22,20 +23,20 @@ class MySetIterator {
         using reference = const T&;
         using pointer = const T*;
 
-        MySetIterator() :
-            m_ptr(nullptr) {}
+        MySetIterator() noexcept :
+            m_ptr(nullptr), m_root(nullptr) {}
 
-        MySetIterator(Node* ptr) noexcept :
-            m_ptr(ptr) {}
+        MySetIterator(Node* ptr, Node* root) noexcept :
+            m_ptr(ptr), m_root(root) {}
 
         MySetIterator(const MySetIterator& other) noexcept :
-            m_ptr(other.m_ptr) {}
+            m_ptr(other.m_ptr), m_root(other.m_root) {}
 
-        reference operator * () noexcept {
+        reference operator * () const noexcept {
             return m_ptr->key;
         }
 
-        pointer operator -> () noexcept {
+        pointer operator -> () const noexcept {
             return &(m_ptr->key);
         }
 
@@ -65,6 +66,9 @@ class MySetIterator {
 
         iterator& operator -- () noexcept {
             m_ptr = predecessor(m_ptr);
+            if (m_ptr == MySet<T, F>::nil) {
+                m_ptr = rightmost(m_root);
+            }
             return *this;
         }
 
@@ -233,19 +237,19 @@ class MySet {
         }
 
         iterator find(const T& key) noexcept {
-            return iterator(search(key));
+            return iterator(search(key), m_root);
         }
 
         const_iterator find(const T& key) const noexcept {
-            return const_iterator(search(key));
+            return const_iterator(search(key), m_root);
         }
 
         iterator begin() noexcept {
-            return iterator(leftmost(m_root));
+            return iterator(leftmost(m_root), m_root);
         }
 
         iterator end() noexcept {
-            return iterator(nil);
+            return iterator(nil, m_root);
         }
 
         const_iterator begin() const noexcept {
@@ -257,11 +261,11 @@ class MySet {
         }
 
         const_iterator cbegin() const noexcept {
-            return const_iterator(leftmost(m_root));
+            return const_iterator(leftmost(m_root), m_root);
         }
 
         const_iterator cend() const noexcept {
-            return const_iterator(nil);
+            return const_iterator(nil, m_root);
         }
 
         reverse_iterator rbegin() noexcept {

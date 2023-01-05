@@ -25,11 +25,11 @@ class MyHashSetIterator {
         MyHashSetIterator(typename MyList<T>::const_iterator it, size_t bucket, const MyVector<MyList<T>>& hashset, size_t lastUsedBucket) :
             m_listIt(it), m_bucket(bucket), m_hashset(hashset), m_lastUsedBucket(lastUsedBucket) {}
 
-        reference operator * () {
+        reference operator * () const noexcept {
             return *m_listIt;
         }
 
-        typename MyList<T>::iterator operator -> () {
+        const typename MyList<T>::const_iterator& operator -> () const noexcept {
             return m_listIt;
         }
 
@@ -41,11 +41,11 @@ class MyHashSetIterator {
 
         iterator& operator ++ () {
             ++m_listIt;
-            if (m_listIt == m_hashset[m_bucket].end() && m_bucket != m_lastUsedBucket) {
+            if (m_listIt == m_hashset[m_bucket].cend() && m_bucket < m_lastUsedBucket) {
                 do {
                     ++m_bucket;
                 } while (m_bucket != m_lastUsedBucket && m_hashset[m_bucket].empty());
-                m_listIt = m_hashset[m_bucket].begin();
+                m_listIt = m_hashset[m_bucket].cbegin();
             }
             return *this;
         }
@@ -72,10 +72,10 @@ class MyHashSet {
     public:
         friend class MyHashSetIterator<T>;
         using iterator = MyHashSetIterator<T>;
-        using const_iterator = iterator;
+        using const_iterator = MyHashSetIterator<T>;
 
         MyHashSet() noexcept :
-            m_hset(2), m_capacity(2), m_size(0), m_firstUsedBucket(2), m_lastUsedBucket(2) {}
+            m_hset(2), m_capacity(2), m_size(0), m_firstUsedBucket(1), m_lastUsedBucket(1) {}
 
         MyHashSet(const HashSet& other) noexcept :
             m_hset(other.m_hset), m_capacity(other.m_capacity), m_size(other.m_size), m_firstUsedBucket(other.m_firstUsedBucket), m_lastUsedBucket(other.m_lastUsedBucket) {}
@@ -87,7 +87,6 @@ class MyHashSet {
         MyHashSet(std::initializer_list<T> l) noexcept : MyHashSet() {
             m_capacity = power2Ceil(l.size() * OneDivideOverCapacityMultiplier);
             m_hset.resize(m_capacity);
-            m_size = l.size();
             for (const T& data : l) {
                 noResizeInsert(data);
             }
@@ -126,6 +125,9 @@ class MyHashSet {
         }
 
         const_iterator cbegin() const noexcept {
+            if (empty()) {
+                return cend();
+            }
             return const_iterator(m_hset[m_firstUsedBucket].cbegin(), m_firstUsedBucket, m_hset, m_lastUsedBucket);
         }
 
@@ -143,7 +145,6 @@ class MyHashSet {
 
         void insert(const T& key) noexcept {
             noResizeInsert(key);
-            ++m_size;
             if (m_size * OverCapacityMultiplier > m_capacity) {
                 rehash(m_capacity * ResizeMultiplier);
             }
@@ -156,7 +157,7 @@ class MyHashSet {
                     m_hset[hashKey].erase(it);
                     --m_size;
                     incrementFirstOrLastBucket(hashKey);
-                    if (m_size != 2 && m_size * UnderCapacityMultiplier < m_capacity) {
+                    if (m_size > 2 && m_size * UnderCapacityMultiplier < m_capacity) {
                         rehash(m_capacity / ResizeMultiplier);
                     }
                     break;
@@ -168,7 +169,7 @@ class MyHashSet {
             m_hset[it.m_bucket].erase(it.m_listIt);
             --m_size;
             incrementFirstOrLastBucket(it.m_bucket);
-            if (m_size != 2 && m_size * UnderCapacityMultiplier < m_capacity) {
+            if (m_size > 2 && m_size * UnderCapacityMultiplier < m_capacity) {
                 rehash(m_capacity / ResizeMultiplier);
             }
         }
@@ -213,7 +214,7 @@ class MyHashSet {
         void rehash(const size_t& maxCapacity) {
             m_capacity = maxCapacity;
             MyVector<MyList<T>> new_hmap(m_capacity);
-            m_firstUsedBucket = m_capacity;
+            m_firstUsedBucket = m_capacity - 1;
             m_lastUsedBucket = 0;
             for (MyList<T>& bucket : m_hset) {
                 for (const T& x : bucket) {
@@ -233,7 +234,7 @@ class MyHashSet {
             --value;
             for(size_t i = 1; i < BITS; i *= 2)
                 value |= value >> i;
-            return value+1;
+            return value + 1;
         }
 
         void noResizeInsert(const T& key) noexcept {
@@ -244,12 +245,14 @@ class MyHashSet {
                 }
             }
             m_hset[hashKey].push_back(key);
+            ++m_size;
             updateFirstOrLast(hashKey);
         }
 
         void updateFirstOrLast(const size_t& hashKey) noexcept {
             if (m_size == 1) {
-                m_lastUsedBucket = m_firstUsedBucket = hashKey;
+                m_lastUsedBucket = hashKey;
+                m_firstUsedBucket = hashKey;
                 return;
             }
             if (hashKey > m_lastUsedBucket) {
@@ -265,8 +268,8 @@ class MyHashSet {
                 return;
             }
             if (m_firstUsedBucket == m_lastUsedBucket) {
-                m_firstUsedBucket = m_capacity;
-                m_lastUsedBucket = m_capacity;
+                m_firstUsedBucket = m_capacity - 1;
+                m_lastUsedBucket = m_capacity - 1;
                 return;
             }
             if (hashKey == m_firstUsedBucket) {

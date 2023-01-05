@@ -9,8 +9,10 @@ class MyMap;
 template<typename KeyType, typename ValueType, typename F, typename DRT>
 class MyMapIterator {
     private:
+        friend MyMap<KeyType, ValueType, F>;
         using Node = typename MyMap<KeyType, ValueType, F>::MapNode;
         Node* m_ptr;
+        Node* m_root;
 
     public:
         using iterator = MyMapIterator;
@@ -20,11 +22,14 @@ class MyMapIterator {
         using reference = DRT&;
         using pointer = DRT*;
 
-        MyMapIterator(Node* ptr) noexcept :
-            m_ptr(ptr) {}
+        MyMapIterator() noexcept :
+            m_ptr(nullptr), m_root(nullptr) {}
+
+        MyMapIterator(Node* ptr, Node* root) noexcept :
+            m_ptr(ptr), m_root(root) {}
 
         MyMapIterator(const MyMapIterator& other) noexcept :
-            m_ptr(other.m_ptr) {}
+            m_ptr(other.m_ptr), m_root(other.m_root) {}
 
         reference operator * () noexcept {
             return m_ptr->data;
@@ -36,6 +41,7 @@ class MyMapIterator {
 
         iterator& operator = (const iterator& other) noexcept {
             m_ptr = other.m_ptr;
+            m_root = other.m_root;
             return *this;
         }
 
@@ -60,6 +66,9 @@ class MyMapIterator {
 
         iterator& operator -- () noexcept {
             m_ptr = predecessor(m_ptr);
+            if (m_ptr == MyMap<KeyType, ValueType, F>::nil) {
+                m_ptr = rightmost(m_root);
+            }
             return *this;
         }
 
@@ -71,6 +80,10 @@ class MyMapIterator {
 
         operator MyMapIterator<KeyType, ValueType, F, const DRT>() const noexcept {
             return MyMapIterator<KeyType, ValueType, F, const DRT>(m_ptr);
+        }
+
+        explicit operator bool() const {
+            return m_ptr;
         }
 };
 
@@ -98,7 +111,7 @@ class MyMap {
             clear();
         }
 
-        MyMap(const MyMap<KeyType, ValueType, F>& other) noexcept {
+        MyMap(const MyMap<KeyType, ValueType, F>& other) noexcept : MyMap() {
             m_root = nil;
             m_root = copyTree(other.m_root);
         }
@@ -107,7 +120,7 @@ class MyMap {
             std::swap(m_root, other.m_root);
         }
 
-        MyMap(std::initializer_list<map_node> l) noexcept {
+        MyMap(std::initializer_list<map_node> l) noexcept : MyMap() {
             for (const map_node& node : l) {
                 insert(node.key, node.value);
             }
@@ -137,6 +150,7 @@ class MyMap {
             if (search(key) != nil) {
                 return;
             }
+            ++m_size;
             MapNode* x = m_root;
             MapNode* y = nil;
             MapNode* newNode = new MapNode(key, value);
@@ -173,10 +187,11 @@ class MyMap {
         void erase(iterator it) noexcept {
             MapNode* x;
             MapNode* y;
-            MapNode* z = it->key;
+            MapNode* z = it.m_ptr;
             if (z == nil) {
                 return;
             }
+            --m_size;
             bool currentColor = z->color;
             if (z->left == nil) {
                 x = z->right;
@@ -227,19 +242,19 @@ class MyMap {
         }
 
         iterator find(const KeyType& key) noexcept {
-            return iterator(search(key));
+            return iterator(search(key), m_root);
         }
 
         const_iterator find(const KeyType& key) const noexcept {
-            return const_iterator(search(key));
+            return const_iterator(search(key), m_root);
         }
 
         iterator begin() noexcept {
-            return iterator(leftmost(m_root));
+            return iterator(leftmost(m_root), m_root);
         }
 
         iterator end() noexcept {
-            return iterator(nil);
+            return iterator(nil, m_root);
         }
 
         const_iterator begin() const noexcept {
@@ -251,11 +266,11 @@ class MyMap {
         }
 
         const_iterator cbegin() const noexcept {
-            return const_iterator(leftmost(m_root));
+            return const_iterator(leftmost(m_root), m_root);
         }
 
         const_iterator cend() const noexcept {
-            return const_iterator(nil);
+            return const_iterator(nil, m_root);
         }
 
         reverse_iterator rbegin() noexcept {
@@ -294,7 +309,7 @@ class MyMap {
         friend class MyMapIterator<KeyType, ValueType, F, map_node>;
         friend class MyMapIterator<KeyType, ValueType, F, const map_node>;
 
-        static constexpr F isLess = F();
+        F isLess = F();
 
         struct MapNode {
 
@@ -310,6 +325,10 @@ class MyMap {
 
             MapNode(const KeyType& key_, const ValueType& value_) :
                 data({key_, value_}), color(Red),
+                left(nullptr), right(nullptr), parent(nullptr) {}
+
+            MapNode(const KeyType& key_, const ValueType& value_, bool color_) :
+                data({key_, value_}), color(color_),
                 left(nullptr), right(nullptr), parent(nullptr) {}
 
             MapNode(const MapNode& other) :

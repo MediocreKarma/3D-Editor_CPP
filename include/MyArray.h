@@ -5,6 +5,8 @@
 #include <initializer_list>
 #include <stdexcept>
 #include "MyIterators.h"
+#include <iostream>
+
 
 template<class T, size_t m_size>
 class MyArray {
@@ -47,26 +49,22 @@ class MyArray {
             return m_size;
         }
 
-        MyArray(iterator beginIt, iterator endIt) {
-            size_t i = 0;
-            while (beginIt != endIt) {
-                m_data[i++] = *(beginIt + 1);
-            }
-        }
-
         MyArray(const_iterator beginIt, const_iterator endIt) {
             size_t i = 0;
             while (beginIt != endIt) {
-                m_data[i++] = *(beginIt + 1);
+                m_data[i++] = *(beginIt++);
+            }
+            while (i < m_size) {
+                m_data[i++] = T();
             }
         }
 
         iterator begin() {
-            return iterator(&m_data[0]);
+            return iterator(m_data);
         }
 
         iterator end() {
-            return iterator(&m_data[m_size]);
+            return iterator(m_data + m_size);
         }
 
         const_iterator begin() const {
@@ -78,11 +76,11 @@ class MyArray {
         }
 
         const_iterator cbegin() const {
-            return const_iterator(&m_data[0]);
+            return const_iterator(m_data);
         }
 
         const_iterator cend() const {
-            return const_iterator(&m_data[m_size]);
+            return const_iterator(m_data + m_size);
         }
 
         T* data() {
@@ -161,19 +159,13 @@ class MyArray<char, m_size> {
             m_data[i] = 0;
         }
 
-        MyArray(iterator beginIt, iterator endIt) {
-            fill(0);
-            size_t i = 0;
-            while (beginIt != endIt) {
-                m_data[i++] = *(beginIt + 1);
-            }
-        }
-
         MyArray(const_iterator beginIt, const_iterator endIt) {
-            fill(0);
             size_t i = 0;
             while (beginIt != endIt) {
-                m_data[i++] = *(beginIt + 1);
+                m_data[i++] = *(beginIt++);
+            }
+            while (i < m_size) {
+                m_data[i++] = 0;
             }
         }
 

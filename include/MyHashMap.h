@@ -16,7 +16,6 @@ class MyHashMapConstIterator;
 template<typename KeyType, typename ValueType>
 class MyHashMap;
 
-
 template<typename KeyType, typename ValueType>
 class MyHashMapIterator {
     private:
@@ -38,17 +37,18 @@ class MyHashMapIterator {
         MyHashMapIterator(typename MyList<HashNode>::iterator it, size_t bucket, MyVector<MyList<HashNode>>& hashmap, size_t lastUsedBucket) :
             m_listIt(it), m_bucket(bucket), m_hashmap(hashmap), m_lastUsedBucket(lastUsedBucket) {}
 
-        reference operator * () {
+        reference operator * () const noexcept {
             return *m_listIt;
         }
 
-        typename MyList<HashNode>::iterator operator -> () {
+        typename MyList<HashNode>::iterator operator -> () const noexcept {
             return m_listIt;
         }
 
-        iterator& operator = (const iterator& other) {
+        iterator& operator = (const iterator& other) noexcept {
             m_listIt = other.m_listIt;
             m_bucket = other.m_bucket;
+            return *this;
         }
 
         iterator& operator ++ () {
@@ -166,7 +166,7 @@ class MyHashMap {
         using const_iterator = MyHashMapConstIterator<KeyType, ValueType>;
 
         MyHashMap() noexcept :
-            m_hmap(2), m_capacity(2), m_size(0), m_firstUsedBucket(2), m_lastUsedBucket(2) {}
+            m_hmap(2), m_capacity(2), m_size(0), m_firstUsedBucket(1), m_lastUsedBucket(1) {}
 
         MyHashMap(const HashMap& other) noexcept :
             m_hmap(other.m_hmap), m_capacity(other.m_capacity), m_size(other.m_size), m_firstUsedBucket(other.m_firstUsedBucket), m_lastUsedBucket(other.m_lastUsedBucket) {}
@@ -208,6 +208,9 @@ class MyHashMap {
         }
 
         iterator begin() noexcept {
+            if (empty()) {
+                return end();
+            }
             return iterator(m_hmap[m_firstUsedBucket].begin(), m_firstUsedBucket, m_hmap, m_lastUsedBucket);
         }
 
@@ -224,6 +227,9 @@ class MyHashMap {
         }
 
         const_iterator cbegin() const noexcept {
+            if (empty()) {
+                return cend();
+            }
             return const_iterator(m_hmap[m_firstUsedBucket].cbegin(), m_firstUsedBucket, m_hmap, m_lastUsedBucket);
         }
 
@@ -241,7 +247,6 @@ class MyHashMap {
 
         void insert(const KeyType& key, const ValueType& val) noexcept {
             noResizeInsert(key, val);
-            ++m_size;
             if (m_size * OverCapacityMultiplier > m_capacity) {
                 rehash(m_capacity * ResizeMultiplier);
             }
@@ -254,7 +259,7 @@ class MyHashMap {
                     m_hmap[hashKey].erase(it);
                     --m_size;
                     incrementFirstOrLastBucket(hashKey);
-                    if (m_size != 2 && m_size * UnderCapacityMultiplier < m_capacity) {
+                    if (m_size > 2 && m_size * UnderCapacityMultiplier < m_capacity) {
                         rehash(m_capacity / ResizeMultiplier);
                     }
                     break;
@@ -266,7 +271,7 @@ class MyHashMap {
             m_hmap[it.m_bucket].erase(it.m_listIt);
             --m_size;
             incrementFirstOrLastBucket(it.m_bucket);
-            if (m_size != 2 && m_size * UnderCapacityMultiplier < m_capacity) {
+            if (m_size > 2 && m_size * UnderCapacityMultiplier < m_capacity) {
                 rehash(m_capacity / ResizeMultiplier);
             }
         }
@@ -288,6 +293,10 @@ class MyHashMap {
                 }
             }
             m_hmap[hashKey].emplace_back(key, ValueType());
+            ++m_size;
+            if (m_size * OverCapacityMultiplier > m_capacity) {
+                rehash(m_capacity * ResizeMultiplier);
+            }
             return m_hmap[hashKey].back().value;
         }
 
@@ -353,12 +362,14 @@ class MyHashMap {
                 }
             }
             m_hmap[hashKey].emplace_back(key, val);
+            ++m_size;
             updateFirstOrLast(hashKey);
         }
 
         void updateFirstOrLast(const size_t& hashKey) noexcept {
             if (m_size == 1) {
-                m_lastUsedBucket = m_firstUsedBucket = hashKey;
+                m_lastUsedBucket = hashKey;
+                m_firstUsedBucket = hashKey;
                 return;
             }
             if (hashKey > m_lastUsedBucket) {
@@ -374,8 +385,8 @@ class MyHashMap {
                 return;
             }
             if (m_firstUsedBucket == m_lastUsedBucket) {
-                m_firstUsedBucket = m_capacity;
-                m_lastUsedBucket = m_capacity;
+                m_firstUsedBucket = m_capacity - 1;
+                m_lastUsedBucket = m_capacity - 1;
                 return;
             }
             if (hashKey == m_firstUsedBucket) {

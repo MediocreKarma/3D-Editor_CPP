@@ -24,17 +24,20 @@ class MyListIterator {
         using reference = DRT&;
         using pointer = DRT*;
 
+        MyListIterator() noexcept :
+            m_ptr(nullptr) {}
+
         MyListIterator(Node* ptr) noexcept :
             m_ptr(ptr) {}
 
         MyListIterator(const MyListIterator& other) noexcept :
             m_ptr(other.m_ptr) {}
 
-        reference operator * () noexcept {
+        reference operator * () const noexcept {
             return m_ptr->data;
         }
 
-        pointer operator -> () noexcept {
+        pointer operator -> () const noexcept {
             return &(m_ptr->data);
         }
 
@@ -76,7 +79,21 @@ class MyListIterator {
         operator MyListIterator<T, const DRT>() const noexcept {
             return MyListIterator<T, const DRT>(m_ptr);
         }
+
+        friend struct std::hash<MyListIterator<T, DRT>>;
+
+        explicit operator bool() const noexcept {
+            return m_ptr;
+        }
 };
+
+namespace std {
+    template<typename T, typename DRT> struct hash<MyListIterator<T, DRT>> {
+        size_t operator()(const MyListIterator<T, DRT>& it) const noexcept {
+            return std::hash<void*>{}((void*)it.m_ptr);
+        }
+    };
+}
 
 template<typename T>
 class MyList {

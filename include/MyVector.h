@@ -51,14 +51,6 @@ class MyVector {
             resize(vecSize);
         }
 
-        MyVector(iterator it1, iterator it2) : m_vec(nullptr), m_size(0), m_capacity(0) {
-            resize(it2 - it1);
-            size_t i = 0;
-            while (it1 != it2) {
-                m_vec[i++] = *(it1++);
-            }
-        }
-
         MyVector(const_iterator it1, const_iterator it2) : m_vec(nullptr), m_size(0), m_capacity(0) {
             resize(it2 - it1);
             size_t i = 0;
@@ -102,11 +94,11 @@ class MyVector {
         }
 
         iterator begin() noexcept {
-            return iterator(&m_vec[0]);
+            return iterator(m_vec);
         }
 
         iterator end() noexcept {
-            return iterator(&m_vec[m_size]);
+            return iterator(m_vec + m_size);
         }
 
         const_iterator begin() const noexcept {
@@ -118,11 +110,11 @@ class MyVector {
         }
 
         const_iterator cbegin() const noexcept {
-            return const_iterator(&m_vec[0]);
+            return const_iterator(m_vec);
         }
 
         const_iterator cend() const noexcept {
-            return const_iterator(&m_vec[m_size]);
+            return const_iterator(m_vec + m_size);
         }
 
         void reserve(const size_t& reservedCapacity) noexcept {
