@@ -90,7 +90,7 @@ void Space3D::setButtons() {
     m_spaceContextMenu.addOption("Switch to local transform");
     m_spaceContextMenu.addOption("New mesh");
     static const int LABEL_WIDTH = 70;
-    static const int LABEL_HEIGHT = 18;
+    static const int LABEL_HEIGHT = 22;
     static const int PANEL_MARGIN = 10;
     static const int PANEL_WIDTH =  4 * LABEL_WIDTH  + 5 * PANEL_MARGIN;
     static const int PANEL_HEIGHT = 3 * LABEL_HEIGHT + 4 * PANEL_MARGIN;
@@ -865,10 +865,42 @@ bool Space3D::getCommand(const int& x, const int& y) {
         return true;
     }
     if (m_panelBtn.hitCollision(x, y)) {
-        //TODO: Textboxes, use setTransform to apply certain transform with indexes of clicked button
-        //angles will have to be converted to radians
-        //example: m_meshes[m_selected].setTransform(1, 2, 5 * PI / 180); - for setting Rotation (1) on the Z (2) axis to 5deg
-        return true;
+        for (size_t i = 0; i < 3; ++i) {
+            for (size_t j = 0; j < 3; ++j) {
+                if (m_transformTextBtns[i][j].hitCollision(x, y)) {
+                    auto& btnRef = m_transformTextBtns[i][j]; //mi e sila sa scriu mereu
+                    MyArray<char, 8> throwaway("Y :  ");
+                    setactivepage(getvisualpage());
+                    NumericInputBox txtBox(btnRef.getXCenter() - btnRef.getXLen() / 2 + textwidth(throwaway.data()),
+                                           btnRef.getXCenter() + btnRef.getXLen() / 2 - 5,
+                                           btnRef.getYCenter(), BLACK, WHITE);
+                    int result = txtBox.getIntegerValue();
+                    setvisualpage(1 - getactivepage());
+                    switch (i) {
+                        case 0: {
+                            if (fabs(result) > err) {
+                                m_meshes[m_selected].setTransform(0, j, result);
+                                m_updated[m_selected] = true;
+                                return true;
+                            }
+                            return false;
+                        }
+                        case 1: {
+                            m_meshes[m_selected].setTransform(1, j, (double)result * PI / 180);
+                            m_updated[m_selected] = true;
+                            return true;
+                        }
+                        case 2: {
+                            m_meshes[m_selected].setTransform(2, j, result);
+                            m_updated[m_selected] = true;
+                            return true;
+                        }
+                    }
+                    break;
+                }
+            }
+        }
+        return false;
     }
     if (insideWorkArea(x, y) && m_selected != -1) {
         m_selected = -1;

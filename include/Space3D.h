@@ -9,6 +9,7 @@
 #include "Camera.h"
 #include "AppTools.h"
 #include "Quaternion.h"
+#include "TextInput.h"
 
 class Menu;
 

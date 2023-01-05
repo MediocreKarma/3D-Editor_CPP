@@ -342,6 +342,7 @@ double NumericInputBox::getDoubleValue() {
             }
         }
         keyPress = 'a';
+        display();
         while (!isAcceptedForDouble(keyPress)) {
             while (!kbhit()) {
                 checkClick();
