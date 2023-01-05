@@ -980,42 +980,50 @@ bool operator < (const IntegerPoint3D& a, const IntegerPoint3D& b) {
 }
 
 FixedMesh::FixedMesh() :
-    m_points(), m_adjList(), m_quat() {}
+    m_points(), m_pointIterators(), m_adjList() {}
 
 FixedMesh::FixedMesh(const Mesh& other) : FixedMesh() {
-    MyVector<IntegerPoint3D> helperPoints;
-    helperPoints.resize(other.size());
+    Point3D centerPoint = other.centerPoint();
+    MyVector<IntegerPoint3D> helperPoints(other.size());
     for (size_t i = 0; i < other.size(); ++i) {
-        helperPoints[i] = other[i];
-        m_points.insert(helperPoints[i]);
+        Point3D point = other[i];
+        point.translate(-centerPoint.x, -centerPoint.y, -centerPoint.z);
+        helperPoints[i] = point;
+        m_points.emplace_front(helperPoints[i], CircularButton());
+        m_pointIterators.insert(helperPoints[i], m_points.begin());
     }
     const MyVector<MyVector<size_t>>& adjList = other.adjacencyList();
     for (size_t i = 0; i < adjList.size(); ++i) {
-        iterator_type it = m_points.find(helperPoints[i]);
-        adjListContainer& container = m_adjList[it];
-        for (const size_t& j : adjList[i]) {
+        iterator_type it = m_pointIterators[helperPoints[i]];
+        for (size_t j : adjList[i]) {
             if (helperPoints[i] < helperPoints[j]) {
-                container.adjacentPoints.insert(m_points.find(helperPoints[j]));
+                m_adjList[it].insert(m_pointIterators[helperPoints[j]]);
             }
         }
     }
 }
 
 void FixedMesh::addEdge(const IntegerPoint3D& x, const IntegerPoint3D& y) {
-    addEdge(m_points.find(x), m_points.find(y));
+    auto it1 = m_pointIterators.find(x);
+    auto it2 = m_pointIterators.find(y);
+    if (it1 == m_pointIterators.end() || it2 == m_pointIterators.end()) {
+        return;
+    }
+    addEdge(it1->value, it2->value);
 }
 
 void FixedMesh::addEdge(iterator_type it1, iterator_type it2) {
-    if (*it1 < *it2) {
-        m_adjList[it1].adjacentPoints.insert(it2);
+    if (it1->point < it2->point) {
+        m_adjList[it1].insert(it2);
     }
     else {
-        m_adjList[it2].adjacentPoints.insert(it1);
+        m_adjList[it2].insert(it1);
     }
 }
 
 void FixedMesh::addPoint(const IntegerPoint3D& x) {
-    m_points.insert(x);
+    m_points.emplace_front(x, CircularButton());
+    m_pointIterators.insert(x, m_points.begin());
 }
 
 void FixedMesh::addPoint(const int& x, const int& y, const int& z) {
@@ -1027,46 +1035,113 @@ void FixedMesh::erasePoint(const int& x, const int& y, const int& z) {
 }
 
 void FixedMesh::erasePoint(const IntegerPoint3D& x) {
-    erasePoint(m_points.find(x));
+    auto it = m_pointIterators.find(x);
+    if (it != m_pointIterators.end()) {
+        erasePoint(it->value);
+    }
 }
 
 void FixedMesh::erasePoint(iterator_type it) {
     for (auto& container : m_adjList) {
-        if (container.value.adjacentPoints.contains(it)) {
-            container.value.adjacentPoints.erase(it);
+        if (container.value.contains(it)) {
         }
+        container.value.erase(it);
     }
     m_adjList.erase(it);
+    m_pointIterators.erase(it->point);
     m_points.erase(it);
 }
 
 void FixedMesh::eraseConnection(const IntegerPoint3D& x, const IntegerPoint3D& y) {
-    eraseConnection(m_points.find(x), m_points.find(y));
+    auto it1 = m_pointIterators.find(x);
+    auto it2 = m_pointIterators.find(y);
+    if (it1 == m_pointIterators.end() || it2 == m_pointIterators.end()) {
+        return;
+    }
+    eraseConnection(it1->value, it2->value);
 }
 
 void FixedMesh::eraseConnection(iterator_type it1, iterator_type it2) {
-    if (*it1 < *it2) {
-        m_adjList[it1].adjacentPoints.erase(it2);
+    if (it1->point < it2->point) {
+        m_adjList[it1].erase(it2);
     }
     else {
-        m_adjList[it2].adjacentPoints.erase(it1);
+        m_adjList[it2].erase(it1);
     }
 }
 
 void FixedMesh::renderPoint(iterator_type pointIt, const Point2D& conversion) {
-    m_adjList[pointIt].conversion = conversion;
+    pointIt->button2d = CircularButton(conversion.x, conversion.y, 5);
 }
 
-void FixedMesh::drawMesh(const int primaryThemeColor) {
-    setcolor(primaryThemeColor);
-    for (auto& connections : m_adjList) {
-        Point2D P = connections.value.conversion;
-        for (iterator_type it : connections.value.adjacentPoints) {
-            Point2D Q = m_adjList[it].conversion;
+void FixedMesh::drawMesh(const int secondaryThemeColor, const int accentColor) {
+    setcolor(secondaryThemeColor);
+    for (iterator_type it = m_points.begin(); it != m_points.end(); ++it) {
+        Point2D P(it->button2d.getX(), it->button2d.getY());
+        for (iterator_type it2 : m_adjList[it]) {
+            Point2D Q(it2->button2d.getX(), it2->button2d.getY());
             line(P.x, P.y, Q.x, Q.y);
         }
     }
+    for (auto& data : m_points) {
+        data.button2d.drawLabel(accentColor, accentColor);
+    }
 }
+
+void FixedMesh::draw2DLinesFrom(const IntegerPoint3D& point, const char staticLayer) {
+    auto it = m_pointIterators.find(point);
+    if (it != m_pointIterators.end()) {
+        draw2DLinesFrom(it->value, staticLayer);
+    }
+}
+
+void FixedMesh::draw2DLinesFrom(iterator_type it, const char staticLayer) {
+    IntegerPoint3D point = it->point;
+    switch (staticLayer) {
+    case 'x':
+        for (iterator_type itOther : m_adjList[it]) {
+            line(point.y, point.z, itOther->point.y, itOther->point.z);
+        }
+        return;
+    case 'y':
+        for (iterator_type itOther : m_adjList[it]) {
+            line(point.x, point.z, itOther->point.x, itOther->point.z);
+        }
+        return;
+    case 'z':
+        for (iterator_type itOther : m_adjList[it]) {
+            line(point.x, point.y, itOther->point.x, itOther->point.y);
+        }
+        return;
+    default:;
+    }
+}
+
+void FixedMesh::updatePointValue(iterator_type it, const IntegerPoint3D& newValue) {
+    m_pointIterators.insert(newValue, it);
+    m_pointIterators.erase(it->point);
+    it->point = newValue;
+}
+
+bool FixedMesh::cutLines(const Line2D cuttingLine) {
+    bool anyCuts = false;
+    for (iterator_type it1 = m_points.begin(); it1 != m_points.end(); ++it1) {
+        MyList<iterator_type> deletableIterators;
+        for (iterator_type it2 : m_adjList[it1]) {
+            Point2D P1(it1->button2d.getX(), it1->button2d.getY());
+            Point2D P2(it2->button2d.getX(), it2->button2d.getY());
+            if (linesIntersect(cuttingLine.getP(), cuttingLine.getQ(), P1, P2)) {
+                deletableIterators.push_back(it2);
+                anyCuts = true;
+            }
+        }
+        for (iterator_type it2 : deletableIterators) {
+            eraseConnection(it1, it2);
+        }
+    }
+    return anyCuts;
+}
+
 
 FixedMesh::iterator_type FixedMesh::begin() {
     return m_points.begin();
@@ -1078,4 +1153,45 @@ FixedMesh::iterator_type FixedMesh::end() {
 
 size_t FixedMesh::size() {
     return m_points.size();
+}
+
+size_t FixedMesh::countConnections(const IntegerPoint3D& x) {
+    auto it = m_pointIterators.find(x);
+    if (it == m_pointIterators.end()) {
+        throw std::invalid_argument("point not found");
+    }
+    return countConnections(it->value);
+}
+
+size_t FixedMesh::countConnections(iterator_type it) {
+    return m_adjList[it].size();
+}
+
+FixedMesh::iterator_type FixedMesh::find(const IntegerPoint3D& x) {
+    auto it = m_pointIterators.find(x);
+    if (it == m_pointIterators.end()) {
+        return m_points.end();
+    }
+    return it->value;
+}
+
+FixedMesh::iterator_type FixedMesh::hitCollisionIterator(const int x, const int y) {
+    for (iterator_type pointIt = m_points.begin(); pointIt != m_points.end(); ++pointIt) {
+        if (pointIt->button2d.hitCollision(x, y)) {
+            return pointIt;
+        }
+    }
+    return m_points.end();
+}
+
+const MyHashSet<FixedMesh::iterator_type>& FixedMesh::adjacentPoints(const IntegerPoint3D& x) {
+    auto it = m_pointIterators.find(x);
+    if (it == m_pointIterators.end()) {
+        throw std::invalid_argument("point not found");
+    }
+    return adjacentPoints(it->value);
+}
+
+const MyHashSet<FixedMesh::iterator_type>& FixedMesh::adjacentPoints(iterator_type it) {
+    return m_adjList[it];
 }
