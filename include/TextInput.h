@@ -46,4 +46,39 @@ class TextInputBox
         bool isAccepted(const char& ch) const;
 };
 
+class NumericInputBox {
+    public:
+        NumericInputBox(const int areaBegin, const int areaEnd, const int height, const int textColor,
+                        const int fillColor);
+        double getDoubleValue();
+        int getIntegerValue();
+        void getClick(int &x, int& y);
+
+        static constexpr size_t MAX_NUMBER_SIZE = 12;
+
+        using Text = MyArray<char, MAX_NUMBER_SIZE>;
+
+    private:
+        int m_areaBegin;
+        int m_areaEnd;
+        int m_height;
+        int m_index;
+        int m_len;
+        Text m_numberTxt;
+        MyArray<int, 2> m_mouseClick;
+        bool m_hasPoint;
+
+        bool isClickInTextbox(const int x, const int y);
+        void checkClick();
+        void backspaceIndex();
+        void insertIndex(const char key);
+        void clearText();
+        void displayText();
+        void displayCursor();
+        void display();
+        void changeIndexByClick(int x);
+        bool isAcceptedForDouble(const char key) const;
+        bool isAcceptedForInteger(const char key) const;
+};
+
 #endif // TEXTINPUT_H
