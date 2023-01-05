@@ -121,7 +121,7 @@ void Space3D::callHandlerDrawer() {
         m_menuHolder->draw();
     }
     else {
-        m_objCreatorHolder->draw(true);
+        m_objCreatorHolder->draw();
     }
 }
 
@@ -792,13 +792,13 @@ bool Space3D::getCommand(const int& x, const int& y) {
             aux.resetRotation();
             aux.resetScale();
             ObjectCreator objCreator(aux, m_theme);
-            aux = objCreator.run();
-            if (objCreator.getCloseFlag() == 2) {
+            objCreator.run();
+            /*if (objCreator.getCloseFlag() == 2) {
                 aux.rotateByUnitQuat(quat);
                 aux.translate(center);
                 m_meshes[m_selected] = aux;
                 m_updated[m_selected] = true;
-            }
+            }*/
             setcurrentwindow(getCurrentWindowNumber);
         }
         if (rMenuIndex == 5) {
@@ -823,13 +823,14 @@ bool Space3D::getCommand(const int& x, const int& y) {
                 updateTransform();
                 break;
             case 1:
-                int getCurrentWindowNumber = getcurrentwindow();
+                /*int getCurrentWindowNumber = getcurrentwindow();
                 ObjectCreator objCreator(m_theme);
-                Mesh aux = objCreator.run();
+                Mesh aux;
+                objCreator.run();
                 if (objCreator.getCloseFlag() == 2) {
                     addMesh(aux);
                 }
-                setcurrentwindow(getCurrentWindowNumber);
+                setcurrentwindow(getCurrentWindowNumber);*/
                 break;
         }
         return true;

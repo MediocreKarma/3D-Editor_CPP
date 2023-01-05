@@ -88,11 +88,11 @@ Line2D::Line2D(const Point2D& P_, const Point2D& Q_) :
 Line2D::Line2D(const int& x0, const int& y0, const int& x1, const int& y1) :
     P(x0, y0), Q(x1, y1) {}
 
-Point2D Line2D::getP() {
+Point2D Line2D::getP() const {
     return P;
 }
 
-Point2D Line2D::getQ() {
+Point2D Line2D::getQ() const {
     return Q;
 }
 

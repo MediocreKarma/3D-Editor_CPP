@@ -169,7 +169,7 @@ bool Menu::getCommand(const int& x, const int& y) {
             aux.resetRotation();
             aux.resetScale();
             ObjectCreator objCreator(aux, m_theme);
-            aux = objCreator.run();
+            objCreator.run();
             if (objCreator.getCloseFlag() == 2) {
                 aux.rotateByUnitQuat(quat);
                 aux.translate(center);

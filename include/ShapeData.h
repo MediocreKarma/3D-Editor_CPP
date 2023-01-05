@@ -12,6 +12,7 @@
 #include "MyHashMap.h"
 #include "MyHashSet.h"
 #include "Quaternion.h"
+#include "MyMap.h"
 
 struct Point2D {
     Point2D();
@@ -44,8 +45,8 @@ class Line2D {
         Line2D();
         Line2D(const Point2D& P_, const Point2D& Q_);
         Line2D(const int& x0, const int& y0, const int& x1, const int& y1);
-        Point2D getP();
-        Point2D getQ();
+        Point2D getP() const;
+        Point2D getQ() const;
         void draw();
 
     private:
