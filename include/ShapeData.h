@@ -253,8 +253,19 @@ namespace std {
 }
 
 class FixedMesh {
+    private:
+        struct ListContainer {
+            IntegerPoint3D point;
+            CircularButton button2d;
+
+            ListContainer() :
+                point(), button2d() {}
+            ListContainer(const IntegerPoint3D& p, CircularButton button) :
+                point(p), button2d(button) {}
+        };
+
     public:
-        using iterator_type = MySet<IntegerPoint3D>::iterator;
+        using iterator_type = MyList<ListContainer>::iterator;
 
         FixedMesh();
         FixedMesh(const Mesh& other);
@@ -268,24 +279,25 @@ class FixedMesh {
         void eraseConnection(const IntegerPoint3D& x, const IntegerPoint3D& y);
         void eraseConnection(iterator_type it1, iterator_type it2);
         void renderPoint(iterator_type pointIt, const Point2D& conversion);
-        void drawMesh(const int primaryThemeColor);
+        void drawMesh(const int primaryThemeColor, const int accentColor);
+        void draw2DLinesFrom(const IntegerPoint3D& point, const char staticLayer);
+        void draw2DLinesFrom(iterator_type it, const char staticLayer);
+        void updatePointValue(iterator_type point, const IntegerPoint3D& newValue);
+        bool cutLines(const Line2D cuttingLine);
         iterator_type begin();
         iterator_type end();
+        iterator_type find(const IntegerPoint3D& x);
+        iterator_type hitCollisionIterator(const int x, const int y);
         size_t size();
+        size_t countConnections(const IntegerPoint3D& x);
+        size_t countConnections(iterator_type it);
+        const MyHashSet<iterator_type>& adjacentPoints(const IntegerPoint3D& x);
+        const MyHashSet<iterator_type>& adjacentPoints(iterator_type);
 
     private:
-        MySet<IntegerPoint3D> m_points;
-
-        struct adjListContainer {
-            Point2D conversion;
-            MyHashSet<iterator_type> adjacentPoints;
-
-            adjListContainer() :
-                conversion(-100, -100), adjacentPoints() {}
-        };
-
-        MyHashMap<iterator_type, adjListContainer> m_adjList;
-        Quaternion m_quat;
+        MyList<ListContainer> m_points;
+        MyMap<IntegerPoint3D, iterator_type> m_pointIterators;
+        MyHashMap<iterator_type, MyHashSet<iterator_type>> m_adjList;
 };
 
 #endif // SHAPEDATA_H
