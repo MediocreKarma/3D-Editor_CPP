@@ -214,3 +214,210 @@ void TextInputBox::clearText() {
     setfillstyle(SOLID_FILL, m_fillColor);
     bar(m_areaBegin - 5 + 1, m_height - 10 + 1, m_areaEnd + 5, m_height + 10);
 }
+
+NumericInputBox::NumericInputBox(const int areaBegin, const int areaEnd, const int height,
+                                                const int textColor, const int fillColor) :
+    m_areaBegin(areaBegin), m_areaEnd(areaEnd), m_height(height), m_index(0), m_len(0),
+    m_numberTxt(), m_mouseClick({-1, -1}), m_hasPoint(false) {
+    setcolor(textColor);
+    setbkcolor(fillColor);
+    setfillstyle(SOLID_FILL, fillColor);
+    bar(m_areaBegin - 5 + 1, m_height - 10 + 1, m_areaEnd + 5, m_height + 10);
+}
+
+void NumericInputBox::clearText() {
+    bar(m_areaBegin - 5 + 1, m_height - 10 + 1, m_areaEnd + 5, m_height + 10);
+}
+
+void NumericInputBox::displayText() {
+    clearText();
+    outtextxy(m_areaBegin, m_height - textheight(m_numberTxt.data()) / 2, m_numberTxt.data());
+}
+
+void NumericInputBox::displayCursor() {
+    Text txtBeforeCursor(m_numberTxt.begin(), m_numberTxt.begin() + m_index + 1);
+    int len = textwidth(txtBeforeCursor.data());
+    line(m_areaBegin + len, m_height - 8, m_areaBegin + len, m_height + 8);
+}
+
+void NumericInputBox::display() {
+    displayText();
+    displayCursor();
+}
+
+void NumericInputBox::changeIndexByClick(int x) {
+    x -= m_areaBegin;
+    Text buildTxt{};
+    int i = 0;
+    while (i < m_len && textwidth(buildTxt.data()) < x) {
+        buildTxt[i] = m_numberTxt[i];
+        ++i;
+    }
+    m_index = i - 1;
+}
+
+bool NumericInputBox::isClickInTextbox(const int x, const int y) {
+    return x >= m_areaBegin - 5 && x <= m_areaEnd + 5 && y >= m_height - 10 && y <= m_height + 10;
+}
+
+void NumericInputBox::checkClick() {
+    if (!ismouseclick(WM_LBUTTONDOWN)) {
+        return;
+    }
+    int x, y;
+    getmouseclick(WM_LBUTTONDOWN, x, y);
+    if (isClickInTextbox(x, y)) {
+        changeIndexByClick(x);
+    }
+    else {
+        m_mouseClick = {x, y};
+    }
+}
+
+void NumericInputBox::backspaceIndex() {
+    if (!m_index || !m_len) {
+        return;
+    }
+    --m_len;
+    for (int j = m_index - 1; j < m_len; ++j) {
+        m_numberTxt[j] = m_numberTxt[j + 1];
+    }
+    m_numberTxt[m_len] = 0;
+    --m_index;
+}
+
+void NumericInputBox::insertIndex(const char key) {
+    for (int j = m_len; j > m_index; --j) {
+        m_numberTxt[j] = m_numberTxt[j - 1];
+    }
+    ++m_len;
+    m_numberTxt[m_index] = key;
+    ++m_index;
+}
+
+bool NumericInputBox::isAcceptedForDouble(const char key) const {
+    return (m_len == 0 && key == '-') || ('0' <= key && key <= '9')
+            || (key == '.' && !m_hasPoint) || key == '\r' || key == '\b' || !key;
+}
+
+double NumericInputBox::getDoubleValue() {
+    display();
+    char keyPress = 'a';
+    while (!isAcceptedForDouble(keyPress)) {
+        while (!kbhit()) {
+            checkClick();
+            if (m_mouseClick[0] != -1) {
+                return 0.0;
+            }
+        }
+        keyPress = getch();
+    }
+    while (keyPress != '\r' || !keyPress) {
+        if (keyPress == '\b') {
+            backspaceIndex();
+        }
+        else if (!keyPress) {
+            keyPress = getch();
+            if (keyPress == KEY_LEFT) {
+                if (m_index) {
+                    --m_index;
+                }
+            }
+            else if (keyPress == KEY_RIGHT) {
+                if (m_index < m_len) {
+                    ++m_index;
+                }
+            }
+            else if (keyPress == KEY_DELETE) {
+                m_numberTxt.fill(0);
+                m_len = 0;
+                m_index = 0;
+                m_hasPoint = false;
+            }
+        }
+        else {
+            insertIndex(keyPress);
+            if (keyPress == '.') {
+                m_hasPoint = true;
+            }
+        }
+        keyPress = 'a';
+        while (!isAcceptedForDouble(keyPress)) {
+            while (!kbhit()) {
+                checkClick();
+                if (m_mouseClick[0] != -1) {
+                    return atof(m_numberTxt.data());
+                }
+            }
+            keyPress = getch();
+        }
+    }
+    return atof(m_numberTxt.data());
+}
+
+bool NumericInputBox::isAcceptedForInteger(const char key) const {
+    return (m_len == 0 && key == '-') || ('0' <= key && key <= '9')
+            || key == '\r' || key == '\b' || !key;
+}
+
+int NumericInputBox::getIntegerValue() {
+    display();
+    char keyPress = 'a';
+    while (!isAcceptedForInteger(keyPress)) {
+        while (!kbhit()) {
+            checkClick();
+            if (m_mouseClick[0] != -1) {
+                return 0;
+            }
+        }
+        keyPress = getch();
+    }
+    while (keyPress != '\r' || !keyPress) {
+        if (keyPress == '\b') {
+            backspaceIndex();
+        }
+        else if (!keyPress) {
+            keyPress = getch();
+            if (keyPress == KEY_LEFT) {
+                if (m_index) {
+                    --m_index;
+                }
+            }
+            else if (keyPress == KEY_RIGHT) {
+                if (m_index < m_len) {
+                    ++m_index;
+                }
+            }
+            else if (keyPress == KEY_DELETE) {
+                m_numberTxt.fill(0);
+                m_len = 0;
+                m_index = 0;
+                m_hasPoint = false;
+            }
+        }
+        else if (m_len < 9 || (m_numberTxt[0] == '-' && m_len < 10)) {
+            insertIndex(keyPress);
+            if (keyPress == '.') {
+                m_hasPoint = true;
+            }
+        }
+        keyPress = 'a';
+        display();
+        while (!isAcceptedForDouble(keyPress)) {
+            while (!kbhit()) {
+                checkClick();
+                if (m_mouseClick[0] != -1) {
+                    return atoi(m_numberTxt.data());
+                }
+            }
+            keyPress = getch();
+        }
+    }
+    return atoi(m_numberTxt.data());
+}
+
+void NumericInputBox::getClick(int& x, int& y) {
+    x = m_mouseClick[0];
+    y = m_mouseClick[1];
+    m_mouseClick = {-1, -1};
+}
