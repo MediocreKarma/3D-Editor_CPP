@@ -1333,9 +1333,7 @@ const Section& Space3D::sectionAt(const size_t& index) const {
 
 FixedSpace3D::FixedSpace3D(const int theme, const Mesh& mesh, ObjectCreator* objectCreatorHandler) :
     x0(), y0(), x1(), y1(), m_theme(theme), m_arrowLeft(), m_arrowRight(), m_arrowUp(), m_arrowDown(),
-    m_objCreatorHolder(objectCreatorHandler), m_cam(), m_mesh(mesh), m_updated(true) {
-    initButtons();
-}
+    m_objCreatorHolder(objectCreatorHandler), m_cam(-1000), m_mesh(mesh), m_updated(true) {}
 
 void FixedSpace3D::setCorners(const int x0_, const int y0_, const int x1_, const int y1_) {
     x0 = x0_;
@@ -1365,7 +1363,7 @@ void FixedSpace3D::render() {
 
 void FixedSpace3D::draw() {
     const MyArray<int, 3>& tC = ColorSchemes::themeColors[m_theme];
-    m_mesh.drawMesh(tC[ColorSchemes::PRIMARYCOLOR]);
+    m_mesh.drawMesh(tC[ColorSchemes::SECONDARYCOLOR], tC[ColorSchemes::ACCENTCOLOR]);
     drawArrows();
 }
 
@@ -1419,12 +1417,12 @@ Point2D FixedSpace3D::projectPoint(const IntegerPoint3D& point, const Quaternion
     const int xCenter = (x0 + x1) / 2;
     const int yCenter = (y0 + y1) / 2;
     const int yLen = (y1 - y0);
-    const int xr = point.x - m_cam.position().getX();
-    const int yr = point.y - m_cam.position().getY();
-    const int zr = point.z - m_cam.position().getZ();
+    const double xr = point.x - m_cam.position().getX();
+    const double yr = point.y - m_cam.position().getY();
+    const double zr = point.z - m_cam.position().getZ();
     double EZ = m_cam.EZ();
-    Quaternion pointQuat(0, Point3D(xr, yr, zr).toArray());
-    Quaternion rotatedPct = Quaternion(camInverse * pointQuat * camQuat);
+    Quaternion pointQuat(0, xr, yr, zr);
+    Quaternion rotatedPct = camInverse * pointQuat * camQuat;
     double dx = rotatedPct[1];
     double dy = rotatedPct[2];
     double dz = rotatedPct[3];
@@ -1440,7 +1438,7 @@ void FixedSpace3D::projectSection() {
     Quaternion camQuat = m_cam.quat();
     Quaternion camInverse = camQuat.inverse();
     for (FixedMesh::iterator_type it = m_mesh.begin(); it != m_mesh.end(); ++it) {
-        m_mesh.renderPoint(it, projectPoint(*it, camQuat, camInverse));
+        m_mesh.renderPoint(it, projectPoint(it->point, camQuat, camInverse));
     }
 }
 
