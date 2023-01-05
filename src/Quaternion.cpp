@@ -2,7 +2,7 @@
 #include <iostream>
 #include <math.h>
 
-const double pi = 3.1415926535897;
+const double pi = 3.14159265359;
 const double err = 0.0000000000000000000001;
 
 Quaternion::Quaternion() :
@@ -23,11 +23,12 @@ Quaternion::Quaternion(const Quaternion& other) :
 Quaternion::Quaternion(const double& real, const double& i, const double& j, const double& k) :
     m_data({real, i, j, k}) {}
 
-Quaternion::Quaternion(const double& yaw, const double& pitch, const double& roll) : m_data() {
-    m_data[0] = cos(roll / 2) * cos(pitch / 2) * cos(yaw / 2) + sin(roll / 2) * sin(pitch / 2) * sin(yaw / 2);
-    m_data[1] = sin(roll / 2) * cos(pitch / 2) * cos(yaw / 2) - cos(roll / 2) * sin(pitch / 2) * sin(yaw / 2);
-    m_data[2] = cos(roll / 2) * sin(pitch / 2) * cos(yaw / 2) + sin(roll / 2) * cos(pitch / 2) * sin(yaw / 2);
-    m_data[3] = cos(roll / 2) * cos(pitch / 2) * sin(yaw / 2) - sin(roll / 2) * sin(pitch / 2) * cos(yaw / 2);
+Quaternion::Quaternion(const double& roll, const double& pitch, const double& yaw) : m_data() {
+    m_data[0] = cos(roll / 2) * cos(pitch / 2) * cos(-yaw / 2) + sin(roll / 2) * sin(pitch / 2) * sin(-yaw / 2);
+    m_data[1] = sin(roll / 2) * cos(pitch / 2) * cos(-yaw / 2) - cos(roll / 2) * sin(pitch / 2) * sin(-yaw / 2);
+    m_data[2] = cos(roll / 2) * sin(pitch / 2) * cos(-yaw / 2) + sin(roll / 2) * cos(pitch / 2) * sin(-yaw / 2);
+    m_data[3] = cos(roll / 2) * cos(pitch / 2) * sin(-yaw / 2) - sin(roll / 2) * sin(pitch / 2) * cos(-yaw / 2);
+    //normalize();
 }
 
 double Quaternion::real() const {

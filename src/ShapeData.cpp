@@ -810,6 +810,7 @@ void Mesh::rotateByUnitQuat(const Quaternion& quat) {
         pnt.rotateByUnitQuat(quat);
     }
     m_quat = quat * m_quat;
+    rotateDisplayAngle();
     translate(center.getX(), center.getY(), center.getZ());
 }
 
@@ -853,17 +854,17 @@ MyArray<Point3D, 2> Mesh::getBoundingBoxCorners() const {
     return MyArray<Point3D, 2>{bottomLeft, topRight};
 }
 
-MeshTransformInfo Mesh::transforms() const {
-    MeshTransformInfo transforms;
-    transforms.scale[0] = m_scaleX;
-    transforms.scale[1] = m_scaleY;
-    transforms.scale[2] = m_scaleZ;
-    transforms.angle[0] = m_angleX;
-    transforms.angle[1] = m_angleY;
-    transforms.angle[2] = m_angleZ;
-    transforms.position[0] = m_centerPoint.x;
-    transforms.position[1] = m_centerPoint.y;
-    transforms.position[2] = m_centerPoint.z;
+MeshTransforms Mesh::transforms() const {
+    MeshTransforms transforms;
+    transforms.t[0][0] = m_scaleX;
+    transforms.t[0][1] = m_scaleY;
+    transforms.t[0][2] = m_scaleZ;
+    transforms.t[1][0] = m_angleX * 180 / PI;
+    transforms.t[1][1] = m_angleY * 180 / PI;
+    transforms.t[1][2] = m_angleZ * 180 / PI;
+    transforms.t[2][0] = m_centerPoint.x;
+    transforms.t[2][1] = m_centerPoint.y;
+    transforms.t[2][2] = m_centerPoint.z;
     return transforms;
 }
 
@@ -874,20 +875,62 @@ void Mesh::resetTransforms() {
     resetScale();
 }
 
-void Mesh::applyTransforms(const MeshTransformInfo& transforms) {
+void Mesh::applyTransforms(const MeshTransforms& transforms) {
     resetTransforms();
-    m_scaleX = transforms.scale[0];
-    m_scaleY = transforms.scale[1];
-    m_scaleZ = transforms.scale[2];
     for (size_t i = 0; i < 3; ++i) {
-        scaleAxis(transforms.scale[i], i);
+        scaleAxis(transforms[0][i], i);
     }
-    Quaternion quat(transforms.angle[0], transforms.angle[1], transforms.angle[2]);
+    Quaternion quat(transforms[1][0] * PI / 180, transforms[1][1] * PI / 180, transforms[1][2] * PI / 180);
     quat.display();
     rotateByUnitQuat(quat);
-    translate(Point3D(transforms.position));
+    translate(Point3D(transforms[2]));
 }
 
+void Mesh::setTransform(size_t transform, size_t axis, const double& value) {
+    switch (transform) {
+        case 0: {
+            double currentValue = 1;
+            switch (axis) {
+                case 0:
+                    currentValue = m_scaleX;
+                    break;
+                case 1:
+                    currentValue = m_scaleY;
+                    break;
+                case 2:
+                    currentValue = m_scaleZ;
+                    break;
+                default:;
+            }
+            scaleAxis(value / currentValue, axis);
+            break;
+        }
+        case 1: {
+            MyArray<double, 3> eulerAngles = m_quat.toEuler();
+            eulerAngles[axis] = value;
+            Quaternion finalQuat = Quaternion(eulerAngles[0], eulerAngles[1], eulerAngles[2]);
+            resetRotation();
+            rotateByUnitQuat(finalQuat);
+            break;
+        }
+        case 2: {
+            Point3D center(m_centerPoint);
+            switch (axis) {
+                case 0:
+                    translate(value - center.x, 0, 0);
+                    break;
+                case 1:
+                    translate(0, value - center.y, 0);
+                    break;
+                case 2:
+                    translate(0, 0, value - center.z);
+                    break;
+                default:;
+            }
+        }
+        default:;
+    }
+}
 
 IntegerPoint3D::IntegerPoint3D() :
     x(0), y(0), z(0) {}

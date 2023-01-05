@@ -157,15 +157,18 @@ class Line3D {
         Point3D Q;
 };
 
-struct MeshTransformInfo {
-    MyArray<double, 3> scale;
-    MyArray<double, 3> angle;
-    MyArray<double, 3> position;
-
-    MeshTransformInfo() : scale({1., 1., 1.}), angle({1., 1., 1.}), position({0., 0., 0.}) {}
-};
-
 class FixedMesh;
+
+struct MeshTransforms {
+    MyArray<MyArray<double, 3>, 3> t;
+    MeshTransforms() : t() {}
+    MyArray<double, 3>& operator[] (size_t index) {
+        return t[index];
+    }
+    const MyArray<double, 3>& operator[] (size_t index) const {
+        return t[index];
+    }
+};
 
 class Mesh {
     public:
@@ -212,9 +215,10 @@ class Mesh {
         double scaleZ() const;
         Point3D localAxis(int axis) const;
         MyArray<Point3D, 3> localAxes() const;
-        MeshTransformInfo transforms() const;
+        MeshTransforms transforms() const;
         void resetTransforms();
-        void applyTransforms(const MeshTransformInfo& transforms);
+        void applyTransforms(const MeshTransforms& transforms);
+        void setTransform(size_t transform, size_t axis, const double& value);
 
     private:
         MyVector<Point3D> m_points;

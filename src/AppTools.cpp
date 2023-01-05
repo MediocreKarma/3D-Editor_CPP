@@ -63,6 +63,13 @@ int Label::getYCenter() const {
     return yCenter;
 }
 
+int Label::getXLen() const {
+    return xLen;
+}
+
+int Label::getYLen() const {
+    return yLen;
+}
 CircularLabel::CircularLabel() :
     xCenter(), yCenter(), radius() {}
 

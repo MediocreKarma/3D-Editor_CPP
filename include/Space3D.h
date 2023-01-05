@@ -83,6 +83,9 @@ class Space3D
         bool m_spaceMenuVisible;
         MyArray<CircularButton, 3> m_gizmoButtons;
         bool m_localTransforms;
+        Button m_panelBtn;
+        MyArray<TextLabel, 3> m_transformLabels;
+        MyArray<MyArray<TextButton, 3>, 3> m_transformTextBtns;
         MyArray<char, 512> m_linkedFile;
         Menu* m_menuHolder;
         ObjectCreator* m_objCreatorHolder;
@@ -125,6 +128,7 @@ class Space3D
         void selectMesh(const size_t& index);
         void highlightMesh();
         bool isDragAndDrop(const int& xDrag, const int& yDrag) const;
+        void updateTransformFields();
 
         friend void drawGizmoArrow(const Point2D& p1, const Point2D& p2, int color);
 };

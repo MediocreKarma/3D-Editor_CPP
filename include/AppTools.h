@@ -37,6 +37,8 @@ class Label {
         void clear(const int& barColor) const;
         int getXCenter() const;
         int getYCenter() const;
+        int getXLen() const;
+        int getYLen() const;
 
     protected:
         int xCenter;
