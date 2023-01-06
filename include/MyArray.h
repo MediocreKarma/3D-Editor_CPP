@@ -217,6 +217,10 @@ class MyArray<char, m_size> {
             return m_data;
         }
 
+        const char* data() const{
+            return m_data;
+        }
+
         MyArray<char, m_size>& operator = (const char* p) {
             fill(0);
             if (!p) {

@@ -28,6 +28,21 @@ namespace ColorSchemes {
     static const int NO_COLOR = -1;
 }
 
+enum class Lang {
+    File = 0, New, Open, Save, Save_As, Settings, Mesh, Help, Scale, Rotation, Position, New_Mesh, Edit_Mesh, Reset_Transforms, Delete_Mesh,
+    Switch_Local, Switch_Global, Layer_Z, Discard
+};
+namespace Language {
+    static const int RO = 0;
+    static const int EN = 1;
+    static const MyArray<MyArray<MyArray<char, 32>, 2>, 19> Text {
+        {"Fisier", "File"}, {"Nou", "New"}, {"Deschide", "Open"}, {"Salveaza", "Save"}, {"Salveaza ca", "Save as"}, {"Setari", "Settings"}, {"Obiect", "Mesh"},
+        {"Ajutor", "Help"}, {"Scalare", "Scale"}, {"Rotatie", "Rotation"}, {"Pozitie", "Position"}, {"Obiect nou", "New mesh"}, {"Editare obiect", "Edit mesh"},
+        {"Reset transformari", "Reset transforms"}, {"Sterge obiect", "Delete mesh"}, {"Trecere transformare locala", "Switch to local transform"},
+        {"Trecere transformare globala", "Switch to global transform"}, {"Strat Z: ", "Layer Z: "}, {"Anulare", "Discard"}
+    };
+}
+
 class Label {
     public:
         Label();

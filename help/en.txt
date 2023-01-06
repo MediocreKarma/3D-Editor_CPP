@@ -1,4 +1,4 @@
-3D EDITOR is a program written in C++ using the graphics.h library, capable of creating, editing and
+EDITOR 3D is a program written in C++ using the graphics.h library, capable of creating, editing and
 visualizing 3D shapes, both simple and more complicated ones.
 \Controls in Visualizer:
 -Create a new 3D space, save it, or open sample spaces from the "spaces" folder by pressing the File button and
@@ -18,3 +18,4 @@ choosing the appropriate option
 -Click on layer button to enter Layer View mode, where you can add new points to layer
 -Move point on Layer by dragging on a point button in Layer View, move Layer View by dragging anywhere else
 -Switch back to 3D view by pressing the Minimized Space button (top right)
+\Made by Matei Chirvasa and Sabina Prodan, first year students at FII, UAIC

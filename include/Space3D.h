@@ -20,8 +20,8 @@ class Space3D
 {
     public:
         Space3D();
-        Space3D(const double& maxRadius, const int& theme, Menu* menuHolder);
-        Space3D(const double& maxRadius, const int& theme, ObjectCreator* objCreatorHolder);
+        Space3D(const double& maxRadius, const int& theme, int language, Menu* menuHolder);
+        Space3D(const double& maxRadius, const int& theme, int language, ObjectCreator* objCreatorHolder);
         Space3D(const Space3D& other);
         Space3D& operator = (const Space3D& other);
         void addMesh(const Mesh& mesh);
@@ -49,6 +49,7 @@ class Space3D
         const Section& sectionAt(const size_t& index) const;
         void update();
         void setTheme(const int& theme);
+        void setLanguage(int language);
 
     private:
         int x0;
@@ -56,6 +57,7 @@ class Space3D
         int x1;
         int y1;
         int m_theme;
+        int m_language;
         int m_selected;
         bool m_spinballSelected;
         bool m_fadedDrag;

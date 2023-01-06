@@ -7,27 +7,27 @@ const double err = 0.0000000000000000000001;
 const double moveErr = 0.007; //limita minima de perpendicularitate pentru moveMesh
 
 Space3D::Space3D() :
-    x0(), y0(), x1(), y1(), m_theme(), m_selected(-1), m_spinballSelected(false), m_fadedDrag(false),  m_objRotateDrag(false), m_meshes(), m_draggedMesh(), m_sections(), m_draggedSection(),
+    x0(), y0(), x1(), y1(), m_theme(), m_language(), m_selected(-1), m_spinballSelected(false), m_fadedDrag(false),  m_objRotateDrag(false), m_meshes(), m_draggedMesh(), m_sections(), m_draggedSection(),
     m_updated(), m_cam(), m_buttonOX(), m_buttonOY(), m_buttonOZ(), m_donutOX(), m_donutOY(), m_donutOZ(), m_spinballButton(), m_arrowLeft(), m_arrowRight(), m_arrowUp(), m_arrowDown(),
     m_arrowSpinLeft(), m_arrowSpinRight(), m_meshContextMenu(), m_meshMenuVisible(false), m_spaceContextMenu(), m_spaceMenuVisible(false), m_gizmoButtons(), m_localTransforms(false), m_panelBtn(),
     m_transformLabels(), m_transformTextBtns(), m_linkedFile{0}, m_menuHolder(nullptr), m_objCreatorHolder(nullptr) {}
 
-Space3D::Space3D(const double& maxRadius, const int& theme, Menu* menuHolder) :
-    x0(), y0(), x1(), y1(), m_theme(theme), m_selected(-1), m_spinballSelected(false), m_fadedDrag(false),  m_objRotateDrag(false), m_meshes(), m_draggedMesh(), m_sections(), m_draggedSection(),
+Space3D::Space3D(const double& maxRadius, const int& theme, int language, Menu* menuHolder) :
+    x0(), y0(), x1(), y1(), m_theme(theme), m_language(language), m_selected(-1), m_spinballSelected(false), m_fadedDrag(false),  m_objRotateDrag(false), m_meshes(), m_draggedMesh(), m_sections(), m_draggedSection(),
     m_updated(), m_cam(maxRadius), m_buttonOX(), m_buttonOY(), m_buttonOZ(), m_donutOX(), m_donutOY(), m_donutOZ(), m_spinballButton(), m_arrowLeft(), m_arrowRight(), m_arrowUp(), m_arrowDown(),
     m_arrowSpinLeft(), m_arrowSpinRight(), m_meshContextMenu(), m_meshMenuVisible(false), m_spaceContextMenu(), m_spaceMenuVisible(false), m_gizmoButtons(), m_localTransforms(false), m_panelBtn(),
     m_transformLabels(), m_transformTextBtns(),
     m_linkedFile{0}, m_menuHolder(menuHolder), m_objCreatorHolder(nullptr) {}
 
-Space3D::Space3D(const double& maxRadius, const int& theme, ObjectCreator* objCreatorHolder) :
-    x0(), y0(), x1(), y1(), m_theme(theme), m_selected(-1), m_spinballSelected(false), m_fadedDrag(false), m_objRotateDrag(false), m_meshes(), m_draggedMesh(), m_sections(), m_draggedSection(),
+Space3D::Space3D(const double& maxRadius, const int& theme, int language, ObjectCreator* objCreatorHolder) :
+    x0(), y0(), x1(), y1(), m_theme(theme), m_language(language), m_selected(-1), m_spinballSelected(false), m_fadedDrag(false), m_objRotateDrag(false), m_meshes(), m_draggedMesh(), m_sections(), m_draggedSection(),
     m_updated(), m_cam(maxRadius), m_buttonOX(), m_buttonOY(), m_buttonOZ(), m_donutOX(), m_donutOY(), m_donutOZ(), m_spinballButton(), m_arrowLeft(), m_arrowRight(), m_arrowUp(), m_arrowDown(),
     m_arrowSpinLeft(), m_arrowSpinRight(), m_meshContextMenu(), m_meshMenuVisible(false), m_spaceContextMenu(), m_spaceMenuVisible(false), m_gizmoButtons(), m_localTransforms(false), m_panelBtn(),
     m_transformLabels(), m_transformTextBtns(),
     m_linkedFile{0}, m_menuHolder(nullptr), m_objCreatorHolder(objCreatorHolder){}
 
 Space3D::Space3D(const Space3D& sp) :
-    x0(sp.x0), y0(sp.y0), x1(sp.x1), y1(sp.y1), m_theme(sp.m_theme), m_selected(sp.m_selected), m_spinballSelected(sp.m_spinballSelected), m_fadedDrag(sp.m_fadedDrag),  m_objRotateDrag(false),
+    x0(sp.x0), y0(sp.y0), x1(sp.x1), y1(sp.y1), m_theme(sp.m_theme), m_language(sp.m_language), m_selected(sp.m_selected), m_spinballSelected(sp.m_spinballSelected), m_fadedDrag(sp.m_fadedDrag),  m_objRotateDrag(false),
     m_meshes(sp.m_meshes), m_draggedMesh(sp.m_draggedMesh), m_sections(sp.m_sections), m_draggedSection(sp.m_draggedSection), m_updated(sp.m_updated), m_cam(sp.m_cam), m_buttonOX(sp.m_buttonOX),
     m_buttonOY(sp.m_buttonOY), m_buttonOZ(sp.m_buttonOZ), m_donutOX(sp.m_donutOX), m_donutOY(sp.m_donutOY), m_donutOZ(sp.m_donutOZ), m_spinballButton(sp.m_spinballButton), m_arrowLeft(sp.m_arrowLeft),
     m_arrowRight(sp.m_arrowRight), m_arrowUp(sp.m_arrowUp), m_arrowDown(sp.m_arrowDown), m_arrowSpinLeft(sp.m_arrowSpinLeft), m_arrowSpinRight(sp.m_arrowSpinRight), m_meshContextMenu(sp.m_meshContextMenu),
@@ -36,6 +36,7 @@ Space3D::Space3D(const Space3D& sp) :
 
 Space3D& Space3D::operator = (const Space3D& sp) {
     m_theme = sp.m_theme;
+    m_language = sp.m_language;
     m_fadedDrag = false;
     m_draggedSection = sp.m_draggedSection;
     m_cam = sp.m_cam;
@@ -78,17 +79,14 @@ void Space3D::setButtons() {
     m_donutOY = DonutButton(xSpinballCenter, ySpinballCenter + 220, 40, 20);
     m_donutOZ = DonutButton(xSpinballCenter, ySpinballCenter + 320, 40, 20);
     static const int MENU_BTN_HEIGHT = 24;
-    m_meshContextMenu = DropdownButton<7>(-1000, -1000, 0, 0, "", 120, 6 * MENU_BTN_HEIGHT);
-    m_meshContextMenu.addOption("Flip X");
-    m_meshContextMenu.addOption("Flip Y");
-    m_meshContextMenu.addOption("Flip Z");
-    m_meshContextMenu.addOption("Scale");
-    m_meshContextMenu.addOption("Edit mesh");
-    m_meshContextMenu.addOption("Delete mesh");
-    m_meshContextMenu.addOption("Reset transforms");
-    m_spaceContextMenu = DropdownButton<2>(-1000, -1000, 0, 0, "", 180, 2 * MENU_BTN_HEIGHT);
-    m_spaceContextMenu.addOption("Switch to local transform");
-    m_spaceContextMenu.addOption("New mesh");
+    m_meshContextMenu = DropdownButton<7>(-1000, -1000, 0, 0, "", 130, 6 * MENU_BTN_HEIGHT);
+    m_meshContextMenu.addOption(Language::Text[(int)Lang::Edit_Mesh][m_language].data());
+    m_meshContextMenu.addOption(Language::Text[(int)Lang::Scale][m_language].data());
+    m_meshContextMenu.addOption(Language::Text[(int)Lang::Reset_Transforms][m_language].data());
+    m_meshContextMenu.addOption(Language::Text[(int)Lang::Delete_Mesh][m_language].data());
+    m_spaceContextMenu = DropdownButton<2>(-1000, -1000, 0, 0, "", 200, 2 * MENU_BTN_HEIGHT);
+    m_spaceContextMenu.addOption(Language::Text[(int)Lang::Switch_Local][m_language].data());
+    m_spaceContextMenu.addOption(Language::Text[(int)Lang::New_Mesh][m_language].data());
     static const int LABEL_WIDTH = 95;
     static const int LABEL_HEIGHT = 22;
     static const int PANEL_MARGIN = 8;
@@ -99,7 +97,9 @@ void Space3D::setButtons() {
     m_panelBtn = Button(PANEL_MARGIN + PANEL_WIDTH / 2, TOP_BEGIN + PANEL_HEIGHT / 2, PANEL_WIDTH, PANEL_HEIGHT);
     int HORIZ_OFFSET = (PANEL_WIDTH - 2 * PANEL_MARGIN - LABEL_WIDTH) / 3;
     int VERT_OFFSET = (PANEL_HEIGHT) / 4;
-    static MyArray<MyArray<char, 32>, 3> transformType = {"Scale", "Rotation", "Position"};
+    MyArray<MyArray<char, 32>, 3> transformType = {Language::Text[(int)Lang::Scale][m_language],
+                                                        Language::Text[(int)Lang::Rotation][m_language],
+                                                        Language::Text[(int)Lang::Position][m_language]};
     for (size_t i = 0; i < 3; ++i) {
         for (size_t j = 0; j < 3; ++j) {
             m_transformTextBtns[i][j] = TextButton(LEFT_BEGIN + 2 * PANEL_MARGIN + LABEL_WIDTH + LABEL_WIDTH / 2 + j * HORIZ_OFFSET,
@@ -112,7 +112,7 @@ void Space3D::setButtons() {
 
 void Space3D::updateTransform() {
     m_localTransforms = !m_localTransforms;
-    MyArray<MyArray<char, 32>, 2> transformText = {"Switch to local transform", "Switch to global transform"};
+    MyArray<MyArray<char, 32>, 2> transformText = {Language::Text[(int)Lang::Switch_Local][m_language], Language::Text[(int)Lang::Switch_Global][m_language]};
     m_spaceContextMenu.changeOptionText(0, transformText[m_localTransforms].data());
 }
 
@@ -143,6 +143,11 @@ void Space3D::removeMesh(const size_t& index) {
 
 void Space3D::setTheme(const int& theme) {
     m_theme = theme;
+}
+
+void Space3D::setLanguage(int language) {
+    m_language = language;
+    setButtons();
 }
 
 bool Space3D::fscan(FILE* fp) {
@@ -791,14 +796,7 @@ bool Space3D::getCommand(const int& x, const int& y) {
     if (m_selected != -1 && m_meshMenuVisible && m_meshContextMenu.listHitCollision(x, y) != -1) {
         m_meshMenuVisible = false;
         int rMenuIndex = m_meshContextMenu.listHitCollision(x, y);
-        if (rMenuIndex >= 0 && rMenuIndex<= 2) {
-            m_meshes[m_selected].mirror(rMenuIndex);
-            m_updated[m_selected] = true;
-        }
-        if (rMenuIndex == 3) {
-            scaleMesh();
-        }
-        if (rMenuIndex == 4) {
+        if (rMenuIndex == 0) {
             int getCurrentWindowNumber = getcurrentwindow();
             Mesh aux = m_meshes[m_selected];
             //Point3D center(m_meshes[m_selected].centerPoint());
@@ -814,13 +812,16 @@ bool Space3D::getCommand(const int& x, const int& y) {
             }*/
             setcurrentwindow(getCurrentWindowNumber);
         }
-        if (rMenuIndex == 5) {
-            removeMesh(m_selected);
-            m_selected = -1;
+        if (rMenuIndex == 1) {
+            scaleMesh();
         }
-        if (rMenuIndex == 6) {
+        if (rMenuIndex == 2) {
             m_meshes[m_selected].resetTransforms();
             m_updated[m_selected] = true;
+        }
+        if (rMenuIndex == 3) {
+            removeMesh(m_selected);
+            m_selected = -1;
         }
         return true;
     }

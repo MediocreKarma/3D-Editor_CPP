@@ -1,4 +1,4 @@
-3D EDITOR este un program scris in C++ folosind libraria graphics.h, in care poti crea, edita si vizualiza
+EDITOR 3D este un program scris in C++ folosind libraria graphics.h, in care poti crea, edita si vizualiza
 forme 3D, atat forme simple cat si unele mai complicate.
 \Controale in Vizualizator:
 -Creaza un spatiu nou, salveaza-l, sau deschide spatii-exemplu din directorul "spaces" prin apasarea butonului
@@ -20,3 +20,4 @@ dintre cele 3 butoane-cerc, corespunzatoare celor 3 axe
 Linie, Sterge Punct, Sterge Linie)
 -Miscarea unui punct se face prin a trage de el in modul 2D, tragerea oriunde altundeva misca intregul plan 2D
 -Trecerea inapoi la modul 3D se face prin apasarea butonului din dreapta-sus
+\Proiect realizat de Matei Chirvasa si Sabina Prodan, studenti in anul I la FII, UAIC

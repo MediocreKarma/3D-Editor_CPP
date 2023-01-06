@@ -14,7 +14,7 @@ void AppInterface::run() {
     initwindow(m_appWidth, m_appHeight, "Editor 3D");
     setactivepage(0);
     setvisualpage(1);
-    m_menu.setSettings(m_theme, m_appWidth, m_appHeight);
+    m_menu.setSettings(m_theme, m_languagePackage, m_appWidth, m_appHeight);
     m_menu.setBorder(0, 0, m_appWidth, 27);
     m_menu.draw();
     while (true) {
