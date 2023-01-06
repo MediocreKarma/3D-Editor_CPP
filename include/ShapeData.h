@@ -290,6 +290,7 @@ class FixedMesh {
         iterator_type find(const IntegerPoint3D& x);
         iterator_type hitCollisionIterator(const int x, const int y);
         size_t size();
+        bool contains(const IntegerPoint3D& x) const;
         size_t countConnections(const IntegerPoint3D& x);
         size_t countConnections(iterator_type it);
         const MyHashSet<iterator_type>& adjacentPoints(const IntegerPoint3D& x);

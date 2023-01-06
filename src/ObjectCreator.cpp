@@ -313,22 +313,36 @@ void ObjectCreator::draw() {
 }
 
 void ObjectCreator::centerLayerButton() {
-    if (m_layers.size() < m_layerSelectButtons.size()) {
-        return;
+    //of
+    //poftim un placeholder
+    size_t i = 0;
+    auto it = m_layers.begin();
+    while (i < m_layers.size() && i < m_layerSelectButtons.size()) {
+        m_layerSelectButtons[i].it = it++;
+        ++i;
     }
-    auto itBehind = m_selectedLayer, itForward = m_selectedLayer;
-    size_t behindCnt = 0, forwardCnt = 0;
-    while (itBehind != m_layers.begin() && behindCnt <= m_layerSelectButtons.size() / 2) {
-        --itBehind;
-        ++behindCnt;
-    }
-    if (behindCnt != m_layerSelectButtons.size() / 2) {
-        auto it = m_layers.begin();
-        for (LayerSelectButtonData& data : m_layerSelectButtons) {
-            data.it = it++;
+}
+
+void ObjectCreator::mergeLayers(MyMap<int, LayerInfo>::iterator moving, MyMap<int, LayerInfo>::iterator destination) {
+    const int xCenter = (workX0 + workX1) / 2;
+    const int yCenter = (workY0 + workY1) / 2;
+    for (auto& dataNode : moving->value.data) {
+        FixedMesh::iterator_type it = dataNode.key;
+        IntegerPoint3D newPoint = it->point;
+        newPoint.z = destination->key;
+        if (!m_workArea.mesh().contains(newPoint)) {
+            m_workArea.mesh().updatePointValue(it, newPoint);
+            CircularButton pntBtn(xCenter + it->point.x, yCenter - it->point.y, 5);
+            m_layers[destination->key].data.insert(it, pntBtn);
         }
-        return;
+        else {
+            m_workArea.mesh().erasePoint(it);
+        }
     }
+    m_layers.erase(moving);
+    m_selectedLayer = m_layers.find(destination->key);
+    centerLayerButton();
+    renderLayerSelectButtons();
 }
 
 void ObjectCreator::editLayer(const int layerIndex) {
@@ -346,7 +360,13 @@ void ObjectCreator::editLayer(const int layerIndex) {
         return;
     }
     if (m_layers.contains(result)) {
-        //mergeLayers();
+        mergeLayers(m_selectedLayer, m_layers.find(result));
+        int x, y;
+        txtBox.getClick(x, y);
+        if (x != -1) {
+            getClickCommand(x, y);
+        }
+        draw();
         return;
     }
     for (auto& dataNode : m_selectedLayer->value.data) {
@@ -358,7 +378,6 @@ void ObjectCreator::editLayer(const int layerIndex) {
     m_layers[result] = m_selectedLayer->value;
     m_layers.erase(m_selectedLayer);
     m_selectedLayer = m_layers.find(result);
-    m_layerSelectButtons[layerIndex].it = m_selectedLayer;
     centerLayerButton();
     renderLayerSelectButtons();
     int x, y;

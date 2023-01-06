@@ -191,7 +191,6 @@ class MyMap {
             if (z == nil) {
                 return;
             }
-            --m_size;
             bool currentColor = z->color;
             if (z->left == nil) {
                 x = z->right;

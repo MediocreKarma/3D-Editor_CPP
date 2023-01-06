@@ -1202,3 +1202,7 @@ const MyHashSet<FixedMesh::iterator_type>& FixedMesh::adjacentPoints(const Integ
 const MyHashSet<FixedMesh::iterator_type>& FixedMesh::adjacentPoints(iterator_type it) {
     return m_adjList[it];
 }
+
+bool FixedMesh::contains(const IntegerPoint3D& x) const {
+    return m_pointIterators.contains(x);
+}

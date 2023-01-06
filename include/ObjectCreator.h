@@ -99,6 +99,7 @@ class ObjectCreator {
         void updateLayerSelectsInterval();
         bool moveLayerSelectsInterval(const int dir);
         void centerLayerButton();
+        void mergeLayers(MyMap<int, LayerInfo>::iterator moving, MyMap<int, LayerInfo>::iterator destination);
         void editLayer(const int layerIndex);
         Mesh generateCube(const unsigned int& length_);
         Mesh generateCylinder(const unsigned int& height, const unsigned int& radius, const unsigned int& sides);
