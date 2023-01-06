@@ -160,23 +160,58 @@ bool Menu::getCommand(const int& x, const int& y) {
         return false;
     }
     if (m_helpButton.hitCollision(x, y)) {
-        //TODO: write text on window
         int getCurrentWindowNumber = getcurrentwindow();
         int helpWindow = initwindow(800, 600, "Help / Ajutor", 0, 0, false, false);
         setcurrentwindow(helpWindow);
-        MyArray<MyArray<char, 32>, 2> helpFileNames = {"help/en.txt", "help/ro.txt"};
-
+        MyArray<MyArray<char, 32>, 2> helpFilename = {"help/en.txt", "help/ro.txt"};
+        FILE *helpf = fopen(helpFilename[0].data(), "r");
+        MyVector<MyArray<char, 256>> helpText{};
+        if (!helpf) {
+            closegraph(helpWindow);
+            setcurrentwindow(getCurrentWindowNumber);
+            return false;
+        }
+        while(!feof(helpf)) {
+            //temporar pt ca mi da warning si nu mi ia empty lines, dar functioneaza
+            char buf[512];
+            fscanf(helpf, "%[^\n]\n", &buf);
+            helpText.push_back(MyArray<char, 256>(buf));
+        }
+        int lineIndex = 0;
+        static const int LINE_WIDTH = 22;
+        static const int LINE_MARGIN = 20;
+        setbkcolor(WHITE);
+        bar(0, 0, 800, 600);
+        setcolor(BLACK);
+        for (size_t i = 0; i < helpText.size(); ++i) {
+            bool backslash = 0;
+            if (helpText[i].data()[0] == '\\') {
+                lineIndex++;
+                backslash = true;
+            }
+            outtextxy(LINE_MARGIN, LINE_MARGIN + lineIndex++ * LINE_WIDTH, helpText[i].data() + backslash);
+        }
+        MyArray<char, 32> backText("Back");
+        TextButton backButton(45, 570, 60, 30, backText.data());
+        backButton.drawTextButton(0, 0, LIGHTGRAY);
         while (true) {
             if (kbhit()) {
                 char c = getch();
-                if (c == 'a') {
+                if (c == 27) {
+                    break;
+                }
+            }
+            else if(ismouseclick(WM_LBUTTONDOWN)) {
+                int x_, y_;
+                getmouseclick(WM_LBUTTONDOWN, x_, y_);
+                if (backButton.hitCollision(x_, y_)) {
                     break;
                 }
             }
         }
         closegraph(helpWindow);
         setcurrentwindow(getCurrentWindowNumber);
-        return true;
+        return false;
     }
     if (m_space.getCommand(x, y)) {
         return true;

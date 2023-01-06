@@ -337,7 +337,7 @@ double NumericInputBox::getDoubleValue() {
             }
         }
         else {
-            if (m_len < MAX_NUMBER_SIZE - 3 || (m_numberTxt[0] == '-' && m_len < MAX_NUMBER_SIZE - 2 )) {
+            if (m_len < (int)MAX_NUMBER_SIZE - 3 || (m_numberTxt[0] == '-' && m_len < (int)MAX_NUMBER_SIZE - 2 )) {
                 insertIndex(keyPress);
                 if (keyPress == '.') {
                     m_hasPoint = true;
@@ -399,7 +399,7 @@ int NumericInputBox::getIntegerValue() {
                 m_hasPoint = false;
             }
         }
-        else if (m_len < MAX_NUMBER_SIZE - 3 || (m_numberTxt[0] == '-' && m_len < MAX_NUMBER_SIZE - 2 )) {
+        else if (m_len < (int)MAX_NUMBER_SIZE - 3 || (m_numberTxt[0] == '-' && m_len < (int)MAX_NUMBER_SIZE - 2 )) {
             insertIndex(keyPress);
             if (keyPress == '.') {
                 m_hasPoint = true;

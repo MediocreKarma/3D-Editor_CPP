@@ -143,15 +143,16 @@ void ObjectCreator::drawToolButtons() {
 }
 
 void ObjectCreator::drawSelectLayers() {
-    //draw layer btns
     int btnColor = RGB(160, 160, 160),
         highlightedColor = ColorSchemes::mixColors(btnColor, ColorSchemes::themeColors[m_theme][ColorSchemes::ACCENTCOLOR], 50);
     for (size_t i = 0; i < m_layerSelectButtons.size(); ++i) {
-        if (m_layerSelectButtons[i].it == m_selectedLayer) {
-            m_layerSelectButtons[i].txtButton.drawTextButton(1, 3, highlightedColor, false);
-        }
-        else {
-            m_layerSelectButtons[i].txtButton.drawTextButton(1, 3, btnColor, false);
+        if (i < m_layers.size()) {
+            if (m_layerSelectButtons[i].it == m_selectedLayer) {
+                m_layerSelectButtons[i].txtButton.drawTextButton(1, 3, highlightedColor, false);
+            }
+            else {
+                m_layerSelectButtons[i].txtButton.drawTextButton(1, 3, btnColor, false);
+            }
         }
     }
     //butoane de PLUS + arrows
@@ -225,7 +226,6 @@ void ObjectCreator::drawLayerView() {
     line(xCenter + layerCenter.getX(), workY0, xCenter + layerCenter.getX(), workY1);
     line(workX0, yCenter - layerCenter.getY(), workX1, yCenter - layerCenter.getY());
     setcolor(ColorSchemes::themeColors[m_theme][ColorSchemes::SECONDARYCOLOR]);
-    //draw lines
     for (auto& it : m_selectedLayer->value.data) {
         Point2D P1(it.value.getX(), it.value.getY());
         if (m_workArea.mesh().countConnections(it.key) < m_selectedLayer->value.data.size()) {
@@ -319,7 +319,7 @@ void ObjectCreator::centerLayerButton() {
         return;
     }
     auto itBehind = m_selectedLayer, itForward = m_selectedLayer;
-    int behindCnt = 0, forwardCnt = 0;
+    size_t behindCnt = 0, forwardCnt = 0;
     while (itBehind != m_layers.begin() && behindCnt <= m_layerSelectButtons.size() / 2) {
         --itBehind;
         ++behindCnt;
@@ -349,7 +349,6 @@ void ObjectCreator::centerLayerButton() {
     for (size_t i = 0; i < m_layerSelectButtons.size() / 2; ++i) {
         --itBehind;
     }
-    auto it = m_layers.end();
     for (LayerSelectButtonData& data : m_layerSelectButtons) {
         data.it = itBehind++;
     }
@@ -641,7 +640,7 @@ bool ObjectCreator::getClickCommand(const int x, const int y) {
             m_tool = (Tool)i;
         }
     }
-    for (size_t i = 0; i < m_layerSelectButtons.size(); ++i) {
+    for (size_t i = 0; i < m_layers.size(); ++i) {
         if (m_layerSelectButtons[i].txtButton.hitCollision(x, y)) {
             m_selectedLayer = m_layerSelectButtons[i].it;
             return true;
@@ -742,7 +741,7 @@ bool ObjectCreator::getDoubleClickCommand() {
     if (x == -1) {
         return false;
     }
-    for (size_t i = 0; i < m_layerSelectButtons.size(); ++i) {
+    for (size_t i = 0; i < m_layers.size(); ++i) {
         if (m_layerSelectButtons[i].txtButton.hitCollision(x, y)) {
             editLayer(i);
             return true;

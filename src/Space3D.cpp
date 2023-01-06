@@ -611,7 +611,6 @@ int Space3D::atoi(MyArray<char, 256>& arr) {
 }
 
 void Space3D::updateTransformFields() {
-    static MyArray<MyArray<char, 8>, 3> AXIS_PREFIXES = {"X: ", "Y: ", "Z: "};
     const MeshTransforms meshTrans = m_meshes[m_selected].transforms();
     for (size_t i = 0; i < 3; ++i) {
         for (size_t j = 0; j < 3; ++j) {
@@ -802,10 +801,9 @@ bool Space3D::getCommand(const int& x, const int& y) {
         if (rMenuIndex == 4) {
             int getCurrentWindowNumber = getcurrentwindow();
             Mesh aux = m_meshes[m_selected];
-            Point3D center = aux.centerPoint();
-            Quaternion quat = aux.quat();
-            aux.resetRotation();
-            aux.resetScale();
+            //Point3D center(m_meshes[m_selected].centerPoint());
+            //Quaternion quat = aux.quat();
+            //aux.resetTransforms();
             ObjectCreator objCreator(aux, m_theme);
             objCreator.run();
             /*if (objCreator.getCloseFlag() == 2) {

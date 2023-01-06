@@ -5,6 +5,8 @@
 #include "Space3D.h"
 #include "FileHandler.h"
 #include "ObjectCreator.h"
+#include <cstdlib>
+#include <cstdio>
 
 class Menu {
     public:

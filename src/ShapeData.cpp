@@ -1082,6 +1082,7 @@ void FixedMesh::renderPoint(iterator_type pointIt, const Point2D& conversion) {
 
 void FixedMesh::drawMesh(const int secondaryThemeColor, const int accentColor) {
     setcolor(secondaryThemeColor);
+    setlinestyle(SOLID_LINE, 0, 1);
     for (iterator_type it = m_points.begin(); it != m_points.end(); ++it) {
         Point2D P(it->button2d.getX(), it->button2d.getY());
         for (iterator_type it2 : m_adjList[it]) {
