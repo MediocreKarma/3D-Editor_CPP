@@ -766,18 +766,17 @@ Quaternion Mesh::quat() const {
 void Mesh::resetRotation() {
     Point3D center = m_centerPoint;
     translate(-center.x, -center.y, -center.z);
-    //stiu ca round e potentially unsafe dar rezolv altadata
     const double e = 0.000000001;
     for (Point3D& pct : m_points) {
         pct.rotateByUnitQuat(m_quat.inverse());
-        if (fabs(pct.getX() - round(pct.getX())) < e) {
-            pct.setX((int)::round(pct.getX()));
+        if (fabs(pct.getX() - ::lround(pct.getX())) < e) {
+            pct.setX((int)::lround(pct.getX()));
         }
-        if (fabs(pct.getY() - round(pct.getY())) < e) {
-            pct.setY((int)::round(pct.getY()));
+        if (fabs(pct.getY() - ::lround(pct.getY())) < e) {
+            pct.setY((int)::lround(pct.getY()));
         }
-        if (fabs(pct.getZ() - round(pct.getZ())) < e) {
-            pct.setZ((int)::round(pct.getZ()));
+        if (fabs(pct.getZ() - ::lround(pct.getZ())) < e) {
+            pct.setZ((int)::lround(pct.getZ()));
         }
     }
     m_angleX = 0;
@@ -788,21 +787,20 @@ void Mesh::resetRotation() {
 }
 
 void Mesh::resetScale() {
-    //DOAMNE ITI MULTUMESC CA SCALARILE PE AXE SUNT COMUTATIVE
     scaleAxis(1 / m_scaleX, 0);
     scaleAxis(1 / m_scaleY, 1);
     scaleAxis(1 / m_scaleZ, 2);
     const double e = 0.000000001;
     for (Point3D& pct : m_points) {
         pct.rotateByUnitQuat(m_quat.inverse());
-        if (fabs(pct.getX() - round(pct.getX())) < e) {
-            pct.setX((int)round(pct.getX()));
+        if (fabs(pct.getX() - ::lround(pct.getX())) < e) {
+            pct.setX((int)::lround(pct.getX()));
         }
-        if (fabs(pct.getY() - round(pct.getY())) < e) {
-            pct.setY((int)round(pct.getY()));
+        if (fabs(pct.getY() - ::lround(pct.getY())) < e) {
+            pct.setY((int)::lround(pct.getY()));
         }
-        if (fabs(pct.getZ() - round(pct.getZ())) < e) {
-            pct.setZ((int)round(pct.getZ()));
+        if (fabs(pct.getZ() - ::lround(pct.getZ())) < e) {
+            pct.setZ((int)::lround(pct.getZ()));
         }
     }
 }
@@ -911,7 +909,12 @@ void Mesh::setTransform(size_t transform, size_t axis, const double& value) {
         }
         case 1: {
             MyArray<double, 3> eulerAngles = m_quat.toEuler();
-            eulerAngles[axis] = value;
+            double val = value;
+            if (val > PI / 2) {
+                //limit values to be within -PI / 2, PI / 2
+                val = - 2 * PI / 2 + value;
+            }
+            eulerAngles[axis] = val;
             Quaternion finalQuat = Quaternion(eulerAngles[0], eulerAngles[1], eulerAngles[2]);
             resetRotation();
             rotateByUnitQuat(finalQuat);

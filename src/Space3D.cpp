@@ -89,9 +89,9 @@ void Space3D::setButtons() {
     m_spaceContextMenu = DropdownButton<2>(-1000, -1000, 0, 0, "", 180, 2 * MENU_BTN_HEIGHT);
     m_spaceContextMenu.addOption("Switch to local transform");
     m_spaceContextMenu.addOption("New mesh");
-    static const int LABEL_WIDTH = 80;
+    static const int LABEL_WIDTH = 95;
     static const int LABEL_HEIGHT = 22;
-    static const int PANEL_MARGIN = 10;
+    static const int PANEL_MARGIN = 8;
     static const int PANEL_WIDTH =  4 * LABEL_WIDTH  + 5 * PANEL_MARGIN;
     static const int PANEL_HEIGHT = 3 * LABEL_HEIGHT + 4 * PANEL_MARGIN;
     int              TOP_BEGIN = getmaxy() - PANEL_HEIGHT - PANEL_MARGIN;
@@ -611,10 +611,11 @@ int Space3D::atoi(MyArray<char, 256>& arr) {
 }
 
 void Space3D::updateTransformFields() {
-    static MyArray<MyArray<char, 8>, 3> AXIS_PREFIXES = {"X : ", "Y : ", "Z : "};
+    static MyArray<MyArray<char, 8>, 3> AXIS_PREFIXES = {"X: ", "Y: ", "Z: "};
     const MeshTransforms meshTrans = m_meshes[m_selected].transforms();
     for (size_t i = 0; i < 3; ++i) {
         for (size_t j = 0; j < 3; ++j) {
+            //TODO: ftoa of some form
             m_transformTextBtns[i][j].modifyText(itoa(::round(meshTrans[i][j]), AXIS_PREFIXES[j].data()));
         }
     }
@@ -869,22 +870,27 @@ bool Space3D::getCommand(const int& x, const int& y) {
             for (size_t j = 0; j < 3; ++j) {
                 if (m_transformTextBtns[i][j].hitCollision(x, y)) {
                     auto& btnRef = m_transformTextBtns[i][j]; //mi e sila sa scriu mereu
-                    MyArray<char, 8> throwaway("Y :  ");
+                    MyArray<char, 8> throwaway("Y:  ");
                     setactivepage(getvisualpage());
                     NumericInputBox txtBox(btnRef.getXCenter() - btnRef.getXLen() / 2 + textwidth(throwaway.data()),
                                            btnRef.getXCenter() + btnRef.getXLen() / 2 - 5,
                                            btnRef.getYCenter(), BLACK, WHITE);
                     int result = txtBox.getIntegerValue();
                     setvisualpage(1 - getactivepage());
+                    if (txtBox.isEmpty()) {
+                        return true;
+                    }
+                    MeshTransforms meshTrans = m_meshes[m_selected].transforms();
+                    if (fabs(meshTrans[i][j] - result) < err) {
+                        return true;
+                    }
                     switch (i) {
                         case 0: {
                             if (fabs(result) > err) {
                                 m_meshes[m_selected].setTransform(0, j, result);
                                 m_updated[m_selected] = true;
-                                return true;
                             }
-                            callHandlerDrawer();
-                            return false;
+                            return true;
                         }
                         case 1: {
                             m_meshes[m_selected].setTransform(1, j, (double)result * PI / 180);
@@ -897,7 +903,7 @@ bool Space3D::getCommand(const int& x, const int& y) {
                             return true;
                         }
                     }
-                    break;
+                    return true;
                 }
             }
         }

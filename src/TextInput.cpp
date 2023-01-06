@@ -423,3 +423,7 @@ void NumericInputBox::getClick(int& x, int& y) {
     y = m_mouseClick[1];
     m_mouseClick = {-1, -1};
 }
+
+bool NumericInputBox::isEmpty() {
+    return m_len == 0;
+}

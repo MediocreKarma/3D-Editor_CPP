@@ -53,6 +53,7 @@ class NumericInputBox {
         double getDoubleValue();
         int getIntegerValue();
         void getClick(int &x, int& y);
+        bool isEmpty();
 
         static constexpr size_t MAX_NUMBER_SIZE = 12;
 
