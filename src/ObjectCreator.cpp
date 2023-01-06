@@ -324,14 +324,35 @@ void ObjectCreator::centerLayerButton() {
         --itBehind;
         ++behindCnt;
     }
-    if (behindCnt != m_layerSelectButtons.size() / 2) {
+    if (behindCnt < m_layerSelectButtons.size() / 2) {
         auto it = m_layers.begin();
         for (LayerSelectButtonData& data : m_layerSelectButtons) {
             data.it = it++;
         }
+        return;
     }
-
-    //while (itForward != m_layers.end())
+    while (itForward != m_layers.end() && forwardCnt < m_layerSelectButtons.size() / 2) {
+        ++forwardCnt;
+        ++itForward;
+    }
+    if (forwardCnt < m_layerSelectButtons.size() / 2) {
+        auto it = m_layers.end();
+        for (size_t i = 0; i < m_layerSelectButtons.size(); ++i) {
+            --it;
+        }
+        for (LayerSelectButtonData& data : m_layerSelectButtons) {
+            data.it = it++;
+        }
+        return;
+    }
+    itBehind = m_selectedLayer;
+    for (size_t i = 0; i < m_layerSelectButtons.size() / 2; ++i) {
+        --itBehind;
+    }
+    auto it = m_layers.end();
+    for (LayerSelectButtonData& data : m_layerSelectButtons) {
+        data.it = itBehind++;
+    }
 }
 
 void ObjectCreator::editLayer(const int layerIndex) {

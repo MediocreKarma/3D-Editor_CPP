@@ -499,7 +499,7 @@ Mesh& Mesh::operator = (const Mesh& other) {
 }
 
 Mesh& Mesh::operator = (const FixedMesh& other) {
-    //??? nu stiu deocamdata
+    //TODO
 }
 
 MyVector<size_t> Mesh::adjListAt(const size_t& index) const {
@@ -911,8 +911,7 @@ void Mesh::setTransform(size_t transform, size_t axis, const double& value) {
             MyArray<double, 3> eulerAngles = m_quat.toEuler();
             double val = value;
             if (val > PI / 2) {
-                //limit values to be within -PI / 2, PI / 2
-                val = - 2 * PI / 2 + value;
+                val = - 2 * PI + value;
             }
             eulerAngles[axis] = val;
             Quaternion finalQuat = Quaternion(eulerAngles[0], eulerAngles[1], eulerAngles[2]);

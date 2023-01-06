@@ -10,6 +10,7 @@
 #include "AppTools.h"
 #include "Quaternion.h"
 #include "TextInput.h"
+#include "stdio.h"
 
 class Menu;
 

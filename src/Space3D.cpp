@@ -615,8 +615,23 @@ void Space3D::updateTransformFields() {
     const MeshTransforms meshTrans = m_meshes[m_selected].transforms();
     for (size_t i = 0; i < 3; ++i) {
         for (size_t j = 0; j < 3; ++j) {
-            //TODO: ftoa of some form
-            m_transformTextBtns[i][j].modifyText(itoa(::round(meshTrans[i][j]), AXIS_PREFIXES[j].data()));
+            char str[32] = "";
+            double value = meshTrans[i][j];
+            if (signbit(value) && (int)(value * 100) == 0) {
+                value = 0;
+            }
+            switch (j) {
+                case 0:
+                    sprintf(str, "X: %.2f", value);
+                    break;
+                case 1:
+                    sprintf(str, "Y: %.2f", value);
+                    break;
+                case 2:
+                    sprintf(str, "Z: %.2f", value);
+            }
+            MyArray<char, 32> txt = str;
+            m_transformTextBtns[i][j].modifyText(txt);
         }
     }
 }
@@ -741,7 +756,6 @@ bool Space3D::getKeyCommand() {
 }
 
 bool Space3D::checkKeyCommand(const char& x) {
-    //comenzi pt scale si move ca in blender. fscale si gmove
     if (m_selected != -1 && x == 'f') {
         scaleMesh();
         return true;
@@ -824,14 +838,15 @@ bool Space3D::getCommand(const int& x, const int& y) {
                 updateTransform();
                 break;
             case 1:
-                /*int getCurrentWindowNumber = getcurrentwindow();
-                ObjectCreator objCreator(m_theme);
+                int getCurrentWindowNumber = getcurrentwindow();
+                /*ObjectCreator objCreator(m_theme);
                 Mesh aux;
-                objCreator.run();
+                FixedMesh result = objCreator.run();
+                aux = result;
                 if (objCreator.getCloseFlag() == 2) {
                     addMesh(aux);
-                }
-                setcurrentwindow(getCurrentWindowNumber);*/
+                }*/
+                setcurrentwindow(getCurrentWindowNumber);
                 break;
         }
         return true;
@@ -869,14 +884,26 @@ bool Space3D::getCommand(const int& x, const int& y) {
         for (size_t i = 0; i < 3; ++i) {
             for (size_t j = 0; j < 3; ++j) {
                 if (m_transformTextBtns[i][j].hitCollision(x, y)) {
-                    auto& btnRef = m_transformTextBtns[i][j]; //mi e sila sa scriu mereu
+                    auto& btnRef = m_transformTextBtns[i][j];
                     MyArray<char, 8> throwaway("Y:  ");
-                    setactivepage(getvisualpage());
+                    //using page 2 (we have 16 pages available iirc)
+                    int oldv = getvisualpage();
+                    int olda = getactivepage();
+                    setactivepage(2);
+                    callHandlerDrawer(); //cause we can't copy frame directly
+                                         //but even for teapot the time seems to be negligible so...
+
+                    //setting them again bc callHandlerDrawer does swapbuffering
+                    //which is great but we don't want it right now
+                    setactivepage(2);
+                    setvisualpage(2);
                     NumericInputBox txtBox(btnRef.getXCenter() - btnRef.getXLen() / 2 + textwidth(throwaway.data()),
                                            btnRef.getXCenter() + btnRef.getXLen() / 2 - 5,
                                            btnRef.getYCenter(), BLACK, WHITE);
-                    int result = txtBox.getIntegerValue();
-                    setvisualpage(1 - getactivepage());
+                    double result = txtBox.getDoubleValue();
+                    //reset to old pages
+                    setvisualpage(oldv);
+                    setactivepage(olda);
                     if (txtBox.isEmpty()) {
                         return true;
                     }
@@ -885,8 +912,8 @@ bool Space3D::getCommand(const int& x, const int& y) {
                         return true;
                     }
                     switch (i) {
-                        case 0: {
-                            if (fabs(result) > err) {
+                        case 0: { //sensible limits, i think
+                            if (fabs(result) > err && fabs(result) <= 10000) {
                                 m_meshes[m_selected].setTransform(0, j, result);
                                 m_updated[m_selected] = true;
                             }
@@ -1027,7 +1054,6 @@ void Space3D::scaleMesh() {
                     m_updated[m_selected] = true;
                     callHandlerDrawer();
                     return;
-                //-1 - global; 0, 1, 2 - axele X, Y, Z
                 case 'x':
                     m_meshes[m_selected] = original;
                     if (scaleAxis != 0) {

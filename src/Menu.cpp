@@ -160,31 +160,21 @@ bool Menu::getCommand(const int& x, const int& y) {
         return false;
     }
     if (m_helpButton.hitCollision(x, y)) {
+        //TODO: write text on window
         int getCurrentWindowNumber = getcurrentwindow();
-        const int index = m_space.selected();
-        if (index != -1) {
-            Mesh aux = m_space.meshAt(index);
-            Point3D center = aux.centerPoint();
-            Quaternion quat = aux.quat();
-            aux.resetRotation();
-            aux.resetScale();
-            ObjectCreator objCreator(aux, m_theme);
-            objCreator.run();
-            if (objCreator.getCloseFlag() == 2) {
-                aux.rotateByUnitQuat(quat);
-                aux.translate(center);
-                m_space.setMeshAt(index, aux);
+        int helpWindow = initwindow(800, 600, "Help / Ajutor", 0, 0, false, false);
+        setcurrentwindow(helpWindow);
+        MyArray<MyArray<char, 32>, 2> helpFileNames = {"help/en.txt", "help/ro.txt"};
+
+        while (true) {
+            if (kbhit()) {
+                char c = getch();
+                if (c == 'a') {
+                    break;
+                }
             }
         }
-        else {
-            //deocamdata va fi lasat asta aici
-            //eventual va fi mutat intr un m_newMeshButton
-            /*ObjectCreator objCreator(m_theme);
-            Mesh newMesh = objCreator.run();
-            if (objCreator.getCloseFlag() == 2) {
-                m_space.addMesh(newMesh);
-            }*/
-        }
+        closegraph(helpWindow);
         setcurrentwindow(getCurrentWindowNumber);
         return true;
     }
