@@ -803,7 +803,7 @@ bool Space3D::getCommand(const int& x, const int& y) {
             Mesh aux = m_meshes[m_selected];
             //Point3D center(m_meshes[m_selected].centerPoint());
             //Quaternion quat = aux.quat();
-            //aux.resetTransforms();
+            aux.resetTransforms();
             ObjectCreator objCreator(aux, m_theme);
             objCreator.run();
             /*if (objCreator.getCloseFlag() == 2) {

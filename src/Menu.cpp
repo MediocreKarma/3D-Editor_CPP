@@ -161,9 +161,9 @@ bool Menu::getCommand(const int& x, const int& y) {
     }
     if (m_helpButton.hitCollision(x, y)) {
         int getCurrentWindowNumber = getcurrentwindow();
-        int helpWindow = initwindow(800, 600, "Help / Ajutor", 0, 0, false, false);
+        int helpWindow = initwindow(800, 600, "Help / Ajutor", getmaxwidth() / 2 - 400, getmaxheight() / 2 - 300, false, false);
         setcurrentwindow(helpWindow);
-        MyArray<MyArray<char, 32>, 2> helpFilename = {"help/en.txt", "help/ro.txt"};
+        MyArray<MyArray<char, 32>, 2> helpFilename = {"help/ro.txt", "help/en.txt"};
         FILE *helpf = fopen(helpFilename[0].data(), "r");
         MyVector<MyArray<char, 256>> helpText{};
         if (!helpf) {
@@ -178,7 +178,7 @@ bool Menu::getCommand(const int& x, const int& y) {
             helpText.push_back(MyArray<char, 256>(buf));
         }
         int lineIndex = 0;
-        static const int LINE_WIDTH = 22;
+        static const int LINE_WIDTH = 18;
         static const int LINE_MARGIN = 20;
         setbkcolor(WHITE);
         bar(0, 0, 800, 600);
