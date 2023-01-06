@@ -2,7 +2,7 @@
 #include "Menu.h"
 #include "ObjectCreator.h"
 
-const double PI = 3.141926535897;
+const double PI = 3.1415926535897932384626433832795028841971693993751;
 const double err = 0.0000000000000000000001;
 const double moveErr = 0.007; //limita minima de perpendicularitate pentru moveMesh
 
@@ -89,7 +89,7 @@ void Space3D::setButtons() {
     m_spaceContextMenu = DropdownButton<2>(-1000, -1000, 0, 0, "", 180, 2 * MENU_BTN_HEIGHT);
     m_spaceContextMenu.addOption("Switch to local transform");
     m_spaceContextMenu.addOption("New mesh");
-    static const int LABEL_WIDTH = 70;
+    static const int LABEL_WIDTH = 80;
     static const int LABEL_HEIGHT = 22;
     static const int PANEL_MARGIN = 10;
     static const int PANEL_WIDTH =  4 * LABEL_WIDTH  + 5 * PANEL_MARGIN;
@@ -883,6 +883,7 @@ bool Space3D::getCommand(const int& x, const int& y) {
                                 m_updated[m_selected] = true;
                                 return true;
                             }
+                            callHandlerDrawer();
                             return false;
                         }
                         case 1: {

@@ -1,6 +1,6 @@
 #include "ShapeData.h"
 
-const double PI = 3.14159265359;
+const double PI = 3.1415926535897932384626433832795028841971693993751;
 const double err = 0.0000000000000000000001;
 
 Point2D::Point2D() :
@@ -496,6 +496,10 @@ Mesh& Mesh::operator = (const Mesh& other) {
     m_scaleY = other.m_scaleY;
     m_scaleZ = other.m_scaleZ;
     return *this;
+}
+
+Mesh& Mesh::operator = (const FixedMesh& other) {
+    //??? nu stiu deocamdata
 }
 
 MyVector<size_t> Mesh::adjListAt(const size_t& index) const {

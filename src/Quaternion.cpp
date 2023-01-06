@@ -2,7 +2,7 @@
 #include <iostream>
 #include <math.h>
 
-const double pi = 3.14159265359;
+const double PI = 3.1415926535897932384626433832795028841971693993751;
 const double err = 0.0000000000000000000001;
 
 Quaternion::Quaternion() :
@@ -24,11 +24,18 @@ Quaternion::Quaternion(const double& real, const double& i, const double& j, con
     m_data({real, i, j, k}) {}
 
 Quaternion::Quaternion(const double& roll, const double& pitch, const double& yaw) : m_data() {
-    m_data[0] = cos(roll / 2) * cos(pitch / 2) * cos(-yaw / 2) + sin(roll / 2) * sin(pitch / 2) * sin(-yaw / 2);
-    m_data[1] = sin(roll / 2) * cos(pitch / 2) * cos(-yaw / 2) - cos(roll / 2) * sin(pitch / 2) * sin(-yaw / 2);
-    m_data[2] = cos(roll / 2) * sin(pitch / 2) * cos(-yaw / 2) + sin(roll / 2) * cos(pitch / 2) * sin(-yaw / 2);
-    m_data[3] = cos(roll / 2) * cos(pitch / 2) * sin(-yaw / 2) - sin(roll / 2) * sin(pitch / 2) * cos(-yaw / 2);
-    //normalize();
+    double c1, c2, c3, s1, s2, s3;
+    c1 = cos(roll / 2);
+    c2 = cos(pitch / 2);
+    c3 = cos(-yaw / 2);
+    s1 = sin(roll / 2);
+    s2 = sin(pitch / 2);
+    s3 = sin(-yaw / 2);
+    m_data[0] = c1 * c2 * c3 + s1 * s2 * s3;
+    m_data[1] = s1 * c2 * c3 - c1 * s2 * s3;
+    m_data[2] = c1 * s2 * c3 + s1 * c2 * s3;
+    m_data[3] = c1 * c2 * s3 - s1 * s2 * c3;
+    normalize();
 }
 
 double Quaternion::real() const {
@@ -61,8 +68,6 @@ void Quaternion::operator-=(const Quaternion& q) {
     m_data[2] -= q.m_data[2];
     m_data[3] -= q.m_data[3];
 }
-
-//TODO: overriding for -, + (if ever necessary)
 
 double& Quaternion::operator[](const size_t& index) {
     return m_data[index];
@@ -121,11 +126,6 @@ void Quaternion::setCoord(const size_t& index, const double& value) {
 }
 
 void Quaternion::convertToUnitQ() {
-    //realu va reprezenta defapt gradele, in radiani.
-    //daca vrei sa stii de ce s unghiurile impartite la 2
-    //este pentru ca noi practic facem 2 rotatii consecutive
-    //in 4d
-    //care rezulta intr o singura rotatie in 3d
     double angle = m_data[0];
     Quaternion vector(0, complex());
     vector.normalize();
@@ -155,7 +155,6 @@ Quaternion Quaternion::inverse() const noexcept {
     return conj;
 }
 void Quaternion::display() {
-    //for debugging
     for(size_t i = 0; i < 4; i++) {
         std::cout<<m_data[i]<<" ";
     }

@@ -254,6 +254,7 @@ void NumericInputBox::changeIndexByClick(int x) {
         ++i;
     }
     m_index = i - 1;
+    display();
 }
 
 bool NumericInputBox::isClickInTextbox(const int x, const int y) {
