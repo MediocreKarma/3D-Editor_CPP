@@ -146,13 +146,11 @@ void ObjectCreator::drawSelectLayers() {
     int btnColor = RGB(160, 160, 160),
         highlightedColor = ColorSchemes::mixColors(btnColor, ColorSchemes::themeColors[m_theme][ColorSchemes::ACCENTCOLOR], 50);
     for (size_t i = 0; i < m_layerSelectButtons.size(); ++i) {
-        if (i < m_layers.size()) {
-            if (m_layerSelectButtons[i].it == m_selectedLayer) {
-                m_layerSelectButtons[i].txtButton.drawTextButton(1, 3, highlightedColor, false);
-            }
-            else {
-                m_layerSelectButtons[i].txtButton.drawTextButton(1, 3, btnColor, false);
-            }
+        if (m_layerSelectButtons[i].it == m_selectedLayer) {
+            m_layerSelectButtons[i].txtButton.drawTextButton(1, 3, highlightedColor, false);
+        }
+        else {
+            m_layerSelectButtons[i].txtButton.drawTextButton(1, 3, btnColor, false);
         }
     }
     //butoane de PLUS + arrows
@@ -324,33 +322,12 @@ void ObjectCreator::centerLayerButton() {
         --itBehind;
         ++behindCnt;
     }
-    if (behindCnt < m_layerSelectButtons.size() / 2) {
+    if (behindCnt != m_layerSelectButtons.size() / 2) {
         auto it = m_layers.begin();
         for (LayerSelectButtonData& data : m_layerSelectButtons) {
             data.it = it++;
         }
         return;
-    }
-    while (itForward != m_layers.end() && forwardCnt < m_layerSelectButtons.size() / 2) {
-        ++forwardCnt;
-        ++itForward;
-    }
-    if (forwardCnt < m_layerSelectButtons.size() / 2) {
-        auto it = m_layers.end();
-        for (size_t i = 0; i < m_layerSelectButtons.size(); ++i) {
-            --it;
-        }
-        for (LayerSelectButtonData& data : m_layerSelectButtons) {
-            data.it = it++;
-        }
-        return;
-    }
-    itBehind = m_selectedLayer;
-    for (size_t i = 0; i < m_layerSelectButtons.size() / 2; ++i) {
-        --itBehind;
-    }
-    for (LayerSelectButtonData& data : m_layerSelectButtons) {
-        data.it = itBehind++;
     }
 }
 
@@ -640,7 +617,7 @@ bool ObjectCreator::getClickCommand(const int x, const int y) {
             m_tool = (Tool)i;
         }
     }
-    for (size_t i = 0; i < m_layers.size(); ++i) {
+    for (size_t i = 0; i < m_layerSelectButtons.size(); ++i) {
         if (m_layerSelectButtons[i].txtButton.hitCollision(x, y)) {
             m_selectedLayer = m_layerSelectButtons[i].it;
             return true;
@@ -741,7 +718,7 @@ bool ObjectCreator::getDoubleClickCommand() {
     if (x == -1) {
         return false;
     }
-    for (size_t i = 0; i < m_layers.size(); ++i) {
+    for (size_t i = 0; i < m_layerSelectButtons.size(); ++i) {
         if (m_layerSelectButtons[i].txtButton.hitCollision(x, y)) {
             editLayer(i);
             return true;
