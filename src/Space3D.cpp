@@ -799,17 +799,18 @@ bool Space3D::getCommand(const int& x, const int& y) {
         if (rMenuIndex == 0) {
             int getCurrentWindowNumber = getcurrentwindow();
             Mesh aux = m_meshes[m_selected];
-            //Point3D center(m_meshes[m_selected].centerPoint());
-            //Quaternion quat = aux.quat();
+            Point3D center(m_meshes[m_selected].centerPoint());
+            Quaternion quat = aux.quat();
             aux.resetTransforms();
             ObjectCreator objCreator(aux, m_theme);
-            objCreator.run();
-            /*if (objCreator.getCloseFlag() == 2) {
+            aux = objCreator.run();
+            if (objCreator.getCloseFlag() == 2) {
                 aux.rotateByUnitQuat(quat);
                 aux.translate(center);
                 m_meshes[m_selected] = aux;
                 m_updated[m_selected] = true;
-            }*/
+                m_meshes[m_selected].updateCenterPoint();
+            }
             setcurrentwindow(getCurrentWindowNumber);
         }
         if (rMenuIndex == 1) {
