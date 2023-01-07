@@ -339,6 +339,52 @@ void ObjectCreator::centerLayerButton() {
     }
 }
 
+void ObjectCreator::addLayer() {
+    int btnColor = RGB(160, 160, 160),
+        highlightedColor = ColorSchemes::mixColors(btnColor, ColorSchemes::themeColors[m_theme][ColorSchemes::ACCENTCOLOR], 50);
+    auto it = m_layers.begin();
+    int newZ = it->key - 1;
+    m_layers.insert(newZ, LayerInfo());
+    m_selectedLayer = m_layers.find(newZ);
+    centerLayerButton();
+    renderLayerSelectButtons();
+    TextButton& editedLayer = m_layerSelectButtons[0].txtButton;
+    draw();
+    setactivepage(getvisualpage());
+    MyArray<char, 32> prefix = Language::Text[(int)Lang::Layer_Z][m_language];
+    NumericInputBox txtBox(editedLayer.getXCenter() - editedLayer.getXLen() / 2 +
+                           textwidth(prefix.data()) + 5, editedLayer.getXCenter() + 90,
+                           editedLayer.getYCenter(), BLACK, highlightedColor);
+    int result = txtBox.getIntegerValue();
+    setvisualpage(1 - getactivepage());
+    if (m_layers.contains(result) && result != newZ) {
+        m_layers.erase(newZ);
+        m_selectedLayer = m_layers.find(result);
+        centerLayerButton();
+        renderLayerSelectButtons();
+        int x, y;
+        txtBox.getClick(x, y);
+        if (x != -1) {
+            getClickCommand(x, y);
+        }
+        draw();
+        return;
+    }
+    else if (result != newZ) {
+        m_layers.erase(newZ);
+        m_layers.insert(result, LayerInfo());
+        m_selectedLayer = m_layers.find(result);
+    }
+    centerLayerButton();
+    renderLayerSelectButtons();
+    int x, y;
+    txtBox.getClick(x, y);
+    if (x != -1) {
+        getClickCommand(x, y);
+    }
+    draw();
+}
+
 void ObjectCreator::mergeLayers(MyMap<int, LayerInfo>::iterator moving, MyMap<int, LayerInfo>::iterator destination) {
     const int xCenter = (workX0 + workX1) / 2;
     const int yCenter = (workY0 + workY1) / 2;
@@ -359,6 +405,7 @@ void ObjectCreator::mergeLayers(MyMap<int, LayerInfo>::iterator moving, MyMap<in
     m_selectedLayer = m_layers.find(destination->key);
     centerLayerButton();
     renderLayerSelectButtons();
+    addLayer();
 }
 
 void ObjectCreator::editLayer(const int layerIndex) {
@@ -624,6 +671,9 @@ bool ObjectCreator::getClickCommand(const int x, const int y) {
     if (x == -1) {
         return m_workArea.getKeyCommand();
     }
+    if (m_addLayerButton.hitCollision(x, y)) {
+        addLayer();
+    }
     if (m_generateButton.isListVisible()) {
         if (m_generateButton.listHitCollision(x, y) > -1) {
             int index = m_generateButton.listHitCollision(x, y);
@@ -812,6 +862,7 @@ Mesh ObjectCreator::generateCube(const unsigned int& length_) {
 
 Mesh ObjectCreator::generateCone(const unsigned int& height, const unsigned int& radius, const unsigned int& sides) {
     Mesh cone = Mesh();
+    std::cout<<cone.size();
     cone.addPoint(0, 0, height / 2);
     Point3D tmp(0, radius, -((int)height / 2));
     for (size_t i = 0; i < sides; ++i) {
@@ -821,11 +872,14 @@ Mesh ObjectCreator::generateCone(const unsigned int& height, const unsigned int&
         cone.addPoint(tmp);
         cone[cone.size() - 1].round();
         cone.addEdge(cone.size() - 1, cone.size() - 2);
+        std::cout<<"cone sizes: "<<cone.size() - 1 <<" "<<cone.size() - 2 <<"\n";
         if (i > 0) {
             cone.addEdge(cone.size() - 1, 0);
+            std::cout<<"edges: "<<cone.size() - 1 <<" "<<0<<"\n";
         }
     }
     cone.addEdge(cone.size() - 1, cone.size() - sides);
+    std::cout<<"edges: "<<cone.size() - 1 <<" "<<cone.size() - sides<<"\n";
     return cone;
 }
 
