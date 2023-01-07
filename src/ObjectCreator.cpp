@@ -940,7 +940,7 @@ bool ObjectCreator::generate(int index) {
             }
             std::cout<<"\n\n";
         }*/
-        m_workArea.setMesh(tmp);
+        m_workArea.mesh() = tmp;
         toolButtonsInit();
         init();
         renderLayerSelectButtons();

@@ -152,7 +152,6 @@ class FixedSpace3D {
         bool getKeyCommand();
         void setCorners(const int x0, const int y0, const int x1, const int y1);
         FixedMesh& mesh();
-        void setMesh(const Mesh& mesh);
 
     private:
         void callHandlerDrawer();

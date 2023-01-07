@@ -1587,10 +1587,6 @@ FixedMesh& FixedSpace3D::mesh() {
     return m_mesh;
 }
 
-void FixedSpace3D::setMesh(const Mesh& mesh) {
-    m_mesh = FixedMesh(mesh);
-}
-
 Point3D FixedSpace3D::rotateByCamera(const Point3D& pct) const {
     double xr = pct.x;
     double yr = pct.y;
