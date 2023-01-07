@@ -747,7 +747,7 @@ bool ObjectCreator::getDoubleClickCommand() {
 }
 
 
-FixedMesh ObjectCreator::run() {
+Mesh ObjectCreator::run() {
     initwindow(m_width, m_height, "Object creator", 300, 25, false, false);
     setvisualpage(0);
     setactivepage(1);
@@ -762,7 +762,7 @@ FixedMesh ObjectCreator::run() {
         }
     }
     closegraph(getcurrentwindow());
-    return m_workArea.mesh();
+    return Mesh(m_workArea.mesh());
 }
 
 const int& ObjectCreator::getCloseFlag() const {
