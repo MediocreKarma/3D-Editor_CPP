@@ -405,7 +405,6 @@ void ObjectCreator::mergeLayers(MyMap<int, LayerInfo>::iterator moving, MyMap<in
     m_selectedLayer = m_layers.find(destination->key);
     centerLayerButton();
     renderLayerSelectButtons();
-    addLayer();
 }
 
 void ObjectCreator::editLayer(const int layerIndex) {
