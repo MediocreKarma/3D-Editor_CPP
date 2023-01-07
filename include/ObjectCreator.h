@@ -16,8 +16,9 @@ class ObjectCreator {
         enum class Tool {
             NewPoint = 0, MovePoint, ConnectPoint, DeletePoint, CutLine
         };
-        ObjectCreator(const int& theme = 0);
-        ObjectCreator(const Mesh& editedMesh, const int& theme = 0);
+        ObjectCreator(const int& theme = 0, int language = 0);
+        ObjectCreator(const Mesh& editedMesh, const int& theme = 0,
+                      int language = 0);
         ObjectCreator(const ObjectCreator& other);
         ObjectCreator& operator = (const ObjectCreator& other);
         FixedMesh run();
@@ -28,6 +29,7 @@ class ObjectCreator {
         int m_width;
         int m_height;
         int m_theme;
+        int m_language;
 
         struct LayerInfo {
             MyHashMap<FixedMesh::iterator_type, CircularButton> data;
@@ -67,6 +69,7 @@ class ObjectCreator {
         MyArray<ImageButton, 1> m_layerTools; //yet to be used
         int m_closeFlag; //close w discard vs close w save
         TextButton m_discardButton, m_saveButton;
+        DropdownButton<4> m_generateButton;
 
         void init();
         void resetLine();
@@ -105,6 +108,7 @@ class ObjectCreator {
         Mesh generateCylinder(const unsigned int& height, const unsigned int& radius, const unsigned int& sides);
         Mesh generateCone(const unsigned int& height, const unsigned int& radius, const unsigned int& sides);
         Mesh generateSphere(const unsigned int& radius, const unsigned int& segments, const unsigned int& rings);
+        bool generate(int index);
 };
 
 #endif // OBJECTCREATOR_H

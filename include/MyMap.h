@@ -230,6 +230,7 @@ class MyMap {
 
         void clear() noexcept {
             clearHelper(m_root);
+            m_size = 0;
         }
 
         bool empty() const noexcept {

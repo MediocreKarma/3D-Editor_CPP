@@ -4,11 +4,11 @@
 
 const double pi = 3.1415926535897;
 
-ObjectCreator::ObjectCreator(const Mesh& mesh, const int& theme) :
-    m_width(1000), m_height(800), m_theme(theme), m_layers(), m_layerSelectButtons(), m_selectedLayer(), m_addLayerButton(), m_minimizedSpaceButton(), m_toolButtons(),
+ObjectCreator::ObjectCreator(const Mesh& mesh, const int& theme, int language) :
+    m_width(1000), m_height(800), m_theme(theme), m_language(language), m_layers(), m_layerSelectButtons(), m_selectedLayer(), m_addLayerButton(), m_minimizedSpaceButton(), m_toolButtons(),
     m_tool(Tool::MovePoint), workX0(26), workY0(26), workX1(800), workY1(800), m_workArea(theme, mesh, this),
     m_hovered(), m_assistLine(), m_assistLineDotted(false), m_layerScrollArrows(),
-    m_layerTools(), m_closeFlag(false), m_discardButton(), m_saveButton() {
+    m_layerTools(), m_closeFlag(false), m_discardButton(), m_saveButton(), m_generateButton() {
     toolButtonsInit();
     resetLine();
     m_workArea.setCorners(workX0, workY0, workX1, workY1);
@@ -16,15 +16,16 @@ ObjectCreator::ObjectCreator(const Mesh& mesh, const int& theme) :
 }
 
 /*ObjectCreator::ObjectCreator(const ObjectCreator& oc) :
-    m_theme(oc.m_theme), m_layers(oc.m_layers), m_layerSelectButtons(oc.m_layerSelectButtons), m_layerPointButtons(oc.m_layerPointButtons), m_layerAdjListIndex(oc.m_layerAdjListIndex),
+    m_theme(oc.m_theme), m_language(oc.m_language), m_layers(oc.m_layers), m_layerSelectButtons(oc.m_layerSelectButtons), m_layerPointButtons(oc.m_layerPointButtons), m_layerAdjListIndex(oc.m_layerAdjListIndex),
     m_addLayerButton(oc.m_addLayerButton), m_pointButtons(oc.m_pointButtons), m_minimizedSpaceButton(oc.m_minimizedSpaceButton), m_toolButtons(oc.m_toolButtons), m_tool(oc.m_tool),
     x0(oc.x0), y0(oc.y0), x1(oc.x1), y1(oc.y1), workX0(oc.workX0), workY0(oc.workY0), workX1(oc.workX1), workY1(oc.workY1), m_workArea(oc.m_workArea), m_workMesh(oc.m_workMesh),
     m_selectedLayer(oc.m_selectedLayer), m_hovered(oc.m_hovered), m_assistLine(oc.m_assistLine), m_assistLineDotted(oc.m_assistLineDotted),
     m_layerSelectsBegin(oc.m_layerSelectsBegin), m_layerSelectsEnd(oc.m_layerSelectsEnd), m_layerScrollArrows(oc.m_layerScrollArrows), m_layerTools(oc.m_layerTools), m_closeFlag(oc.m_closeFlag),
-    m_discardButton(oc.m_discardButton), m_saveButton(oc.m_saveButton){}
+    m_discardButton(oc.m_discardButton), m_saveButton(oc.m_saveButton), m_generateButton(oc.m_generateButton){}
 
 ObjectCreator& ObjectCreator::operator = (const ObjectCreator& oc) {
     m_theme = oc.m_theme;
+    m_language = oc.m_language;
     x0 = oc.x0, y0 = oc.y0, x1 = oc.x1, y1 = oc.y1;
     workX0 = oc.workX0, workY0 = oc.workY0, workX1 = oc.workX1, workY1 = oc.workY1;
     toolButtonsInit();
@@ -48,16 +49,21 @@ void ObjectCreator::toolButtonsInit() {
     filenames[(size_t)Tool::ConnectPoint] = "media\\buttonAddLine.gif";
     filenames[(size_t)Tool::DeletePoint] = "media\\buttonDelete.gif";
     filenames[(size_t)Tool::CutLine] = "media\\buttonLineCutter.gif";
-    size_t buttonSize = 32;
+    static const size_t TOOL_BTN_SIZE = 32;
     for (size_t i = 0; i < 5; ++i) {
-        m_toolButtons[i] = ImageButton(buttonSize / 2, 36 + buttonSize * i, buttonSize, buttonSize, filenames[i].data());
+        m_toolButtons[i] = ImageButton(TOOL_BTN_SIZE / 2, 24 + TOOL_BTN_SIZE / 2 + TOOL_BTN_SIZE * i, TOOL_BTN_SIZE, TOOL_BTN_SIZE, filenames[i].data());
     }
     m_layerSelectButtons.resize((m_height - 200) / 40 + ((m_height - 200) % 40 >= 20 ? 0 : -1));
     for (size_t i = 0; i < m_layerSelectButtons.size(); ++i) {
         m_layerSelectButtons[i].txtButton = TextButton(m_width - 100 - 1, 200 + 20 + i * 40, 200 - 1, 40, "");
     }
-    m_discardButton = TextButton(m_width - 200 - 40, 30 + 120, 60, 30, "Discard");
-    m_saveButton = TextButton(m_width - 200 - 40, 30 + 30 + 120, 60, 30, "Save");
+    m_discardButton = TextButton(60 / 2, 24 / 2, 60, 24, Language::Text[(int)Lang::Discard][m_language].data());
+    m_saveButton = TextButton(60 + 60 / 2, 24 / 2, 60, 24, Language::Text[(int)Lang::Save][m_language].data());
+    m_generateButton = DropdownButton<4>(160, 24 / 2, 80, 24, Language::Text[(int)Lang::Generate][m_language].data(), 80, 24 * 4);
+    m_generateButton.addOption(Language::Text[(int)Lang::Cube][m_language].data());
+    m_generateButton.addOption(Language::Text[(int)Lang::Cone][m_language].data());
+    m_generateButton.addOption(Language::Text[(int)Lang::Cylinder][m_language].data());
+    m_generateButton.addOption(Language::Text[(int)Lang::Sphere][m_language].data());
     //MyArray<MyArray<char, 128>, 1> layerFilenames;
     //pt cand o sa avem probabil tools precum Duplicate, Duplicate Linked, Draw Circle, Draw Rectangle
     //deocamdata este initializat un MyArray cu 1 imagebutton care nu i folosit la nimic
@@ -67,12 +73,18 @@ void ObjectCreator::init() {
     const int xCenter = (workX0 + workX1) / 2;
     const int yCenter = (workY0 + workY1) / 2;
     m_workArea.render();
+    m_layers.clear();
     for (FixedMesh::iterator_type it = m_workArea.mesh().begin(); it != m_workArea.mesh().end(); ++it) {
         CircularButton layerPointButton = CircularButton(xCenter + it->point.x, yCenter - it->point.y, 5);
         m_layers[it->point.z].data.insert(it, layerPointButton);
     }
     size_t i = 0;
     auto it = m_layers.begin();
+    while (i < m_layerSelectButtons.size()) {
+        m_layerSelectButtons[i].it = MyMap<int, LayerInfo>::iterator();
+        ++i;
+    }
+    i = 0;
     while (i < m_layers.size() && i < m_layerSelectButtons.size()) {
         m_layerSelectButtons[i].it = it++;
         ++i;
@@ -140,6 +152,10 @@ void ObjectCreator::drawToolButtons() {
     }
     m_discardButton.drawTextButton(3, 1, LIGHTGRAY);
     m_saveButton.drawTextButton(3, 1, LIGHTGRAY);
+    if (m_generateButton.isListVisible()) {
+        m_generateButton.showList(3, 1, LIGHTGRAY, false);
+    }
+    m_generateButton.drawTextButton(3, 1, LIGHTGRAY);
 }
 
 void ObjectCreator::drawSelectLayers() {
@@ -173,7 +189,7 @@ void ObjectCreator::renderLayerSelectButtons() {
         if (!data.it) {
             continue;
         }
-        MyArray<char, 32> layerLevel = itoa(data.it->key, "Layer Z: ");
+        MyArray<char, 32> layerLevel = itoa(data.it->key, Language::Text[(int)Lang::Layer_Z][m_language].data());
         data.txtButton.modifyText(layerLevel.data());
     }
 }
@@ -257,10 +273,10 @@ void ObjectCreator::drawPointData() {
     setcolor(ColorSchemes::themeColors[m_theme][ColorSchemes::SECONDARYCOLOR]);
     rectangle(730, 30, 790, 120);
     setbkcolor(ColorSchemes::themeColors[m_theme][ColorSchemes::PRIMARYCOLOR]);
-    MyArray<char, 32> headerText = "Point: ",
-                        xPosText = itoa(p.x, "x: "),
-                        yPosText = itoa(p.y, "y: "),
-                        zPosText = itoa(p.z, "z: ");
+    MyArray<char, 32> headerText = Language::Text[(int)Lang::Point][m_language],
+                        xPosText = itoa(p.x, "X: "),
+                        yPosText = itoa(p.y, "Y: "),
+                        zPosText = itoa(p.z, "Z: ");
     outtextxy(735, 35, headerText.data());
     outtextxy(735, 55, xPosText.data());
     outtextxy(735, 75, yPosText.data());
@@ -301,7 +317,7 @@ void ObjectCreator::draw() {
         drawLayerView();
         setbkcolor(ColorSchemes::themeColors[m_theme][ColorSchemes::PRIMARYCOLOR]);
         setcolor(ColorSchemes::themeColors[m_theme][ColorSchemes::SECONDARYCOLOR]);
-        outtextxy(0, 3, itoa(m_selectedLayer->key, "Current layer: ").data());
+        outtextxy(0, 3, itoa(m_selectedLayer->key, Language::Text[(int)Lang::Current_Layer][m_language].data()).data());
         m_minimizedSpaceButton.drawLabel(LIGHTGRAY, ColorSchemes::themeColors[m_theme][ColorSchemes::ACCENTCOLOR]);
     }
     if (m_hovered) {
@@ -606,12 +622,20 @@ bool ObjectCreator::getClickCommand() {
 
 bool ObjectCreator::getClickCommand(const int x, const int y) {
     if (x == -1) {
-        //nu prea ne intereseaza outcomeul;
-        //oricum se apeleaza callHandlerDrawer
-        //in checkCamMovement daca e nevoie
         return m_workArea.getKeyCommand();
     }
-    //is doar 2 dar e mai cute asa decat 2 ifuri
+    if (m_generateButton.isListVisible()) {
+        if (m_generateButton.listHitCollision(x, y) > -1) {
+            bool index = m_generateButton.listHitCollision(x, y);
+            m_generateButton.setVisibility(false);
+            return generate(index);
+        }
+    }
+    if (m_generateButton.hitCollision(x, y)) {
+        bool visible = m_generateButton.isListVisible();
+        m_generateButton.setVisibility(!visible);
+        return true;
+    }
     for (size_t i = 0; i < m_layerScrollArrows.size(); ++i) {
         if (m_layerScrollArrows[i].hitCollision(x, y)) {
             clearmouseclick(WM_LBUTTONUP);
@@ -684,9 +708,6 @@ bool ObjectCreator::getClickCommand(const int x, const int y) {
             }
         }
         if (m_workArea.getCommand(x, y)) {
-            //tot ce se poate intampla in workArea este rotirea camerei
-            //moment in care se apeleaza callHandlerDrawer
-            //unde inclusiv meniul objectcreatorului este apelat
             return false;
         }
         if (m_workArea.insideWorkArea(x, y) && m_tool == Tool::CutLine) {
@@ -834,6 +855,7 @@ Mesh ObjectCreator::generateCylinder(const unsigned int& height, const unsigned 
 Mesh ObjectCreator::generateSphere(const unsigned int& radius, const unsigned int& segments, const unsigned int& rings) {
     //chose UV sphere for clear layer separation -> easier editing in ObjCreator
     //higher density near poles isn't our problem, we aren't even dealing with UVs
+    //mi ai zis prea tarziu de fete ca sa mai facem si asta:))))
     Mesh sphere = Mesh();
     sphere.addPoint(0, 0, radius);
     size_t verticalPredIndex = 0;
@@ -869,4 +891,62 @@ Mesh ObjectCreator::generateSphere(const unsigned int& radius, const unsigned in
         sphere.addEdge(sphere.size() - 1, sphere.size() - 1 - i);
     }
     return sphere;
+}
+
+bool ObjectCreator::generate(int index) {
+    int getCurrentWindowNumber = getcurrentwindow();
+    int helpWindow = initwindow(300, 200, Language::Text[(int)Lang::Generate][m_language].data(), getmaxwidth() / 2 - 150, getmaxheight() / 2 - 100, false, false);
+    setcurrentwindow(helpWindow);
+    setbkcolor(WHITE);
+    bar(0, 0, 800, 600);
+    setcolor(BLACK);
+    outtextxy(0, 35, MyArray<char, 32>("deocamdata doar genereaza o sfera intr un if").data());
+    outtextxy(0, 60, MyArray<char, 32>("gasesti mai jos in cod").data());
+    TextButton backButton(45, 150, 60, 30, Language::Text[(int)Lang::Discard][m_language].data());
+    backButton.drawTextButton(0, 0, LIGHTGRAY);
+    TextButton generateButton(105, 150, 60, 30, Language::Text[(int)Lang::Generate][m_language].data());
+    generateButton.drawTextButton(0, 0, LIGHTGRAY);
+    int saveFlag = 0;
+    while (true) {
+        if (kbhit()) {
+            char c = getch();
+            if (c == 27) {
+                break;
+            }
+        }
+        else if(ismouseclick(WM_LBUTTONDOWN)) {
+            int x_, y_;
+            getmouseclick(WM_LBUTTONDOWN, x_, y_);
+            if (backButton.hitCollision(x_, y_)) {
+                break;
+            }
+            else if(generateButton.hitCollision(x_, y_)) {
+                saveFlag = 1;
+                break;
+            }
+        }
+    }
+
+    if (saveFlag) {
+        Mesh tmp = generateSphere(100, 10, 10);
+        /*daca vrei sa verifici cum arata meshu Mesh generat
+        std::cout<<"\n\nCONNECTIONS in MESH\n";
+        for(size_t i = 0; i < tmp.size(); ++i) {
+            tmp[i].display();
+            std::cout<<" - ";
+            for (auto& pnt : tmp.adjListAt(i)) {
+                tmp[pnt].display(false);
+                std::cout<<"; ";
+            }
+            std::cout<<"\n\n";
+        }*/
+        m_workArea.setMesh(tmp);
+        toolButtonsInit();
+        init();
+        renderLayerSelectButtons();
+        resetLine();
+    }
+    closegraph(helpWindow);
+    setcurrentwindow(getCurrentWindowNumber);
+    return true;
 }

@@ -10,16 +10,12 @@ namespace ColorSchemes {
     static const int SECONDARYCOLOR = 1;
     static const int ACCENTCOLOR = 2;
     static const int ACCENTCOLOR_COUNT = 5;
-    //only works for RGB values; used for highlighting purposes
     int mixColors(int color1, int color2, uint8_t percentage);
     static const MyArray<int, ACCENTCOLOR_COUNT> accentColors = {
-        /*RED, BLUE, PINK, YELLOW, GREEN - RGB values to use with above function*/
+        /*RED, BLUE, PINK, YELLOW, GREEN*/
         RGB(219, 43, 57), RGB(110, 68, 255), RGB(249, 145, 204), RGB(233, 196, 106), RGB(42, 157, 143)
     };
     static const MyArray<MyArray<int, 3>, ACCENTCOLOR_COUNT * 2> themeColors = {
-        //cand se schimba accentColor se va trece defapt la a doua jumatate a lu themeColors
-        //ca sa nu mai schimbam in alte parti, si sa pastram oricum un singur index pt m_theme
-
         /*LIGHT MODE*/{WHITE, BLACK, accentColors[0]}, {WHITE, BLACK, accentColors[1]}, {WHITE, BLACK, accentColors[2]},
                       {WHITE, BLACK, accentColors[3]}, {WHITE, BLACK, accentColors[4]},
         /*DARK MODE */{BLACK, WHITE, accentColors[0]}, {BLACK, WHITE, accentColors[1]}, {BLACK, WHITE, accentColors[2]},
@@ -30,16 +26,19 @@ namespace ColorSchemes {
 
 enum class Lang {
     File = 0, New, Open, Save, Save_As, Settings, Mesh, Help, Scale, Rotation, Position, New_Mesh, Edit_Mesh, Reset_Transforms, Delete_Mesh,
-    Switch_Local, Switch_Global, Layer_Z, Discard
+    Switch_Local, Switch_Global, Layer_Z, Discard, Back, Point, Current_Layer, Generate, Cube, Cone, Cylinder, Sphere
 };
 namespace Language {
     static const int RO = 0;
     static const int EN = 1;
-    static const MyArray<MyArray<MyArray<char, 32>, 2>, 19> Text {
-        {"Fisier", "File"}, {"Nou", "New"}, {"Deschide", "Open"}, {"Salveaza", "Save"}, {"Salveaza ca", "Save as"}, {"Setari", "Settings"}, {"Obiect", "Mesh"},
+    static const int TEXT_SIZE = 27;
+    static const MyArray<MyArray<MyArray<char, 32>, 2>, TEXT_SIZE> Text {
+        {"Fisier", "File"}, {"Nou", "New"}, {"Deschidere", "Open"}, {"Salvare", "Save"}, {"Salveaza ca", "Save as"}, {"Setari", "Settings"}, {"Obiect", "Mesh"},
         {"Ajutor", "Help"}, {"Scalare", "Scale"}, {"Rotatie", "Rotation"}, {"Pozitie", "Position"}, {"Obiect nou", "New mesh"}, {"Editare obiect", "Edit mesh"},
         {"Reset transformari", "Reset transforms"}, {"Sterge obiect", "Delete mesh"}, {"Trecere transformare locala", "Switch to local transform"},
-        {"Trecere transformare globala", "Switch to global transform"}, {"Strat Z: ", "Layer Z: "}, {"Anulare", "Discard"}
+        {"Trecere transformare globala", "Switch to global transform"}, {"Strat Z: ", "Layer Z: "}, {"Anulare", "Discard"}, {"Inapoi", "Back"},
+        {"Punct", "Point"}, {"Strat curent", "Current layer"}, {"Generare", "Generate"}, {"Cub", "Cube"}, {"Con", "Cone"}, {"Cilindru", "Cylinder"},
+        {"Sfera", "Sphere"},
     };
 }
 

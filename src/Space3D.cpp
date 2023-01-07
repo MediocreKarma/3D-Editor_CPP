@@ -802,7 +802,7 @@ bool Space3D::getCommand(const int& x, const int& y) {
             //Point3D center(m_meshes[m_selected].centerPoint());
             //Quaternion quat = aux.quat();
             aux.resetTransforms();
-            ObjectCreator objCreator(aux, m_theme);
+            ObjectCreator objCreator(aux, m_theme, m_language);
             objCreator.run();
             /*if (objCreator.getCloseFlag() == 2) {
                 aux.rotateByUnitQuat(quat);
@@ -838,7 +838,7 @@ bool Space3D::getCommand(const int& x, const int& y) {
                 break;
             case 1:
                 int getCurrentWindowNumber = getcurrentwindow();
-                /*ObjectCreator objCreator(m_theme);
+                /*ObjectCreator objCreator(m_theme, m_language);
                 Mesh aux;
                 FixedMesh result = objCreator.run();
                 aux = result;
@@ -1585,6 +1585,10 @@ bool FixedSpace3D::checkAxisRotation(const int x, const int y) {
 
 FixedMesh& FixedSpace3D::mesh() {
     return m_mesh;
+}
+
+void FixedSpace3D::setMesh(const Mesh& mesh) {
+    m_mesh = FixedMesh(mesh);
 }
 
 Point3D FixedSpace3D::rotateByCamera(const Point3D& pct) const {
