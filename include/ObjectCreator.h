@@ -21,7 +21,7 @@ class ObjectCreator {
                       int language = 0);
         ObjectCreator(const ObjectCreator& other);
         ObjectCreator& operator = (const ObjectCreator& other);
-        Mesh run();
+        FixedMesh run();
         void draw();
         const int& getCloseFlag() const;
 

@@ -81,14 +81,11 @@ class Section {
         bool m_active;
 };
 
-struct IntegerPoint3D;
-
 struct Point3D {
     Point3D();
     Point3D(const double& x_, const double& y_, const double& z_);
     Point3D(const Point3D& pct);
     Point3D(const MyArray<double, 3>& arr);
-    Point3D(const IntegerPoint3D& other);
     double getX() const;
     double getY() const;
     double getZ() const;
@@ -179,7 +176,7 @@ class Mesh {
         Mesh();
         Mesh(const MyVector<Point3D>& points, const MyVector<MyVector<size_t>>& adjList);
         Mesh(const Mesh& other);
-        Mesh(FixedMesh other);
+        Mesh& operator = (const FixedMesh& other);
 
         size_t size() const;
         void erase(const size_t& index);
@@ -270,11 +267,9 @@ class FixedMesh {
 
     public:
         using iterator_type = MyList<ListContainer>::iterator;
-        using const_iterator_type = MyList<ListContainer>::const_iterator;
 
         FixedMesh();
         FixedMesh(const Mesh& other);
-        FixedMesh(const FixedMesh& other);
         void addEdge(const IntegerPoint3D& x, const IntegerPoint3D& y);
         void addEdge(iterator_type it1, iterator_type it2);
         void addPoint(const IntegerPoint3D& x);
@@ -290,17 +285,16 @@ class FixedMesh {
         void draw2DLinesFrom(iterator_type it, const char staticLayer);
         void updatePointValue(iterator_type point, const IntegerPoint3D& newValue);
         bool cutLines(const Line2D cuttingLine);
-        bool contains(const IntegerPoint3D& point) const;
         iterator_type begin();
         iterator_type end();
         iterator_type find(const IntegerPoint3D& x);
         iterator_type hitCollisionIterator(const int x, const int y);
-        size_t size() const;
+        size_t size();
+        bool contains(const IntegerPoint3D& x) const;
         size_t countConnections(const IntegerPoint3D& x);
         size_t countConnections(iterator_type it);
         const MyHashSet<iterator_type>& adjacentPoints(const IntegerPoint3D& x);
         const MyHashSet<iterator_type>& adjacentPoints(iterator_type);
-        MyVector<MyVector<size_t>> adjListConversion();
 
     private:
         MyList<ListContainer> m_points;
