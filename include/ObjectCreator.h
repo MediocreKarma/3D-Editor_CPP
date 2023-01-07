@@ -20,7 +20,7 @@ class ObjectCreator {
         ObjectCreator(const Mesh& editedMesh, const int& theme = 0);
         ObjectCreator(const ObjectCreator& other);
         ObjectCreator& operator = (const ObjectCreator& other);
-        FixedMesh run();
+        Mesh run();
         void draw();
         const int& getCloseFlag() const;
 
