@@ -1,23 +1,25 @@
-EDITOR 3D este un program scris in C++ folosind libraria graphics.h, in care poti crea, edita si vizualiza
-forme 3D, atat forme simple cat si unele mai complicate.
+EDITOR 3D este un program scris in C++ folosind libraria graphics.h, in care se pot crea, edita si vizualiza
+obiecte 3D, atat simple cat si mai complicate.
 \Controale in Vizualizator:
 -Creaza un spatiu nou, salveaza-l, sau deschide spatii-exemplu din directorul "spaces" prin apasarea butonului
 "Fisier" si selectarea optiunii potrivite
 -Miscarea camerei se face din tastele WASD, schimbarea FOV se face din tastele Z si X
--Selectarea unei forme se face prin clic pe centrul ei (un buton circular)
--Meniul corespunzator formei se acceseaza prin clic-dreapta pe centru; cel al spatiului prin clic-dreapta
+-Selectarea unui obiect se face prin clic pe centrul ei (pe butonul circular)
+-Meniul corespunzator obiectului se acceseaza prin clic-dreapta pe centrul sau; cel al spatiului prin clic-dreapta
 oriunde altundeva pe ecran
--Scalarea se realizeaza ori din meniul formei, ori prin apasarea tastei F
--Translatia se face ori folosind cele 3 sageti care apar in momentul selectarii unei forme, ori prin tasta G
+-Scalarea se realizeaza ori din meniul obiectului, ori prin apasarea tastei F
+-Translatia se face ori folosind cele 3 sageti care apar in momentul selectarii unui obiect, ori prin tasta G
 -Rotatia se face prin apasarea Spinball-ului (dreapta-sus, dupa selectare) si tragerea de-a lungul oricaruia
 dintre cele 3 butoane-cerc, corespunzatoare celor 3 axe
--Trecerea de la transformari globale la transformari locale se face ori prin meniul formei, ori prin tasta L
--Adaugarea unei forme se face din meniul spatiului, iar editarea unei forme din meniul formei
-\Controale in Object Creator:
+-Trecerea de la transformari globale la transformari locale se face ori prin meniul obiectului, ori prin tasta L
+-Adaugarea unui obiect nou se face din meniul spatiului, iar editarea unui obiect se acceseaza din propriul meniu
+
+\Controale in Creatorul de obiecte:
 -Apasarea pe un strat activeaza modul 2D, unde pot fi vizualizate componentele unui singur strat
 -Dublu-click pe strat pentru a-i schimba inaltimea
 -Apasarea unuia dintre butoanele de unelte din stanga-sus schimba unealta curenta (Punct Nou, Misca, Adauga
 Linie, Sterge Punct, Sterge Linie)
 -Miscarea unui punct se face prin a trage de el in modul 2D, tragerea oriunde altundeva misca intregul plan 2D
 -Trecerea inapoi la modul 3D se face prin apasarea butonului din dreapta-sus
-\Proiect realizat de Matei Chirvasa si Sabina Prodan, studenti in anul I la FII, UAIC
+-Generarea unui obiect predefinit se face din dropdown-ul Generare din stanga-sus
+\Proiect realizat de Matei Chirvasa si Sabina Prodan, studenti in anul I la FII, UAIC.

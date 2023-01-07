@@ -179,7 +179,7 @@ class Mesh {
         Mesh();
         Mesh(const MyVector<Point3D>& points, const MyVector<MyVector<size_t>>& adjList);
         Mesh(const Mesh& other);
-        Mesh(FixedMesh other);
+        Mesh(FixedMesh& other);
 
         size_t size() const;
         void erase(const size_t& index);
@@ -275,6 +275,7 @@ class FixedMesh {
         FixedMesh();
         FixedMesh(const Mesh& other);
         FixedMesh(const FixedMesh& other);
+        FixedMesh& operator = (const FixedMesh& rhs);
         void addEdge(const IntegerPoint3D& x, const IntegerPoint3D& y);
         void addEdge(iterator_type it1, iterator_type it2);
         void addPoint(const IntegerPoint3D& x);

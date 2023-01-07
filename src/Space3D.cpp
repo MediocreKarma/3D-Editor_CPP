@@ -181,6 +181,9 @@ void Space3D::fprint(FILE* fp) {
 void Space3D::run() {
     draw();
     drawRotationArrows();
+    if (m_selected != -1) {
+        drawGizmo();
+    }
     if (m_meshMenuVisible) {
         struct linesettingstype oldSettings;
         getlinesettings(&oldSettings);
@@ -196,7 +199,6 @@ void Space3D::run() {
         setlinestyle(oldSettings.linestyle, oldSettings.upattern, oldSettings.thickness);
     }
     if (m_selected != -1) {
-        drawGizmo();
         showMeshInfoPanel();
         drawSpinball();
         if (m_spinballSelected) {
@@ -802,7 +804,7 @@ bool Space3D::getCommand(const int& x, const int& y) {
             Point3D center(m_meshes[m_selected].centerPoint());
             Quaternion quat = aux.quat();
             aux.resetTransforms();
-            ObjectCreator objCreator(aux, m_theme);
+            ObjectCreator objCreator(aux, m_theme, m_language);
             aux = objCreator.run();
             if (objCreator.getCloseFlag() == 2) {
                 aux.rotateByUnitQuat(quat);
@@ -839,13 +841,13 @@ bool Space3D::getCommand(const int& x, const int& y) {
                 break;
             case 1:
                 int getCurrentWindowNumber = getcurrentwindow();
-                /*ObjectCreator objCreator(m_theme, m_language);
                 Mesh aux;
+                ObjectCreator objCreator(aux, m_theme, m_language);
                 FixedMesh result = objCreator.run();
                 aux = result;
                 if (objCreator.getCloseFlag() == 2) {
                     addMesh(aux);
-                }*/
+                }
                 setcurrentwindow(getCurrentWindowNumber);
                 break;
         }

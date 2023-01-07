@@ -26,19 +26,22 @@ namespace ColorSchemes {
 
 enum class Lang {
     File = 0, New, Open, Save, Save_As, Settings, Mesh, Help, Scale, Rotation, Position, New_Mesh, Edit_Mesh, Reset_Transforms, Delete_Mesh,
-    Switch_Local, Switch_Global, Layer_Z, Discard, Back, Point, Current_Layer, Generate, Cube, Cone, Cylinder, Sphere
+    Switch_Local, Switch_Global, Layer_Z, Discard, Back, Point, Current_Layer, Generate, Cube, Cone, Cylinder, Sphere, Length, Radius, Sides, Height,
+    Segments, Rings, Save_Space, Enter_Save_Path, Open_Space, Enter_Open_Path, Object_Creator
 };
 namespace Language {
     static const int RO = 0;
     static const int EN = 1;
-    static const int TEXT_SIZE = 27;
+    static const int TEXT_SIZE = 45;
     static const MyArray<MyArray<MyArray<char, 32>, 2>, TEXT_SIZE> Text {
         {"Fisier", "File"}, {"Nou", "New"}, {"Deschidere", "Open"}, {"Salvare", "Save"}, {"Salveaza ca", "Save as"}, {"Setari", "Settings"}, {"Obiect", "Mesh"},
         {"Ajutor", "Help"}, {"Scalare", "Scale"}, {"Rotatie", "Rotation"}, {"Pozitie", "Position"}, {"Obiect nou", "New mesh"}, {"Editare obiect", "Edit mesh"},
         {"Reset transformari", "Reset transforms"}, {"Sterge obiect", "Delete mesh"}, {"Trecere transformare locala", "Switch to local transform"},
         {"Trecere transformare globala", "Switch to global transform"}, {"Strat Z: ", "Layer Z: "}, {"Anulare", "Discard"}, {"Inapoi", "Back"},
         {"Punct", "Point"}, {"Strat curent", "Current layer"}, {"Generare", "Generate"}, {"Cub", "Cube"}, {"Con", "Cone"}, {"Cilindru", "Cylinder"},
-        {"Sfera", "Sphere"},
+        {"Sfera", "Sphere"}, {"Lungime", "Length"}, {"Raza", "Radius"}, {"Laturi", "Sides"}, {"Inaltime", "Height"}, {"Segmente", "Segments"}, {"Inele", "Rings"},
+        {"Salvare spatiu", "Save space"}, {"Scrie calea de salvare:", "Enter save path:"}, {"Deschidere spatiu", "Open space"},
+        {"Scrie calea spatiului:", "Enter open path:"}, {"Creator obiecte", "Object Creator"}
     };
 }
 

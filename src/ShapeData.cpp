@@ -458,7 +458,7 @@ Mesh::Mesh(const Mesh& other) :
     m_points(other.m_points), m_adjList(other.m_adjList), m_centerPoint(other.m_centerPoint), m_angleX(other.m_angleX), m_angleY(other.m_angleY), m_angleZ(other.m_angleZ), m_quat(other.m_quat),
     m_scaleX(other.m_scaleX), m_scaleY(other.m_scaleY), m_scaleZ(other.m_scaleZ){}
 
-Mesh::Mesh(FixedMesh other) : Mesh() {
+Mesh::Mesh(FixedMesh& other) : Mesh() {
     m_points.resize(other.size());
     size_t i = 0;
     for (auto pointInfo : other) {
@@ -1034,6 +1034,24 @@ FixedMesh::FixedMesh(const FixedMesh& other) :
             addEdge(m_pointIterators[node.key->point], m_pointIterators[it->point]);
         }
     }
+}
+
+FixedMesh& FixedMesh::operator = (const FixedMesh& rhs) {
+    m_points.clear();
+    m_pointIterators.clear();
+    m_adjList.clear();
+    for (const auto& node : rhs.m_points) {
+        m_points.emplace_back(node.point, node.button2d);
+    }
+    for (auto it = m_points.begin(); it != m_points.end(); ++it) {
+        m_pointIterators[it->point] = it;
+    }
+    for (auto node : rhs.m_adjList) {
+        for (iterator_type it : node.value) {
+            addEdge(m_pointIterators[node.key->point], m_pointIterators[it->point]);
+        }
+    }
+    return *this;
 }
 
 void FixedMesh::addEdge(const IntegerPoint3D& x, const IntegerPoint3D& y) {

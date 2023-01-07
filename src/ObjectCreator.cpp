@@ -59,7 +59,7 @@ void ObjectCreator::toolButtonsInit() {
     }
     m_discardButton = TextButton(60 / 2, 24 / 2, 60, 24, Language::Text[(int)Lang::Discard][m_language].data());
     m_saveButton = TextButton(60 + 60 / 2, 24 / 2, 60, 24, Language::Text[(int)Lang::Save][m_language].data());
-    m_generateButton = DropdownButton<4>(160, 24 / 2, 80, 24, Language::Text[(int)Lang::Generate][m_language].data(), 80, 24 * 4);
+    m_generateButton = DropdownButton<4>(120 + 35, 24 / 2, 70, 24, Language::Text[(int)Lang::Generate][m_language].data(), 70, 24 * 4);
     m_generateButton.addOption(Language::Text[(int)Lang::Cube][m_language].data());
     m_generateButton.addOption(Language::Text[(int)Lang::Cone][m_language].data());
     m_generateButton.addOption(Language::Text[(int)Lang::Cylinder][m_language].data());
@@ -626,7 +626,7 @@ bool ObjectCreator::getClickCommand(const int x, const int y) {
     }
     if (m_generateButton.isListVisible()) {
         if (m_generateButton.listHitCollision(x, y) > -1) {
-            bool index = m_generateButton.listHitCollision(x, y);
+            int index = m_generateButton.listHitCollision(x, y);
             m_generateButton.setVisibility(false);
             return generate(index);
         }
@@ -768,7 +768,7 @@ bool ObjectCreator::getDoubleClickCommand() {
 }
 
 Mesh ObjectCreator::run() {
-    initwindow(m_width, m_height, "Object creator", 300, 25, false, false);
+    initwindow(m_width, m_height, Language::Text[(int)Lang::Object_Creator][m_language].data(), 300, 25, false, false);
     setvisualpage(0);
     setactivepage(1);
     m_closeFlag = false;
@@ -894,18 +894,70 @@ Mesh ObjectCreator::generateSphere(const unsigned int& radius, const unsigned in
 
 bool ObjectCreator::generate(int index) {
     int getCurrentWindowNumber = getcurrentwindow();
-    int helpWindow = initwindow(300, 200, Language::Text[(int)Lang::Generate][m_language].data(), getmaxwidth() / 2 - 150, getmaxheight() / 2 - 100, false, false);
+    int helpWindow = initwindow(300, 200, Language::Text[(int)Lang::Cube + index][m_language].data(), getmaxwidth() / 2 - 150, getmaxheight() / 2 - 100, false, false);
     setcurrentwindow(helpWindow);
     setbkcolor(WHITE);
     bar(0, 0, 800, 600);
     setcolor(BLACK);
-    outtextxy(0, 35, MyArray<char, 32>("deocamdata doar genereaza o sfera intr un if").data());
-    outtextxy(0, 60, MyArray<char, 32>("gasesti mai jos in cod").data());
-    TextButton backButton(45, 150, 60, 30, Language::Text[(int)Lang::Discard][m_language].data());
+    TextButton backButton(58, 160, 60, 30, Language::Text[(int)Lang::Discard][m_language].data());
     backButton.drawTextButton(0, 0, LIGHTGRAY);
-    TextButton generateButton(105, 150, 60, 30, Language::Text[(int)Lang::Generate][m_language].data());
+    TextButton generateButton(140, 160, 70, 30, Language::Text[(int)Lang::Generate][m_language].data());
     generateButton.drawTextButton(0, 0, LIGHTGRAY);
-    int saveFlag = 0;
+    MyArray<unsigned int, 3> params;
+    Mesh tmp();
+    params[0] = 200;
+    params[1] = 100;
+    params[2] = 12;
+    if (index == 3) {
+        params[0] = 200;
+        params[1] = 12;
+        params[2] = 12;
+    }
+    MyArray<TextButton, 3> paramBoxes;
+    MyArray<TextLabel, 3> paramLabels;
+    if (index == 0) {
+        MyArray<char, 32> tmp;
+        tmp = itoa(params[0], "");
+        paramBoxes[0] = TextButton(160 + 50, 55 + 15, 100, 20, tmp.data());
+    }
+    else {
+        MyArray<char, 32> tmp;
+        tmp = itoa(params[0], "");
+        paramBoxes[0] = TextButton(160 + 50, 15 + 15, 100, 20, tmp.data());
+        tmp = itoa(params[1], "");
+        paramBoxes[1] = TextButton(160 + 50, 55 + 15, 100, 20, tmp.data());
+        tmp = itoa(params[2], "");
+        paramBoxes[2] = TextButton(160 + 50, 95 + 15, 100, 20, tmp.data());
+    }
+    switch (index) {
+        case 0: {
+            paramLabels[0] = TextLabel(30 + 50, 55 + 15, 100, 20,  Language::Text[(int)Lang::Length][m_language].data());
+            break;
+        }
+        case 1: {
+            paramLabels[0] = TextLabel(30 + 50, 15 + 15, 100, 20,  Language::Text[(int)Lang::Height][m_language].data());
+            paramLabels[1] = TextLabel(30 + 50, 55 + 15, 100, 20,  Language::Text[(int)Lang::Radius][m_language].data());
+            paramLabels[2] = TextLabel(30 + 50, 95 + 15, 100, 20,  Language::Text[(int)Lang::Sides][m_language].data());
+            break;
+        }
+        case 2: {
+            paramLabels[0] = TextLabel(30 + 50, 15 + 15, 100, 20,  Language::Text[(int)Lang::Height][m_language].data());
+            paramLabels[1] = TextLabel(30 + 50, 55 + 15, 100, 20,  Language::Text[(int)Lang::Radius][m_language].data());
+            paramLabels[2] = TextLabel(30 + 50, 95 + 15, 100, 20,  Language::Text[(int)Lang::Sides][m_language].data());
+            break;
+        }
+        case 3: {
+            paramLabels[0] = TextLabel(30 + 50, 15 + 15, 100, 20,  Language::Text[(int)Lang::Radius][m_language].data());
+            paramLabels[1] = TextLabel(30 + 50, 55 + 15, 100, 20,  Language::Text[(int)Lang::Segments][m_language].data());
+            paramLabels[2] = TextLabel(30 + 50, 95 + 15, 100, 20,  Language::Text[(int)Lang::Rings][m_language].data());
+            break;
+        }
+    }
+    for (size_t i = 0; (index == 0) ? (i < 1) : (i < 3); ++i) {
+        paramBoxes[i].drawTextButton(0, 0, LIGHTGRAY, false);
+        paramLabels[i].drawTextLabel(0, 0, LIGHTGRAY);
+    }
+    bool saveFlag = 0;
     while (true) {
         if (kbhit()) {
             char c = getch();
@@ -919,15 +971,31 @@ bool ObjectCreator::generate(int index) {
             if (backButton.hitCollision(x_, y_)) {
                 break;
             }
-            else if(generateButton.hitCollision(x_, y_)) {
-                saveFlag = 1;
+            if (generateButton.hitCollision(x_, y_)) {
+                saveFlag = true;
                 break;
+            }
+            for (size_t i = 0; (index == 0) ? (i < 1) : (i < 3); ++i)  {
+                if (paramBoxes[i].hitCollision(x_, y_)) {
+                    auto& btnRef = paramBoxes[i];
+                    NumericInputBox txtBox(btnRef.getXCenter() - btnRef.getXLen() / 2 + 6,
+                                           btnRef.getXCenter() + btnRef.getXLen() / 2 - 6,
+                                           btnRef.getYCenter(), BLACK, LIGHTGRAY);
+                    int result = txtBox.getIntegerValue();
+                    if (result > 0 && result < 1000 && !txtBox.isEmpty()) {
+                        params[i] = result;
+                    }
+                    MyArray<char, 32> tmpText;
+                    tmpText = itoa(params[i], "");
+                    int xCenter = paramBoxes[i].getXCenter(), yCenter = paramBoxes[i].getYCenter(),
+                        xLen = paramBoxes[i].getXLen(), yLen = paramBoxes[i].getYLen();
+                    paramBoxes[i] = TextButton(xCenter, yCenter, xLen, yLen, tmpText.data());
+                    paramBoxes[i].drawTextButton(0, 0, LIGHTGRAY, false);
+                }
             }
         }
     }
-
     if (saveFlag) {
-        Mesh tmp = generateSphere(100, 10, 10);
         /*daca vrei sa verifici cum arata meshu Mesh generat
         std::cout<<"\n\nCONNECTIONS in MESH\n";
         for(size_t i = 0; i < tmp.size(); ++i) {
@@ -939,7 +1007,23 @@ bool ObjectCreator::generate(int index) {
             }
             std::cout<<"\n\n";
         }*/
-        m_workArea.mesh() = tmp;
+        Mesh tmp;
+        switch(index) {
+            case 0:
+                tmp = generateCube(params[0]);
+                break;
+            case 1:
+                tmp = generateCone(params[0], params[1], params[2]);
+                break;
+            case 2:
+                tmp = generateCylinder(params[0], params[1], params[2]);
+                break;
+            case 3:
+                tmp = generateSphere(params[0], params[1], params[2]);
+                break;
+            default:;
+        }
+        m_workArea.mesh() = FixedMesh(tmp);
         toolButtonsInit();
         init();
         renderLayerSelectButtons();

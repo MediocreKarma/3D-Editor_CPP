@@ -12,15 +12,17 @@ class FileHandler {
         static const int WriteAreaBegin = 100;
         static const int WriteAreaEnd = 500;
 
-        FileHandler();
+        FileHandler(int language = 0);
         MyArray<char, 512> userSavePath();
         MyArray<char, 512> userOpenPath();
+        void setLanguage(int language);
 
     private:
         int m_width;
         int m_height;
         TextInputBox txtBox;
         ImageButton m_xButton;
+        int m_language;
 
         void initSaveWindow();
         void initOpenWindow();

@@ -4,7 +4,7 @@
 Menu::Menu(const int& theme, int language, const int& appWidth, const int& appHeight) :
     x1(), y1(), x2(), y2(), m_appWidth(appWidth), m_appHeight(appHeight), m_theme(theme), m_language(language), m_fileButton(40, 13, 80, 26, Language::Text[(int)Lang::File][m_language].data(), 120, 80),
     m_settingsButton(130, 13, 100, 26, Language::Text[(int)Lang::Settings][m_language].data()), m_helpButton(210, 13, 60, 26, Language::Text[(int)Lang::Help][m_language].data(), 80, 80),
-    m_space(-2500, m_theme, m_language, this), m_fileGetter(), m_settingsMenuFlag(false) {
+    m_space(-2500, m_theme, m_language, this), m_fileGetter(language), m_settingsMenuFlag(false) {
     m_fileButton.addOption(Language::Text[(int)Lang::New][m_language].data());
     m_fileButton.addOption(Language::Text[(int)Lang::Save][m_language].data());
     m_fileButton.addOption(Language::Text[(int)Lang::Save_As][m_language].data());
@@ -37,12 +37,12 @@ Menu::Menu(const int& theme, int language, const int& appWidth, const int& appHe
     m_space.addMesh(cube);
     cube.translate(0, 600, 0);
     m_space.addMesh(cube);
-
 }
 
 void Menu::setSettings(const int& theme, int language, const int& appWidth, const int& appHeight) {
     m_theme = theme;
     m_language = language;
+    m_fileGetter.setLanguage(language);
     m_fileButton = DropdownButton<4>(40, 13, 80, 26, Language::Text[(int)Lang::File][m_language].data(), 120, 80);
     m_settingsButton = TextButton(130, 13, 100, 26, Language::Text[(int)Lang::Settings][m_language].data());
     m_helpButton = DropdownButton<3>(210, 13, 60, 26, Language::Text[(int)Lang::Help][m_language].data(), 80, 80);
@@ -171,7 +171,7 @@ bool Menu::getCommand(const int& x, const int& y) {
     }
     if (m_helpButton.hitCollision(x, y)) {
         int getCurrentWindowNumber = getcurrentwindow();
-        int helpWindow = initwindow(800, 600, Language::Text[(int)Lang::Help][m_language].data(), getmaxwidth() / 2 - 400, getmaxheight() / 2 - 300, false, false);
+        int helpWindow = initwindow(800, 570, Language::Text[(int)Lang::Help][m_language].data(), getmaxwidth() / 2 - 400, getmaxheight() / 2 - 300, false, false);
         setcurrentwindow(helpWindow);
         MyArray<MyArray<char, 32>, 2> helpFilename = {"help/ro.txt", "help/en.txt"};
         FILE *helpf = fopen(helpFilename[m_language].data(), "r");
@@ -190,7 +190,8 @@ bool Menu::getCommand(const int& x, const int& y) {
         int lineIndex = 0;
         static const int LINE_WIDTH = 18;
         static const int LINE_MARGIN = 20;
-        setbkcolor(WHITE);
+        setfillstyle(SOLID_FILL, ColorSchemes::mixColors(LIGHTGRAY, ColorSchemes::themeColors[m_theme][ColorSchemes::ACCENTCOLOR], 10));
+        setbkcolor(ColorSchemes::mixColors(LIGHTGRAY, ColorSchemes::themeColors[m_theme][ColorSchemes::ACCENTCOLOR], 10));
         bar(0, 0, 800, 600);
         setcolor(BLACK);
         for (size_t i = 0; i < helpText.size(); ++i) {
@@ -202,8 +203,8 @@ bool Menu::getCommand(const int& x, const int& y) {
             outtextxy(LINE_MARGIN, LINE_MARGIN + lineIndex++ * LINE_WIDTH, helpText[i].data() + backslash);
         }
         MyArray<char, 32> backText(m_language ? "Back" : "Inapoi");
-        TextButton backButton(45, 570, 60, 30, backText.data());
-        backButton.drawTextButton(0, 0, LIGHTGRAY);
+        TextButton backButton(45, getmaxy() - 30, 60, 30, backText.data());
+        backButton.drawTextButton(0, 0, WHITE);
         while (true) {
             if (kbhit()) {
                 char c = getch();

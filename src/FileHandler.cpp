@@ -1,18 +1,22 @@
 #include "FileHandler.h"
 
-FileHandler::FileHandler() :
+FileHandler::FileHandler(int language) :
     m_width(600), m_height(300), txtBox(100, 500, 150, BLACK, WHITE, 256),
     //recycling
-    m_xButton(575, 20, 30, 30, "media\\buttonDelete.gif") {}
+    m_xButton(575, 20, 30, 30, "media\\buttonDelete.gif"), m_language(language) {}
+
+void FileHandler::setLanguage(int language) {
+    m_language = language;
+}
 
 void FileHandler::initSaveWindow() {
     txtBox = TextInputBox(100, 500, 150, BLACK, WHITE, 256);
-    initwindow(m_width, m_height, "Save space", getmaxwidth() / 2 - m_width / 2, getmaxheight() / 2 - m_height / 2, false, false);
+    initwindow(m_width, m_height, Language::Text[(int)Lang::Save_Space][m_language].data(), getmaxwidth() / 2 - m_width / 2, getmaxheight() / 2 - m_height / 2, false, false);
     setfillstyle(SOLID_FILL, LIGHTGRAY);
     bar(0, 0, m_width, m_height);
     setcolor(BLACK);
     setbkcolor(LIGHTGRAY);
-    MyArray<char, 20> auxText = "Enter save path:";
+    MyArray<char, 32> auxText = Language::Text[(int)Lang::Enter_Save_Path][m_language];
     outtextxy(WriteAreaBegin - 5, m_height / 2 - 30, auxText.data());
     rectangle(WriteAreaBegin - 5, m_height / 2 - 10, WriteAreaEnd + 5, m_height / 2 + 10);
     m_xButton.drawImageButton();
@@ -24,12 +28,12 @@ void FileHandler::initSaveWindow() {
 
 void FileHandler::initOpenWindow() {
     txtBox = TextInputBox(100, 500, 150, BLACK, WHITE, 256);
-    initwindow(m_width, m_height, "Open space", getmaxwidth() / 2 - m_width / 2, getmaxheight() / 2 - m_height / 2, false, false);
+    initwindow(m_width, m_height, Language::Text[(int)Lang::Open_Space][m_language].data(), getmaxwidth() / 2 - m_width / 2, getmaxheight() / 2 - m_height / 2, false, false);
     setfillstyle(SOLID_FILL, LIGHTGRAY);
     bar(0, 0, m_width, m_height);
     setcolor(BLACK);
     setbkcolor(LIGHTGRAY);
-    MyArray<char, 20> auxText = "Enter open path:";
+    MyArray<char, 32> auxText = Language::Text[(int)Lang::Enter_Open_Path][m_language];
     outtextxy(WriteAreaBegin - 5, m_height / 2 - 30, auxText.data());
     rectangle(WriteAreaBegin - 5, m_height / 2 - 10, WriteAreaEnd + 5, m_height / 2 + 10);
     setfillstyle(SOLID_FILL, WHITE);

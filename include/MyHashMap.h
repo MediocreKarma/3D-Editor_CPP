@@ -276,8 +276,18 @@ class MyHashMap {
             }
         }
 
+        void clear() noexcept {
+            m_hmap.clear();
+            m_hmap.resize(2);
+            m_size = 0, m_capacity = 2;
+        }
+
+        ~MyHashMap() noexcept {
+            clear();
+        }
+
         bool contains(const KeyType& key) const noexcept {
-            for (hash_node& node : m_hmap[hash(key)]) {
+            for (const hash_node& node : m_hmap[hash(key)]) {
                 if (node.key == key) {
                     return true;
                 }
