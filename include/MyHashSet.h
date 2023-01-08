@@ -157,7 +157,7 @@ class MyHashSet {
                     m_hset[hashKey].erase(it);
                     --m_size;
                     incrementFirstOrLastBucket(hashKey);
-                    if (m_size > 2 && m_size > m_capacity * UnderCapacityMultiplier) {
+                    if (m_capacity > 2 && m_size > m_capacity * UnderCapacityMultiplier) {
                         rehash(m_capacity / ResizeMultiplier);
                     }
                     break;
@@ -169,7 +169,7 @@ class MyHashSet {
             m_hset[it.m_bucket].erase(it.m_listIt);
             --m_size;
             incrementFirstOrLastBucket(it.m_bucket);
-            if (m_size > 2 && m_size > m_capacity * UnderCapacityMultiplier) {
+            if (m_capacity > 2 && m_size > m_capacity * UnderCapacityMultiplier) {
                 rehash(m_capacity / ResizeMultiplier);
             }
         }
@@ -241,7 +241,6 @@ class MyHashSet {
             size_t hashKey = hash(key);
             for (const T& x : m_hset[hashKey]) {
                 if (x == key) {
-                    std::cout << "key not added";
                     return;
                 }
             }
