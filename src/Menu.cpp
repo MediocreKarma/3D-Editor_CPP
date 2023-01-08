@@ -173,20 +173,22 @@ bool Menu::getCommand(const int& x, const int& y) {
         int getCurrentWindowNumber = getcurrentwindow();
         int helpWindow = initwindow(800, 570, Language::Text[(int)Lang::Help][m_language].data(), getmaxwidth() / 2 - 400, getmaxheight() / 2 - 300, false, false);
         setcurrentwindow(helpWindow);
-        MyArray<MyArray<char, 32>, 2> helpFilename = {"help/ro.txt", "help/en.txt"};
+        MyArray<MyArray<char, 32>, 2> helpFilename = {"help\\ro.txt", "help\\en.txt"};
         FILE *helpf = fopen(helpFilename[m_language].data(), "r");
         MyVector<MyArray<char, 256>> helpText{};
         if (!helpf) {
             closegraph(helpWindow);
             setcurrentwindow(getCurrentWindowNumber);
+            showerrorbox(m_language ? "Help file not found!" : "Fisierul help nu a fost gasit!");
             return false;
         }
         while(!feof(helpf)) {
             //temporar pt ca mi da warning si nu mi ia empty lines, dar functioneaza
             char buf[256];
-            fscanf(helpf, "%[^\n]\n", &buf);
+            fgets(buf, 255, helpf);
             helpText.push_back(MyArray<char, 256>(buf));
         }
+        fclose(helpf);
         int lineIndex = 0;
         static const int LINE_WIDTH = 18;
         static const int LINE_MARGIN = 20;
