@@ -223,7 +223,7 @@ class MyHashSet {
                     updateFirstOrLast(hashKey);
                 }
             }
-            m_hset = new_hmap;
+            m_hset.swap(new_hmap);
         }
 
         size_t power2Ceil(size_t value) const noexcept {
