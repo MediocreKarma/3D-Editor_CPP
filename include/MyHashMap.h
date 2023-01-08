@@ -354,7 +354,7 @@ class MyHashMap {
                     updateFirstOrLast(hashKey);
                 }
             }
-            m_hmap = new_hmap;
+            m_hmap.swap(new_hmap);
         }
 
         size_t power2Ceil(size_t value) const noexcept {
