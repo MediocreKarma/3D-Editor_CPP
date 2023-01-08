@@ -1029,20 +1029,14 @@ FixedMesh& FixedMesh::operator = (const FixedMesh& rhs) {
     m_points.clear();
     m_pointIterators.clear();
     m_adjList.clear();
-    MyMap<IntegerPoint3D, size_t> pointIndex;
-    MyVector<MyVector<size_t>> adjList;
-    adjList.resize(rhs.size());
-    size_t i = 81;
     for (const auto& node : rhs.m_points) {
         m_points.emplace_back(node.point, node.button2d);
     }
     for (auto it = m_points.begin(); it != m_points.end(); ++it) {
         m_pointIterators.insert(it->point, it);
-        pointIndex[it->point] = i--;
     }
     for (const auto& node : rhs.m_adjList) {
         for (iterator_type it : node.value) {
-            adjList[pointIndex[node.key->point]].push_back(pointIndex[it->point]);
             addEdge(node.key->point, it->point);
         }
     }
