@@ -458,20 +458,6 @@ Mesh::Mesh(const Mesh& other) :
     m_points(other.m_points), m_adjList(other.m_adjList), m_centerPoint(other.m_centerPoint), m_angleX(other.m_angleX), m_angleY(other.m_angleY), m_angleZ(other.m_angleZ), m_quat(other.m_quat),
     m_scaleX(other.m_scaleX), m_scaleY(other.m_scaleY), m_scaleZ(other.m_scaleZ){}
 
-Mesh::Mesh(FixedMesh& other) : Mesh() {
-    m_points.resize(other.size());
-    size_t i = 0;
-    for (auto pointInfo : other) {
-        m_points[i++] = pointInfo.point;
-    }
-    m_adjList = other.adjListConversion();
-    for (MyVector<size_t>& adjList : m_adjList) {
-        for (size_t i : adjList) {
-            std::cout << i << '\n';
-        }
-    }
-}
-
 void Mesh::updateCenterPoint() {
     Point3D auxPoint;
     for (size_t i = 0; i < size(); ++i) {
@@ -1001,7 +987,11 @@ bool operator < (const IntegerPoint3D& a, const IntegerPoint3D& b) {
 FixedMesh::FixedMesh() :
     m_points(), m_pointIterators(), m_adjList() {}
 
+#include <unordered_map>
+#include <unordered_set>
+
 FixedMesh::FixedMesh(const Mesh& other) : FixedMesh() {
+    const MyVector<MyVector<size_t>>& adjList = other.adjacencyList();
     Point3D centerPoint = other.centerPoint();
     MyVector<IntegerPoint3D> helperPoints(other.size());
     MyVector<iterator_type> helperIterators(other.size());
@@ -1013,7 +1003,6 @@ FixedMesh::FixedMesh(const Mesh& other) : FixedMesh() {
         m_pointIterators.insert(helperPoints[i], m_points.begin());
         helperIterators[i] = m_points.begin();
     }
-    const MyVector<MyVector<size_t>>& adjList = other.adjacencyList();
     for (size_t i = 0; i < adjList.size(); ++i) {
         iterator_type it = helperIterators[i];
         for (size_t j : adjList[i]) {
@@ -1031,7 +1020,7 @@ FixedMesh::FixedMesh(const FixedMesh& other) :
     }
     for (auto node : other.m_adjList) {
         for (iterator_type it : node.value) {
-            addEdge(m_pointIterators[node.key->point], m_pointIterators[it->point]);
+            addEdge(node.key->point, it->point);
         }
     }
 }
@@ -1040,15 +1029,21 @@ FixedMesh& FixedMesh::operator = (const FixedMesh& rhs) {
     m_points.clear();
     m_pointIterators.clear();
     m_adjList.clear();
+    MyMap<IntegerPoint3D, size_t> pointIndex;
+    MyVector<MyVector<size_t>> adjList;
+    adjList.resize(rhs.size());
+    size_t i = 81;
     for (const auto& node : rhs.m_points) {
         m_points.emplace_back(node.point, node.button2d);
     }
     for (auto it = m_points.begin(); it != m_points.end(); ++it) {
-        m_pointIterators[it->point] = it;
+        m_pointIterators.insert(it->point, it);
+        pointIndex[it->point] = i--;
     }
-    for (auto node : rhs.m_adjList) {
+    for (const auto& node : rhs.m_adjList) {
         for (iterator_type it : node.value) {
-            addEdge(m_pointIterators[node.key->point], m_pointIterators[it->point]);
+            adjList[pointIndex[node.key->point]].push_back(pointIndex[it->point]);
+            addEdge(node.key->point, it->point);
         }
     }
     return *this;
@@ -1058,6 +1053,7 @@ void FixedMesh::addEdge(const IntegerPoint3D& x, const IntegerPoint3D& y) {
     auto it1 = m_pointIterators.find(x);
     auto it2 = m_pointIterators.find(y);
     if (it1 == m_pointIterators.end() || it2 == m_pointIterators.end()) {
+        throw std::invalid_argument("WTF");
         return;
     }
     addEdge(it1->value, it2->value);
@@ -1067,7 +1063,7 @@ void FixedMesh::addEdge(iterator_type it1, iterator_type it2) {
     if (it1->point < it2->point) {
         m_adjList[it1].insert(it2);
     }
-    else {
+    else if (it2->point < it1->point) {
         m_adjList[it2].insert(it1);
     }
 }
@@ -1094,8 +1090,6 @@ void FixedMesh::erasePoint(const IntegerPoint3D& x) {
 
 void FixedMesh::erasePoint(iterator_type it) {
     for (auto& container : m_adjList) {
-        if (container.value.contains(it)) {
-        }
         container.value.erase(it);
     }
     m_adjList.erase(it);
@@ -1251,31 +1245,18 @@ const MyHashSet<FixedMesh::iterator_type>& FixedMesh::adjacentPoints(iterator_ty
     return m_adjList[it];
 }
 
-MyVector<MyVector<size_t>> FixedMesh::adjListConversion() {
+Mesh FixedMesh::meshConversion() {
+    Mesh conversion;
     MyHashMap<iterator_type, size_t> pointIndexes;
-    MyVector<MyVector<size_t>> adjList;
-    adjList.resize(size());
     size_t i = 0;
     for (iterator_type it = m_points.begin(); it != m_points.end(); ++it) {
+        conversion.addPoint(it->point.x, it->point.y, it->point.z);
         pointIndexes[it] = i++;
     }
-    std::cout << '\n';
-    for (auto node : pointIndexes) {
-        std::cout << node.key->point.x << ' ' << node.key->point.y << ' ' << node.key->point.z << '\n';
-        if (m_adjList.contains(node.key)) {
-            std::cout << "here";
-        }
-        for (iterator_type it : m_adjList[node.key]) {
-            adjList[node.value].push_back(pointIndexes[it]);
-            adjList[pointIndexes[it]].push_back(node.value);
+    for (auto& node : m_adjList) {
+        for (iterator_type it : node.value) {
+            conversion.addEdge(pointIndexes[node.key], pointIndexes[it]);
         }
     }
-    for (int i = 0; i < adjList.size(); ++i) {
-        std::cout << i << ": ";
-        for (size_t j : adjList[i]) {
-            std::cout << j << ' ';
-        }
-        std::cout << '\n';
-    }
-    return adjList;
+    return conversion;
 }
