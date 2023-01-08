@@ -1160,7 +1160,34 @@ void FixedMesh::draw2DLinesFrom(iterator_type it, const char staticLayer) {
 void FixedMesh::updatePointValue(iterator_type it, const IntegerPoint3D& newValue) {
     m_pointIterators.insert(newValue, it);
     m_pointIterators.erase(it->point);
-    it->point = newValue;
+    MyList<iterator_type> toReverse;
+    if (it->point < newValue) {
+        it->point = newValue;
+        for (iterator_type it2 : m_adjList[it]) {
+            if (it2->point < it->point) {
+                toReverse.push_back(it2);
+            }
+        }
+        for (iterator_type it2 : toReverse) {
+            m_adjList[it].erase(it2);
+            m_adjList[it2].insert(it);
+        }
+    }
+    else {
+        it->point = newValue;
+        for (auto& node : m_adjList) {
+            if (node.key == it) {
+                continue;
+            }
+            if (it->point < node.key->point && node.value.contains(it)) {
+                toReverse.push_back(node.key);
+            }
+        }
+        for (iterator_type it2 : toReverse) {
+            m_adjList[it2].erase(it);
+            m_adjList[it].insert(it2);
+        }
+    }
 }
 
 bool FixedMesh::cutLines(const Line2D cuttingLine) {
