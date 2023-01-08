@@ -156,10 +156,6 @@ class MyHashMap {
                 key(other.key), value(other.value) {}
         };
 
-    private:
-        using HashMap = MyHashMap<KeyType, ValueType>;
-
-    public:
         friend class MyHashMapIterator<KeyType, ValueType>;
         friend class MyHashMapConstIterator<KeyType, ValueType>;
         using iterator = MyHashMapIterator<KeyType, ValueType>;
@@ -168,10 +164,10 @@ class MyHashMap {
         MyHashMap() noexcept :
             m_hmap(2), m_capacity(2), m_size(0), m_firstUsedBucket(1), m_lastUsedBucket(1) {}
 
-        MyHashMap(const HashMap& other) noexcept :
+        MyHashMap(const MyHashMap<KeyType, ValueType>& other) noexcept :
             m_hmap(other.m_hmap), m_capacity(other.m_capacity), m_size(other.m_size), m_firstUsedBucket(other.m_firstUsedBucket), m_lastUsedBucket(other.m_lastUsedBucket) {}
 
-        MyHashMap(HashMap&& other) noexcept : MyHashMap() {
+        MyHashMap(MyHashMap<KeyType, ValueType>&& other) noexcept : MyHashMap() {
             other.swap(*this);
         }
 
@@ -184,7 +180,7 @@ class MyHashMap {
             }
         }
 
-        HashMap& operator = (const HashMap& other) noexcept {
+        MyHashMap<KeyType, ValueType>& operator = (const MyHashMap<KeyType, ValueType>& other) noexcept {
             m_hmap = other.m_hmap;
             m_size = other.m_size;
             m_capacity = other.m_capacity;
@@ -193,12 +189,12 @@ class MyHashMap {
             return *this;
         }
 
-        HashMap& operator = (HashMap&& other) noexcept {
+        MyHashMap<KeyType, ValueType>& operator = (MyHashMap<KeyType, ValueType>&& other) noexcept {
             other.swap(*this);
             return *this;
         }
 
-        HashMap& operator = (std::initializer_list<hash_node> l) noexcept {
+        MyHashMap<KeyType, ValueType>& operator = (std::initializer_list<hash_node> l) noexcept {
             m_capacity = power2Ceil(l.size() * OneDivideOverCapacityMultiplier);
             m_hmap.resize(m_capacity);
             m_size = l.size();
@@ -245,9 +241,16 @@ class MyHashMap {
             return !m_size;
         }
 
+        void clear() noexcept {
+            m_hmap.clear();
+            m_hmap.resize(2);
+            m_size = 0;
+            m_capacity = 2;
+        }
+
         void insert(const KeyType& key, const ValueType& val) noexcept {
             noResizeInsert(key, val);
-            if (m_size * OverCapacityMultiplier > m_capacity) {
+            if (m_size > m_capacity * OverCapacityMultiplier) {
                 rehash(m_capacity * ResizeMultiplier);
             }
         }
@@ -259,7 +262,7 @@ class MyHashMap {
                     m_hmap[hashKey].erase(it);
                     --m_size;
                     incrementFirstOrLastBucket(hashKey);
-                    if (m_size > 2 && m_size * UnderCapacityMultiplier < m_capacity) {
+                    if (m_size > 2 && m_size > m_capacity * UnderCapacityMultiplier) {
                         rehash(m_capacity / ResizeMultiplier);
                     }
                     break;
@@ -271,19 +274,9 @@ class MyHashMap {
             m_hmap[it.m_bucket].erase(it.m_listIt);
             --m_size;
             incrementFirstOrLastBucket(it.m_bucket);
-            if (m_size > 2 && m_size * UnderCapacityMultiplier < m_capacity) {
+            if (m_size > 2 && m_size > m_capacity * UnderCapacityMultiplier) {
                 rehash(m_capacity / ResizeMultiplier);
             }
-        }
-
-        void clear() noexcept {
-            m_hmap.clear();
-            m_hmap.resize(2);
-            m_size = 0, m_capacity = 2;
-        }
-
-        ~MyHashMap() noexcept {
-            clear();
         }
 
         bool contains(const KeyType& key) const noexcept {
@@ -295,7 +288,7 @@ class MyHashMap {
             return false;
         }
 
-        ValueType& operator [] (const KeyType& key) noexcept {
+        ValueType& operator [] (const KeyType& key) {
             size_t hashKey = hash(key);
             for (hash_node& node : m_hmap[hashKey]) {
                 if (key == node.key) {
@@ -306,15 +299,24 @@ class MyHashMap {
             ++m_size;
             if (m_size * OverCapacityMultiplier > m_capacity) {
                 rehash(m_capacity * ResizeMultiplier);
+                hashKey = hash(key);
+                for (hash_node& node : m_hmap[hashKey]) {
+                    if (key == node.key) {
+                        return node.value;
+                    }
+                }
             }
-            return m_hmap[hashKey].back().value;
+            else {
+                return m_hmap[hashKey].back().value;
+            }
+            throw std::invalid_argument("impossible position");
         }
 
-        friend void swap(HashMap& a, HashMap& b) noexcept {
+        friend void swap(MyHashMap<KeyType, ValueType>& a, MyHashMap<KeyType, ValueType>& b) noexcept {
             a.swap(b);
         }
 
-        void swap(HashMap& rhs) noexcept {
+        void swap(MyHashMap<KeyType, ValueType>& rhs) noexcept {
             std::swap(m_hmap, rhs.m_hmap);
             std::swap(m_size, rhs.m_size);
             std::swap(m_capacity, rhs.m_capacity);
@@ -341,16 +343,18 @@ class MyHashMap {
         void rehash(const size_t& maxCapacity) {
             m_capacity = maxCapacity;
             MyVector<MyList<hash_node>> new_hmap(m_capacity);
-            m_firstUsedBucket = m_capacity;
-            m_lastUsedBucket = 0;
-            for (MyList<hash_node>& bucket : m_hmap) {
-                for (hash_node& node : bucket) {
+            m_firstUsedBucket = m_capacity - 1;
+            m_lastUsedBucket = m_capacity - 1;
+            m_size = 0;
+            for (const MyList<hash_node>& bucket : m_hmap) {
+                for (const hash_node& node : bucket) {
                     size_t hashKey = hash(node.key);
                     new_hmap[hashKey].push_back(node);
+                    ++m_size;
                     updateFirstOrLast(hashKey);
                 }
             }
-            m_hmap.swap(new_hmap);
+            m_hmap = new_hmap;
         }
 
         size_t power2Ceil(size_t value) const noexcept {

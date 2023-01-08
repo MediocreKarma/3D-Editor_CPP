@@ -145,7 +145,7 @@ class MyHashSet {
 
         void insert(const T& key) noexcept {
             noResizeInsert(key);
-            if (m_size * OverCapacityMultiplier > m_capacity) {
+            if (m_size > m_capacity * OverCapacityMultiplier) {
                 rehash(m_capacity * ResizeMultiplier);
             }
         }
@@ -157,7 +157,7 @@ class MyHashSet {
                     m_hset[hashKey].erase(it);
                     --m_size;
                     incrementFirstOrLastBucket(hashKey);
-                    if (m_size > 2 && m_size * UnderCapacityMultiplier < m_capacity) {
+                    if (m_size > 2 && m_size > m_capacity * UnderCapacityMultiplier) {
                         rehash(m_capacity / ResizeMultiplier);
                     }
                     break;
@@ -169,7 +169,7 @@ class MyHashSet {
             m_hset[it.m_bucket].erase(it.m_listIt);
             --m_size;
             incrementFirstOrLastBucket(it.m_bucket);
-            if (m_size > 2 && m_size * UnderCapacityMultiplier < m_capacity) {
+            if (m_size > 2 && m_size > m_capacity * UnderCapacityMultiplier) {
                 rehash(m_capacity / ResizeMultiplier);
             }
         }
@@ -214,16 +214,16 @@ class MyHashSet {
         void rehash(const size_t& maxCapacity) {
             m_capacity = maxCapacity;
             MyVector<MyList<T>> new_hmap(m_capacity);
-            m_firstUsedBucket = m_capacity - 1;
-            m_lastUsedBucket = 0;
+            m_size = 0;
             for (MyList<T>& bucket : m_hset) {
                 for (const T& x : bucket) {
                     size_t hashKey = hash(x);
                     new_hmap[hashKey].push_back(x);
+                    ++m_size;
                     updateFirstOrLast(hashKey);
                 }
             }
-            m_hset.swap(new_hmap);
+            m_hset = new_hmap;
         }
 
         size_t power2Ceil(size_t value) const noexcept {
@@ -241,6 +241,7 @@ class MyHashSet {
             size_t hashKey = hash(key);
             for (const T& x : m_hset[hashKey]) {
                 if (x == key) {
+                    std::cout << "key not added";
                     return;
                 }
             }
