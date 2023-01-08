@@ -27,7 +27,7 @@ namespace ColorSchemes {
 enum class Lang {
     File = 0, New, Open, Save, Save_As, Settings, Mesh, Help, Scale, Rotation, Position, New_Mesh, Edit_Mesh, Reset_Transforms, Delete_Mesh,
     Switch_Local, Switch_Global, Layer_Z, Discard, Back, Point, Current_Layer, Generate, Cube, Cone, Cylinder, Sphere, Length, Radius, Sides, Height,
-    Segments, Rings, Save_Space, Enter_Save_Path, Open_Space, Enter_Open_Path, Object_Creator
+    Segments, Rings, Save_Space, Enter_Save_Path, Open_Space, Enter_Open_Path, Object_Creator, Edit_Point
 };
 namespace Language {
     static const int RO = 0;
@@ -41,7 +41,7 @@ namespace Language {
         {"Punct", "Point"}, {"Strat curent", "Current layer"}, {"Generare", "Generate"}, {"Cub", "Cube"}, {"Con", "Cone"}, {"Cilindru", "Cylinder"},
         {"Sfera", "Sphere"}, {"Lungime", "Length"}, {"Raza", "Radius"}, {"Laturi", "Sides"}, {"Inaltime", "Height"}, {"Segmente", "Segments"}, {"Inele", "Rings"},
         {"Salvare spatiu", "Save space"}, {"Scrie calea de salvare:", "Enter save path:"}, {"Deschidere spatiu", "Open space"},
-        {"Scrie calea spatiului:", "Enter open path:"}, {"Creator obiecte", "Object Creator"}
+        {"Scrie calea spatiului:", "Enter open path:"}, {"Creator obiecte", "Object Creator"}, {"Editeaza punct:", "Edit point:"}
     };
 }
 

@@ -623,7 +623,7 @@ void Space3D::updateTransformFields() {
         for (size_t j = 0; j < 3; ++j) {
             char str[32] = "";
             double value = meshTrans[i][j];
-            if (signbit(value) && (int)(value * 100) == 0) {
+            if (std::signbit(value) && (int)(value * 100) == 0) {
                 value = 0;
             }
             switch (j) {
@@ -1060,7 +1060,9 @@ void Space3D::scaleMesh() {
                     m_meshes[m_selected] = original;
                     if (scaleAxis != 0) {
                         scaleAxis = 0;
-                        m_meshes[m_selected].scaleAxis(scaleFactor, 0);
+                        if (distCurrent > 10) {
+                            m_meshes[m_selected].scaleAxis(scaleFactor, 0);
+                        }
                     }
                     else {
                         scaleAxis = -1;
@@ -1074,7 +1076,9 @@ void Space3D::scaleMesh() {
                     m_meshes[m_selected] = original;
                     if (scaleAxis != 1) {
                         scaleAxis = 1;
-                        m_meshes[m_selected].scaleAxis(scaleFactor, 1);
+                        if (distCurrent > 10) {
+                            m_meshes[m_selected].scaleAxis(scaleFactor, 1);
+                        }
                     }
                     else {
                         scaleAxis = -1;
@@ -1088,11 +1092,15 @@ void Space3D::scaleMesh() {
                     m_meshes[m_selected] = original;
                     if (scaleAxis != 2) {
                         scaleAxis = 2;
-                        m_meshes[m_selected].scaleAxis(scaleFactor, 2);
+                        if (distCurrent > 10) {
+                            m_meshes[m_selected].scaleAxis(scaleFactor, 2);
+                        }
                     }
                     else {
                         scaleAxis = -1;
-                        m_meshes[m_selected].scaleEven(scaleFactor);
+                        if (distCurrent > 10) {
+                            m_meshes[m_selected].scaleEven(scaleFactor);
+                        }
                     }
                     m_updated[m_selected] = true;
                     callHandlerDrawer();
@@ -1109,7 +1117,7 @@ void Space3D::scaleMesh() {
             dy = abs(yMove - m_sections[m_selected].centerPoint().y);
             distCurrent = sqrt(dx * dx + dy * dy);
             scaleFactor = distCurrent / distOrig;
-            if (fabs(scaleFactor) > err && distCurrent > 5) {
+            if (fabs(scaleFactor) > err && distCurrent > 10) {
                 if (scaleAxis == -1) {
                     m_meshes[m_selected].scaleAxis(scaleFactor * original.scaleX() / m_meshes[m_selected].scaleX(), 0);
                     m_meshes[m_selected].scaleAxis(scaleFactor * original.scaleY() / m_meshes[m_selected].scaleY(), 1);

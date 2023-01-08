@@ -9,7 +9,7 @@ ObjectCreator::ObjectCreator(const Mesh& mesh, const int& theme, int language) :
     m_minimizedSpaceButton(), m_toolButtons(),
     m_tool(Tool::MovePoint), workX0(26), workY0(26), workX1(800), workY1(800), m_workArea(theme, mesh, this),
     m_hovered(), m_assistLine(), m_assistLineDotted(false), m_layerScrollArrows(),
-    m_layerTools(), m_closeFlag(false), m_discardButton(), m_saveButton(), m_generateButton() {
+    m_layerTools(), m_closeFlag(false), m_discardButton(), m_saveButton(), m_generateButton(), m_pointDataButton() {
     toolButtonsInit();
     resetLine();
     m_workArea.setCorners(workX0, workY0, workX1, workY1);
@@ -24,7 +24,7 @@ void ObjectCreator::toolButtonsInit() {
     filenames[(size_t)Tool::DeletePoint] = "media\\buttonDelete.gif";
     filenames[(size_t)Tool::CutLine] = "media\\buttonLineCutter.gif";
     static const size_t TOOL_BTN_SIZE = 32;
-    for (size_t i = 0; i < 5; ++i) {
+    for (size_t i = 0; i < m_toolButtons.size(); ++i) {
         m_toolButtons[i] = ImageButton(TOOL_BTN_SIZE / 2, 24 + TOOL_BTN_SIZE / 2 + TOOL_BTN_SIZE * i, TOOL_BTN_SIZE, TOOL_BTN_SIZE, filenames[i].data());
     }
     m_layerSelectButtons.resize((m_height - 200) / 40 + ((m_height - 200) % 40 >= 20 ? 0 : -1));
@@ -41,6 +41,91 @@ void ObjectCreator::toolButtonsInit() {
     //MyArray<MyArray<char, 128>, 1> layerFilenames;
     //pt cand o sa avem probabil tools precum Duplicate, Duplicate Linked, Draw Circle, Draw Rectangle
     //deocamdata este initializat un MyArray cu 1 imagebutton care nu i folosit la nimic
+}
+
+void ObjectCreator::drawToolButtonSymbol(const int xCenter, const int yCenter, const int btnWidth, const int toolIndex) {
+    int btnTrueWidth = btnWidth / 2 - 8;
+    int arrowHeadWidth = 2;
+    int oldColor = getcolor();
+    linesettingstype lineinfo;
+    getlinesettings(&lineinfo);
+    Tool index = (Tool)toolIndex;
+    switch(index) {
+        case Tool::NewPoint:
+            setlinestyle(SOLID_LINE, 0, 4);
+            setcolor(BLACK);
+            line(xCenter - btnTrueWidth, yCenter, xCenter + btnTrueWidth, yCenter);
+            line(xCenter, yCenter - btnTrueWidth, xCenter, yCenter + btnTrueWidth);
+            break;
+        case Tool::ConnectPoint: {
+            setlinestyle(SOLID_LINE, 0, 4);
+            setcolor(BLACK);
+            setfillstyle(SOLID_FILL, BLACK);
+            int x0 = xCenter - btnTrueWidth;
+            int y0 = yCenter - btnTrueWidth;
+            circle(x0, y0, 3);
+            int x1 = xCenter + btnTrueWidth;
+            int y1 = yCenter + btnTrueWidth;
+            circle(x1, y1, 3);
+            setlinestyle(SOLID_LINE, 0, 2);
+            line(x0, y0, x1, y1);
+            break;
+        }
+        case Tool::DeletePoint:
+            setlinestyle(SOLID_LINE, 0, 4);
+            setcolor(BLACK);
+            line(xCenter - btnTrueWidth, yCenter - btnTrueWidth, xCenter + btnTrueWidth, yCenter + btnTrueWidth);
+            line(xCenter + btnTrueWidth, yCenter - btnTrueWidth, xCenter - btnTrueWidth, yCenter + btnTrueWidth);
+            break;
+        case Tool::MovePoint:
+            setlinestyle(SOLID_LINE, 0, 3);
+            setcolor(BLACK);
+            line(xCenter - btnTrueWidth, yCenter, xCenter + btnTrueWidth, yCenter);
+            line(xCenter, yCenter - btnTrueWidth, xCenter, yCenter + btnTrueWidth);
+            setlinestyle(SOLID_LINE, 0, 3);
+            line(xCenter - arrowHeadWidth, yCenter - btnTrueWidth, xCenter, yCenter - btnTrueWidth - arrowHeadWidth);
+            line(xCenter + arrowHeadWidth, yCenter - btnTrueWidth, xCenter, yCenter - btnTrueWidth - arrowHeadWidth);
+            line(xCenter - arrowHeadWidth, yCenter + btnTrueWidth, xCenter, yCenter + btnTrueWidth + arrowHeadWidth);
+            line(xCenter + arrowHeadWidth, yCenter + btnTrueWidth, xCenter, yCenter + btnTrueWidth + arrowHeadWidth);
+            line(xCenter + btnTrueWidth, yCenter + arrowHeadWidth, xCenter + btnTrueWidth + arrowHeadWidth, yCenter);
+            line(xCenter + btnTrueWidth, yCenter - arrowHeadWidth, xCenter + btnTrueWidth + arrowHeadWidth, yCenter);
+            line(xCenter - btnTrueWidth, yCenter - arrowHeadWidth , xCenter - btnTrueWidth - arrowHeadWidth, yCenter);
+            line(xCenter - btnTrueWidth, yCenter + arrowHeadWidth , xCenter - btnTrueWidth - arrowHeadWidth, yCenter);
+            break;
+        case Tool::CutLine: {
+            setlinestyle(SOLID_LINE, 0, 4);
+            setcolor(BLACK);
+            setfillstyle(SOLID_FILL, BLACK);
+            int x0 = xCenter - btnTrueWidth;
+            int y0 = yCenter - btnTrueWidth;
+            circle(x0, y0, 3);
+            int x1 = xCenter + btnTrueWidth;
+            int y1 = yCenter + btnTrueWidth;
+            circle(x1, y1, 3);
+            setlinestyle(SOLID_LINE, 0, 2);
+            line(x0, y0, x1, y1);
+            setlinestyle(DOTTED_LINE, 0, 2);
+            line(x1, y0, x0, y1);
+            break;
+        }
+        case Tool::EditPoint: {
+            setcolor(BLACK);
+            int pencilWidth = 2;
+            int x0 = xCenter - btnTrueWidth;
+            int y0 = yCenter - btnTrueWidth;
+            int x1 = xCenter + btnTrueWidth;
+            int y1 = yCenter + btnTrueWidth;
+            line(x1 + pencilWidth, y0 + pencilWidth, x1 - pencilWidth, y0 - pencilWidth);
+            line(x1 - pencilWidth, y0 - pencilWidth, x0 - pencilWidth + 3, y1 - pencilWidth - 3);
+            line(x0 - pencilWidth + 3, y1 - pencilWidth - 3, x0 + pencilWidth + 3, y1 + pencilWidth - 3); //bottom line
+            line(x0 + pencilWidth + 3, y1 + pencilWidth - 3, x1 + pencilWidth, y0 + pencilWidth);
+            line(x0 + pencilWidth + 3, y1 + pencilWidth - 3, x0 - pencilWidth - 3 + 3, y1 + pencilWidth + 3 - 3); //varf
+            line(x0 - pencilWidth - 3 + 3, y1 + pencilWidth + 3 - 3, x0 - pencilWidth + 3, y1 - pencilWidth - 3); //varf
+        }
+        default:;
+    }
+    setlinestyle(lineinfo.linestyle, lineinfo.upattern, lineinfo.thickness);
+    setcolor(oldColor);
 }
 
 void ObjectCreator::init() {
@@ -117,8 +202,14 @@ void ObjectCreator::resetLine() {
 
 void ObjectCreator::drawToolButtons() {
     for (auto& button : m_toolButtons) {
-        button.drawLabel(ColorSchemes::themeColors[m_theme][ColorSchemes::ACCENTCOLOR], BLACK);
-        button.drawImageButton();
+        int index = &button - m_toolButtons.begin();
+        if (m_tool == (Tool)index) {
+            button.drawLabel(ColorSchemes::mixColors(WHITE, ColorSchemes::themeColors[m_theme][ColorSchemes::ACCENTCOLOR], 75), BLACK);
+        }
+        else {
+            button.drawLabel(ColorSchemes::themeColors[m_theme][ColorSchemes::ACCENTCOLOR], BLACK);
+        }
+        drawToolButtonSymbol(button.getXCenter(), button.getYCenter(), button.getXLen(), index);
     }
     m_discardButton.drawTextButton(3, 1, LIGHTGRAY);
     m_saveButton.drawTextButton(3, 1, LIGHTGRAY);
@@ -242,17 +333,54 @@ void ObjectCreator::drawLayerView() {
 
 void ObjectCreator::drawPointData() {
     const IntegerPoint3D& p = m_hovered->point;
-    setcolor(ColorSchemes::themeColors[m_theme][ColorSchemes::SECONDARYCOLOR]);
-    rectangle(730, 30, 790, 120);
-    setbkcolor(ColorSchemes::themeColors[m_theme][ColorSchemes::PRIMARYCOLOR]);
-    MyArray<char, 32> headerText = Language::Text[(int)Lang::Point][m_language],
-                        xPosText = itoa(p.x, "X: "),
-                        yPosText = itoa(p.y, "Y: "),
-                        zPosText = itoa(p.z, "Z: ");
-    outtextxy(735, 35, headerText.data());
-    outtextxy(735, 55, xPosText.data());
-    outtextxy(735, 75, yPosText.data());
-    outtextxy(735, 95, zPosText.data());
+    MyArray<char, 32> headerText;
+    if (m_tool != Tool::EditPoint) {
+        headerText = Language::Text[(int)Lang::Point][m_language];
+        m_pointDataButton = Button(760, 75, 60, 90);
+    }
+    else {
+        headerText = Language::Text[(int)Lang::Edit_Point][m_language];
+        m_pointDataButton = Button(730, 75, 90, 90);
+    }
+    m_pointDataButton.drawLabel(ColorSchemes::themeColors[m_theme][ColorSchemes::PRIMARYCOLOR],
+                                ColorSchemes::themeColors[m_theme][ColorSchemes::SECONDARYCOLOR]);
+    MyArray<char, 32> xPosText = itoa(p.x, "X: "),
+                      yPosText = itoa(p.y, "Y: "),
+                      zPosText = itoa(p.z, "Z: ");
+    int x0 = m_pointDataButton.getXCenter() - m_pointDataButton.getXLen() / 2 + 5;
+    int y0 = m_pointDataButton.getYCenter() - m_pointDataButton.getYLen() / 2 + 5;
+    int offset = 20;
+    outtextxy(x0, y0, headerText.data());
+    outtextxy(x0, y0 + offset, xPosText.data());
+    outtextxy(x0, y0 + 2 * offset, yPosText.data());
+    outtextxy(x0, y0 + 3 * offset, zPosText.data());
+}
+
+bool ObjectCreator::changePointData(const int x, const int y){
+    IntegerPoint3D aux = m_hovered->point;
+    MyArray<int, 3> coords = MyArray<int, 3>{aux.x, aux.y, aux.z};
+    MyArray<char, 32> zText = "Z: "; //widest one: if we accommodate for this one it'll be enough
+    int x0 = m_pointDataButton.getXCenter() - m_pointDataButton.getXLen() / 2 + 5;
+    int y0 = m_pointDataButton.getYCenter() - m_pointDataButton.getYLen() / 2 + 5;
+    int x1 = m_pointDataButton.getXCenter() + m_pointDataButton.getXLen() / 2 - 5;
+    int offset = 20;
+    for (size_t i = 0; i < 3; ++i) {
+        if (x >= x0 && y >= y0 + (i + 1) * offset && x <= x1 && y <= y0 + (i + 2) * offset) {
+            setactivepage(getvisualpage());
+            setcolor(LIGHTBLUE);
+            NumericInputBox txtBox(x0 + textwidth(zText.data()),
+                                   x1, y0 + (i + 1) * offset - 5 + 12,
+                                   ColorSchemes::themeColors[m_theme][ColorSchemes::SECONDARYCOLOR],
+                                   ColorSchemes::themeColors[m_theme][ColorSchemes::PRIMARYCOLOR]);
+            int result = txtBox.getIntegerValue();
+            coords[i] = result;
+            m_workArea.mesh().updatePointValue(m_hovered, IntegerPoint3D(coords[0], coords[1], coords[2]));
+            //rectangle(x0 + textwidth(zText.data()), y0 + (i + 1) * offset, x1, y0 + (i + 2) * offset - 5);
+            setvisualpage(1 - getactivepage());
+            return true;
+        }
+    }
+    return false;
 }
 
 void ObjectCreator::draw() {
@@ -400,7 +528,7 @@ void ObjectCreator::mergeLayers(const int movingIndex, MyMap<int, LayerInfo>::it
             for (auto& pnt : m_workArea.mesh().adjacentPoints(it)) {
                 m_workArea.mesh().addEdge(itDest, pnt);
             }
-            for (FixedMesh::iterator_type itBefore = m_workArea.mesh().begin(); itBefore != m_workArea.mesh().end() /*&& itBefore->point < it->point*/; ++itBefore) {
+            for (FixedMesh::iterator_type itBefore = m_workArea.mesh().begin(); itBefore != m_workArea.mesh().end(); ++itBefore) {
                 if (m_workArea.mesh().adjacentPoints(itBefore).contains(it)) {
                     m_workArea.mesh().addEdge(itBefore, itDest);
                 }
@@ -665,6 +793,7 @@ void ObjectCreator::toolOperationOnPoint() {
             pointDeleter();
         case Tool::NewPoint:
         case Tool::CutLine:
+        case Tool::EditPoint:
         default:;
     }
 }
@@ -722,6 +851,8 @@ bool ObjectCreator::getClickCommand(const int x, const int y) {
     for (size_t i = 0; i < m_toolButtons.size(); ++i) {
         if (m_toolButtons[i].hitCollision(x, y)) {
             m_tool = (Tool)i;
+            m_hovered = nullptr;
+            return true;
         }
     }
     for (size_t i = 0;  i < m_layers.size() && i < m_layerSelectButtons.size(); ++i) {
@@ -755,6 +886,10 @@ bool ObjectCreator::getClickCommand(const int x, const int y) {
             layerViewMover(x, y);
             return false;
         }
+        if (m_workArea.insideWorkArea(x, y) && m_tool == Tool::EditPoint) {
+            m_hovered = nullptr;
+            return true;
+        }
     }
     else {
         for (FixedMesh::iterator_type it = m_workArea.mesh().begin(); it != m_workArea.mesh().end(); ++it) {
@@ -769,7 +904,11 @@ bool ObjectCreator::getClickCommand(const int x, const int y) {
                     pointDeleter3D();
                     return true;
                 }
+                return true;
             }
+        }
+        if (m_pointDataButton.hitCollision(x, y) && m_hovered) {
+            return getDoubleClickCommand();
         }
         if (m_workArea.getCommand(x, y)) {
             return false;
@@ -779,30 +918,36 @@ bool ObjectCreator::getClickCommand(const int x, const int y) {
             lineCutter3D(x, y);
             return true;
         }
+        if (m_workArea.insideWorkArea(x, y) && m_tool == Tool::EditPoint) {
+            m_hovered = nullptr;
+            return true;
+        }
     }
     return false;
 }
 
 bool ObjectCreator::getHoverCommand(const int& xHov, const int& yHov) {
-    if (!m_selectedLayer) {
-        for (FixedMesh::iterator_type it = m_workArea.mesh().begin(); it != m_workArea.mesh().end(); ++it) {
-            if (it->button2d.hitCollision(xHov, yHov)) {
-                m_hovered = it;
-                return true;
+    if (m_tool != Tool::EditPoint) {
+        if (!m_selectedLayer) {
+            for (FixedMesh::iterator_type it = m_workArea.mesh().begin(); it != m_workArea.mesh().end(); ++it) {
+                if (it->button2d.hitCollision(xHov, yHov)) {
+                    m_hovered = it;
+                    return true;
+                }
             }
         }
-    }
-    else {
-        for (const auto& node : m_selectedLayer->value.data) {
-            if (node.value.hitCollision(xHov, yHov)) {
-                m_hovered = node.key;
-                return true;
+        else {
+            for (const auto& node : m_selectedLayer->value.data) {
+                if (node.value.hitCollision(xHov, yHov)) {
+                    m_hovered = node.key;
+                    return true;
+                }
             }
         }
-    }
-    if (m_hovered) {
-        m_hovered = nullptr;
-        return true;
+        if (m_hovered) {
+            m_hovered = nullptr;
+            return true;
+        }
     }
     return false;
 }
@@ -821,6 +966,9 @@ bool ObjectCreator::getDoubleClickCommand() {
     getmouseclick(WM_LBUTTONDBLCLK, x, y);
     if (x == -1) {
         return false;
+    }
+    if (m_pointDataButton.hitCollision(x, y) && m_hovered) {
+        return changePointData(x, y);
     }
     for (size_t i = 0; i < m_layerSelectButtons.size() && i < m_layers.size(); ++i) {
         if (m_layerSelectButtons[i].txtButton.hitCollision(x, y)) {

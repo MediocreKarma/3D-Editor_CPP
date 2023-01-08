@@ -14,7 +14,7 @@
 class ObjectCreator {
     public:
         enum class Tool {
-            NewPoint = 0, MovePoint, ConnectPoint, DeletePoint, CutLine
+            NewPoint = 0, MovePoint, EditPoint, DeletePoint, ConnectPoint, CutLine
         };
         ObjectCreator(const int& theme = 0, int language = 0);
         ObjectCreator(const Mesh& editedMesh, const int& theme = 0,
@@ -56,7 +56,7 @@ class ObjectCreator {
         Button m_addLayerButton;
         Button m_deleteLayerButton;
         Button m_minimizedSpaceButton;
-        MyArray<ImageButton, 5> m_toolButtons;
+        MyArray<ImageButton, 6> m_toolButtons;
         Tool m_tool;
         int workX0;
         int workY0;
@@ -71,10 +71,12 @@ class ObjectCreator {
         int m_closeFlag; //close w discard vs close w save
         TextButton m_discardButton, m_saveButton;
         DropdownButton<4> m_generateButton;
+        Button m_pointDataButton;
 
         void init();
         void resetLine();
         int getLayerByHeight(const int& height);
+        void drawToolButtonSymbol(const int xCenter, const int yCenter, const int btnWidth, const int toolIndex);
         void layerViewMover(int x, int y);
         void pointMover();
         void pointConnector2D();
@@ -93,6 +95,7 @@ class ObjectCreator {
         void drawPointData();
         MyArray<char, 32> itoa(int x, const char* prefix = nullptr);
         int atoi(MyArray<char, 256>& arr);
+        bool changePointData(const int x, const int y);
         bool getClickCommand(const int x, const int y);
         bool getClickCommand();
         bool getHoverCommand();
