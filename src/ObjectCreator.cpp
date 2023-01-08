@@ -15,33 +15,6 @@ ObjectCreator::ObjectCreator(const Mesh& mesh, const int& theme, int language) :
     init();
 }
 
-/*ObjectCreator::ObjectCreator(const ObjectCreator& oc) :
-    m_theme(oc.m_theme), m_language(oc.m_language), m_layers(oc.m_layers), m_layerSelectButtons(oc.m_layerSelectButtons), m_layerPointButtons(oc.m_layerPointButtons), m_layerAdjListIndex(oc.m_layerAdjListIndex),
-    m_addLayerButton(oc.m_addLayerButton), m_pointButtons(oc.m_pointButtons), m_minimizedSpaceButton(oc.m_minimizedSpaceButton), m_toolButtons(oc.m_toolButtons), m_tool(oc.m_tool),
-    x0(oc.x0), y0(oc.y0), x1(oc.x1), y1(oc.y1), workX0(oc.workX0), workY0(oc.workY0), workX1(oc.workX1), workY1(oc.workY1), m_workArea(oc.m_workArea), m_workMesh(oc.m_workMesh),
-    m_selectedLayer(oc.m_selectedLayer), m_hovered(oc.m_hovered), m_assistLine(oc.m_assistLine), m_assistLineDotted(oc.m_assistLineDotted),
-    m_layerSelectsBegin(oc.m_layerSelectsBegin), m_layerSelectsEnd(oc.m_layerSelectsEnd), m_layerScrollArrows(oc.m_layerScrollArrows), m_layerTools(oc.m_layerTools), m_closeFlag(oc.m_closeFlag),
-    m_discardButton(oc.m_discardButton), m_saveButton(oc.m_saveButton), m_generateButton(oc.m_generateButton){}
-
-ObjectCreator& ObjectCreator::operator = (const ObjectCreator& oc) {
-    m_theme = oc.m_theme;
-    m_language = oc.m_language;
-    x0 = oc.x0, y0 = oc.y0, x1 = oc.x1, y1 = oc.y1;
-    workX0 = oc.workX0, workY0 = oc.workY0, workX1 = oc.workX1, workY1 = oc.workY1;
-    toolButtonsInit();
-    m_workArea.setCorners(workX0, workY0, workX1, workY1);
-    Mesh mesh = oc.m_workArea.meshAt(0);
-    m_workArea.addMesh(mesh);
-    m_assistLine = oc.m_assistLine;
-    m_hovered = oc.m_hovered;
-    m_layerSelectsBegin = oc.m_layerSelectsBegin;
-    m_layerSelectsEnd = oc.m_layerSelectsEnd;
-    m_workArea.render();
-    m_closeFlag = oc.m_closeFlag;
-    init();
-    return *this;
-}*/
-
 void ObjectCreator::toolButtonsInit() {
     MyArray<MyArray<char, 128>, 5> filenames;
     filenames[(size_t)Tool::NewPoint] = "media\\buttonAddPoint.gif";
@@ -831,7 +804,7 @@ Mesh ObjectCreator::run() {
         }
     }
     closegraph(getcurrentwindow());
-    return Mesh(m_workArea.mesh());
+    return m_workArea.mesh().meshConversion();
 }
 
 const int& ObjectCreator::getCloseFlag() const {
