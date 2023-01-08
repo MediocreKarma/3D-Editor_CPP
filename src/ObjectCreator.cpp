@@ -6,7 +6,7 @@ const double pi = 3.1415926535897;
 ObjectCreator::ObjectCreator(const Mesh& mesh, const int& theme, int language) :
     m_width(1000), m_height(800), m_theme(theme), m_language(language), m_layers(), m_layerSelectButtons(), m_selectedLayer(), m_addLayerButton(), m_deleteLayerButton(), m_dupeLayerButton(),
     m_minimizedSpaceButton(), m_toolButtons(),
-    m_tool(Tool::MovePoint), workX0(26), workY0(26), workX1(800), workY1(800), m_workArea(theme, mesh, this),
+    m_tool(Tool::MovePoint), workX0(32), workY0(32), workX1(800), workY1(800), m_workArea(theme, mesh, this),
     m_hovered(), m_assistLine(), m_assistLineDotted(false), m_layerScrollArrows(),
     m_layerTools(), m_closeFlag(false), m_discardButton(), m_saveButton(), m_generateButton(), m_pointDataButton() {
     toolButtonsInit();
@@ -31,6 +31,24 @@ void ObjectCreator::toolButtonsInit() {
     m_generateButton.addOption(Language::Text[(int)Lang::Cone][m_language].data());
     m_generateButton.addOption(Language::Text[(int)Lang::Cylinder][m_language].data());
     m_generateButton.addOption(Language::Text[(int)Lang::Sphere][m_language].data());
+}
+
+void ObjectCreator::drawMinimizedSpaceCube() {
+    setlinestyle(SOLID_LINE, 0, 1);
+    int btnOffsetX = m_minimizedSpaceButton.getXCenter() - m_minimizedSpaceButton.getXLen() / 2 - 3;
+    int btnOffsetY = m_minimizedSpaceButton.getYCenter() - m_minimizedSpaceButton.getYLen() / 2 - 14;
+    line(38 + btnOffsetX, 162 + btnOffsetY, 35 + btnOffsetX, 71 + btnOffsetY);
+    line(38 + btnOffsetX, 162 + btnOffsetY, 87 + btnOffsetX, 134 + btnOffsetY);
+    line(38 + btnOffsetX, 162 + btnOffsetY, 120 + btnOffsetX, 182 + btnOffsetY);
+    line(35 + btnOffsetX, 71 + btnOffsetY, 86 + btnOffsetX, 52 + btnOffsetY);
+    line(35 + btnOffsetX, 71 + btnOffsetY, 121 + btnOffsetX, 85 + btnOffsetY);
+    line(87 + btnOffsetX, 134 + btnOffsetY, 86 + btnOffsetX, 52 + btnOffsetY);
+    line(87 + btnOffsetX, 134 + btnOffsetY, 163 + btnOffsetX, 150 + btnOffsetY);
+    line(120 + btnOffsetX, 182 + btnOffsetY, 121 + btnOffsetX, 85 + btnOffsetY);
+    line(120 + btnOffsetX, 182 + btnOffsetY, 163 + btnOffsetX, 150 + btnOffsetY);
+    line(86 + btnOffsetX, 52 + btnOffsetY, 166 + btnOffsetX, 63 + btnOffsetY);
+    line(121 + btnOffsetX, 85 + btnOffsetY, 166 + btnOffsetX, 63 + btnOffsetY);
+    line(163 + btnOffsetX, 150 + btnOffsetY, 166 + btnOffsetX, 63 + btnOffsetY);
 }
 
 void ObjectCreator::drawToolButtonSymbol(const int xCenter, const int yCenter, const int btnWidth, const int toolIndex) {
@@ -100,6 +118,7 @@ void ObjectCreator::drawToolButtonSymbol(const int xCenter, const int yCenter, c
         }
         case Tool::EditPoint: {
             setcolor(BLACK);
+            setlinestyle(SOLID_LINE, 0, 2);
             int pencilWidth = 2;
             int x0 = xCenter - btnTrueWidth;
             int y0 = yCenter - btnTrueWidth;
@@ -221,8 +240,10 @@ void ObjectCreator::drawSelectLayers() {
             m_layerSelectButtons[i].txtButton.drawTextButton(1, 3, btnColor, false);
         }
     }
-    //butoane de PLUS + arrows
     setcolor(ColorSchemes::themeColors[m_theme][ColorSchemes::SECONDARYCOLOR]);
+    setlinestyle(SOLID_LINE, 0, 2);
+    setbkcolor(LIGHTGRAY);
+    setfillstyle(SOLID_FILL, LIGHTGRAY);
     int x = m_addLayerButton.getXCenter();
     int y = m_addLayerButton.getYCenter();
     static const int HALF_BTN_SIZE = 15;
@@ -330,13 +351,16 @@ void ObjectCreator::drawLayerView() {
 void ObjectCreator::drawPointData() {
     const IntegerPoint3D& p = m_hovered->point;
     MyArray<char, 32> headerText;
+    setbkcolor(ColorSchemes::themeColors[m_theme][ColorSchemes::PRIMARYCOLOR]);
+    setfillstyle(SOLID_FILL, ColorSchemes::themeColors[m_theme][ColorSchemes::PRIMARYCOLOR]);
     if (m_tool != Tool::EditPoint) {
         headerText = Language::Text[(int)Lang::Point][m_language];
         m_pointDataButton = Button(760, 75, 60, 90);
     }
     else {
         headerText = Language::Text[(int)Lang::Edit_Point][m_language];
-        m_pointDataButton = Button(730, 75, 90, 90);
+        MyArray<char, 32> langText = "Editeaza punct:";//the wider one
+        m_pointDataButton = Button(730, 75, textwidth(langText.data()) + 10, 90);
     }
     m_pointDataButton.drawLabel(ColorSchemes::themeColors[m_theme][ColorSchemes::PRIMARYCOLOR],
                                 ColorSchemes::themeColors[m_theme][ColorSchemes::SECONDARYCOLOR]);
@@ -346,6 +370,7 @@ void ObjectCreator::drawPointData() {
     int x0 = m_pointDataButton.getXCenter() - m_pointDataButton.getXLen() / 2 + 5;
     int y0 = m_pointDataButton.getYCenter() - m_pointDataButton.getYLen() / 2 + 5;
     int offset = 20;
+    setbkcolor(ColorSchemes::themeColors[m_theme][ColorSchemes::PRIMARYCOLOR]);
     outtextxy(x0, y0, headerText.data());
     outtextxy(x0, y0 + offset, xPosText.data());
     outtextxy(x0, y0 + 2 * offset, yPosText.data());
@@ -412,7 +437,7 @@ bool ObjectCreator::changePointData(const int x, const int y) {
                 }
                 m_workArea.mesh().updatePointValue(m_hovered, newPos);
             }
-            m_layers[result].updateButtons(xCenter, yCenter);
+            m_layers[coords[2]].updateButtons(xCenter, yCenter);
             setvisualpage(1 - getactivepage());
             return true;
         }
@@ -437,7 +462,13 @@ void ObjectCreator::draw() {
         else {
             m_assistLine.draw();
         }
+        setfillstyle(SOLID_FILL, LIGHTGRAY);
+        bar(0, 0, m_width, m_discardButton.getYLen() + 2);
+        bar(m_width - m_minimizedSpaceButton.getXLen() - 3, 0, m_width, m_height);
+        bar(0, 0, 34, m_height);
         m_minimizedSpaceButton.drawLabel(LIGHTGRAY, ColorSchemes::themeColors[m_theme][ColorSchemes::ACCENTCOLOR]);
+        setcolor(BLACK);
+        drawMinimizedSpaceCube();
     }
     else {
         setcolor(ColorSchemes::themeColors[m_theme][ColorSchemes::SECONDARYCOLOR]);
@@ -454,8 +485,13 @@ void ObjectCreator::draw() {
         drawLayerView();
         setbkcolor(ColorSchemes::themeColors[m_theme][ColorSchemes::PRIMARYCOLOR]);
         setcolor(ColorSchemes::themeColors[m_theme][ColorSchemes::SECONDARYCOLOR]);
-        outtextxy(0, 3, itoa(m_selectedLayer->key, Language::Text[(int)Lang::Current_Layer][m_language].data()).data());
+        setfillstyle(SOLID_FILL, LIGHTGRAY);
+        bar(0, 0, m_width, m_discardButton.getYLen() + 2);
+        bar(m_width - m_minimizedSpaceButton.getXLen() - 3, 0, m_width, m_height);
+        bar(0, 0, 34, m_height);
         m_minimizedSpaceButton.drawLabel(LIGHTGRAY, ColorSchemes::themeColors[m_theme][ColorSchemes::ACCENTCOLOR]);
+        setcolor(BLACK);
+        drawMinimizedSpaceCube();
     }
     if (m_hovered) {
         drawPointData();
@@ -981,6 +1017,9 @@ bool ObjectCreator::getClickCommand(const int x, const int y) {
             layerViewMover(x, y);
             return false;
         }
+        if (m_pointDataButton.hitCollision(x, y) && m_hovered) {
+            return getDoubleClickCommand();
+        }
         if (m_workArea.insideWorkArea(x, y) && m_tool == Tool::EditPoint) {
             m_hovered = nullptr;
             return true;
@@ -1119,7 +1158,6 @@ Mesh ObjectCreator::generateCube(const unsigned int& length_) {
 
 Mesh ObjectCreator::generateCone(const unsigned int& height, const unsigned int& radius, const unsigned int& sides) {
     Mesh cone = Mesh();
-    std::cout<<cone.size();
     cone.addPoint(0, 0, height / 2);
     Point3D tmp(0, radius, -((int)height / 2));
     for (size_t i = 0; i < sides; ++i) {
@@ -1303,17 +1341,6 @@ bool ObjectCreator::generate(int index) {
         }
     }
     if (saveFlag) {
-        /*daca vrei sa verifici cum arata meshu Mesh generat
-        std::cout<<"\n\nCONNECTIONS in MESH\n";
-        for(size_t i = 0; i < tmp.size(); ++i) {
-            tmp[i].display();
-            std::cout<<" - ";
-            for (auto& pnt : tmp.adjListAt(i)) {
-                tmp[pnt].display(false);
-                std::cout<<"; ";
-            }
-            std::cout<<"\n\n";
-        }*/
         Mesh tmp;
         switch(index) {
             case 0:

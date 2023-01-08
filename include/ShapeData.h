@@ -32,9 +32,6 @@ struct Point2D {
     void translate(const Point2D& other);
     void translate(const int& x_, const int& y_);
     friend bool linesIntersect(const Point2D& A, const Point2D& B, const Point2D& C, const Point2D& D);
-    //iostream
-    void display() const;
-    void display(bool endlAfter) const;
 
     int x;
     int y;
@@ -116,9 +113,6 @@ struct Point3D {
     bool fscan(FILE* fp);
     double norm() const;
     void normalize();
-    //iostream
-    void display() const;
-    void display(bool endlAfter) const;
 
     friend bool operator < (const Point3D& x, const Point3D& y);
     friend Point3D cross(const Point3D& p1, const Point3D& p2);

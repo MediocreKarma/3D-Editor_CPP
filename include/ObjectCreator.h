@@ -77,6 +77,7 @@ class ObjectCreator {
         void init();
         void resetLine();
         int getLayerByHeight(const int& height);
+        void drawMinimizedSpaceCube();
         void drawToolButtonSymbol(const int xCenter, const int yCenter, const int btnWidth, const int toolIndex);
         void layerViewMover(int x, int y);
         void pointMover();

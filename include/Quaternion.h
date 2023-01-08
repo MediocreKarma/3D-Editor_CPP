@@ -17,7 +17,6 @@ class Quaternion
         Quaternion(const double& yaw, const double& pitch, const double& roll);
         Quaternion& operator=(const Quaternion& rhs);
         MyArray<double, 3> toEuler() const;
-        void display(); //for debugging
         double real() const;
         TVector3 complex() const;
         TVector4 data() const;

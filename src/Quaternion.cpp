@@ -154,12 +154,6 @@ Quaternion Quaternion::inverse() const noexcept {
     }
     return conj;
 }
-void Quaternion::display() {
-    for(size_t i = 0; i < 4; i++) {
-        std::cout<<m_data[i]<<" ";
-    }
-    std::cout<<"\n";
-}
 
 MyArray<double, 3> Quaternion::toEuler() const {
     double qw = m_data[0], qx = m_data[1], qy = m_data[2], qz = m_data[3];

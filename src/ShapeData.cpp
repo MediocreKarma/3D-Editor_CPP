@@ -71,14 +71,6 @@ void Point2D::translate (const int& x_, const int& y_) {
     y += y_;
 }
 
-void Point2D::display() const {
-    std::cout<<x<<" "<<y<<"\n";
-}
-
-void Point2D::display(bool endlAfter) const {
-    std::cout<<x<<" "<<y<<(endlAfter?"\n":"");
-}
-
 Line2D::Line2D() :
     P(), Q() {}
 
@@ -352,14 +344,6 @@ bool Point3D::fscan(FILE* fp) {
         return false;
     }
     return true;
-}
-
-void Point3D::display() const {
-    std::cout<<x<<" "<<y<<" "<<z<<"\n";
-}
-
-void Point3D::display(bool endlAfter) const {
-    std::cout<<x<<" "<<y<<" "<<z<<(endlAfter?"\n":"");
 }
 
 double Point3D::norm() const {
@@ -883,7 +867,6 @@ void Mesh::applyTransforms(const MeshTransforms& transforms) {
         scaleAxis(transforms[0][i], i);
     }
     Quaternion quat(transforms[1][0] * PI / 180, transforms[1][1] * PI / 180, transforms[1][2] * PI / 180);
-    quat.display();
     rotateByUnitQuat(quat);
     translate(Point3D(transforms[2]));
 }

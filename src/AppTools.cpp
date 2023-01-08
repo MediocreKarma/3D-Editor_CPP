@@ -1,8 +1,6 @@
 #include "AppTools.h"
 
 int ColorSchemes::mixColors(int color1, int color2, uint8_t percentage) {
-    //we're probably not gonna work with slightly reddened shades of black
-    //so i'm gonna turn any bgi color to a rgb color
     if (IS_BGI_COLOR(color1)) {
         color1 = converttorgb(color1);
     }
@@ -173,7 +171,6 @@ ImageButton::ImageButton(const int& xCenter_, const int& yCenter_, const int& xL
     Button(xCenter_, yCenter_, xLen_, yLen_), filename(filename_) {}
 
 void ImageButton::drawImageButton() {
-    //drawLabel(0);
     readimagefile(filename.data(), xCenter - xLen / 2 + 1, yCenter - yLen / 2 + 1 , xCenter + xLen / 2 - 1, yCenter + yLen / 2 - 1);
 }
 
