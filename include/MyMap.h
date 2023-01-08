@@ -65,9 +65,11 @@ class MyMapIterator {
         }
 
         iterator& operator -- () noexcept {
-            m_ptr = predecessor(m_ptr);
             if (m_ptr == MyMap<KeyType, ValueType, F>::nil) {
                 m_ptr = rightmost(m_root);
+            }
+            else {
+                m_ptr = predecessor(m_ptr);
             }
             return *this;
         }
