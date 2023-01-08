@@ -623,7 +623,7 @@ void Space3D::updateTransformFields() {
         for (size_t j = 0; j < 3; ++j) {
             char str[32] = "";
             double value = meshTrans[i][j];
-            if (signbit(value) && (int)(value * 100) == 0) {
+            if (std::signbit(value) && (int)(value * 100) == 0) {
                 value = 0;
             }
             switch (j) {
