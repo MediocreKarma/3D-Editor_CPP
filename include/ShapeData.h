@@ -273,9 +273,10 @@ class FixedMesh {
         using const_iterator_type = MyList<ListContainer>::const_iterator;
 
         FixedMesh();
-        FixedMesh(const Mesh& other);
+        explicit FixedMesh(const Mesh& other);
         FixedMesh(const FixedMesh& other);
-        FixedMesh& operator = (const FixedMesh& rhs);
+        FixedMesh& operator = (const FixedMesh& other);
+
         void addEdge(const IntegerPoint3D& x, const IntegerPoint3D& y);
         void addEdge(iterator_type it1, iterator_type it2);
         void addPoint(const IntegerPoint3D& x);
@@ -302,6 +303,7 @@ class FixedMesh {
         const MyHashSet<iterator_type>& adjacentPoints(const IntegerPoint3D& x);
         const MyHashSet<iterator_type>& adjacentPoints(iterator_type);
         MyVector<MyVector<size_t>> adjListConversion();
+        Mesh meshConversion();
 
     private:
         MyList<ListContainer> m_points;
