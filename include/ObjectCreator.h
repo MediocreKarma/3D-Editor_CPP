@@ -54,6 +54,7 @@ class ObjectCreator {
         MyVector<LayerSelectButtonData> m_layerSelectButtons;
         MyMap<int, LayerInfo>::iterator m_selectedLayer;
         Button m_addLayerButton;
+        Button m_deleteLayerButton;
         Button m_minimizedSpaceButton;
         MyArray<ImageButton, 5> m_toolButtons;
         Tool m_tool;
@@ -103,7 +104,8 @@ class ObjectCreator {
         bool moveLayerSelectsInterval(const int dir);
         void centerLayerButton();
         void addLayer();
-        void mergeLayers(MyMap<int, LayerInfo>::iterator moving, MyMap<int, LayerInfo>::iterator destination);
+        void deleteLayer();
+        void mergeLayers(const int movingIndex, MyMap<int, LayerInfo>::iterator destination);
         void editLayer(const int layerIndex);
         Mesh generateCube(const unsigned int& length_);
         Mesh generateCylinder(const unsigned int& height, const unsigned int& radius, const unsigned int& sides);

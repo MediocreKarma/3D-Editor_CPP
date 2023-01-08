@@ -79,7 +79,7 @@ void Space3D::setButtons() {
     m_donutOY = DonutButton(xSpinballCenter, ySpinballCenter + 220, 40, 20);
     m_donutOZ = DonutButton(xSpinballCenter, ySpinballCenter + 320, 40, 20);
     static const int MENU_BTN_HEIGHT = 24;
-    m_meshContextMenu = DropdownButton<7>(-1000, -1000, 0, 0, "", 130, 6 * MENU_BTN_HEIGHT);
+    m_meshContextMenu = DropdownButton<4>(-1000, -1000, 0, 0, "", 130, 4 * MENU_BTN_HEIGHT);
     m_meshContextMenu.addOption(Language::Text[(int)Lang::Edit_Mesh][m_language].data());
     m_meshContextMenu.addOption(Language::Text[(int)Lang::Scale][m_language].data());
     m_meshContextMenu.addOption(Language::Text[(int)Lang::Reset_Transforms][m_language].data());
@@ -843,7 +843,7 @@ bool Space3D::getCommand(const int& x, const int& y) {
                 int getCurrentWindowNumber = getcurrentwindow();
                 Mesh aux;
                 ObjectCreator objCreator(aux, m_theme, m_language);
-                FixedMesh result = objCreator.run();
+                Mesh result = objCreator.run();
                 aux = result;
                 if (objCreator.getCloseFlag() == 2) {
                     addMesh(aux);

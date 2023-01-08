@@ -81,7 +81,7 @@ class Space3D
         Button m_arrowDown;
         Button m_arrowSpinLeft;
         Button m_arrowSpinRight;
-        DropdownButton<7> m_meshContextMenu;
+        DropdownButton<4> m_meshContextMenu;
         bool m_meshMenuVisible;
         DropdownButton<2> m_spaceContextMenu;
         bool m_spaceMenuVisible;

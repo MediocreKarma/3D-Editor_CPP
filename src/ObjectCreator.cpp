@@ -5,7 +5,8 @@
 const double pi = 3.1415926535897;
 
 ObjectCreator::ObjectCreator(const Mesh& mesh, const int& theme, int language) :
-    m_width(1000), m_height(800), m_theme(theme), m_language(language), m_layers(), m_layerSelectButtons(), m_selectedLayer(), m_addLayerButton(), m_minimizedSpaceButton(), m_toolButtons(),
+    m_width(1000), m_height(800), m_theme(theme), m_language(language), m_layers(), m_layerSelectButtons(), m_selectedLayer(), m_addLayerButton(), m_deleteLayerButton(),
+    m_minimizedSpaceButton(), m_toolButtons(),
     m_tool(Tool::MovePoint), workX0(26), workY0(26), workX1(800), workY1(800), m_workArea(theme, mesh, this),
     m_hovered(), m_assistLine(), m_assistLineDotted(false), m_layerScrollArrows(),
     m_layerTools(), m_closeFlag(false), m_discardButton(), m_saveButton(), m_generateButton() {
@@ -54,18 +55,14 @@ void ObjectCreator::init() {
     size_t i = 0;
     auto it = m_layers.begin();
     while (i < m_layerSelectButtons.size()) {
-        m_layerSelectButtons[i].it = MyMap<int, LayerInfo>::iterator();
-        ++i;
-    }
-    i = 0;
-    while (i < m_layers.size() && i < m_layerSelectButtons.size()) {
         m_layerSelectButtons[i].it = it++;
         ++i;
     }
     renderLayerSelectButtons();
     m_minimizedSpaceButton = Button(m_width - 100 - 1, 100 - 1, 200 - 1, 200 - 4);
     m_addLayerButton = Button(m_width - 180, 200 + 20 + m_layerSelectButtons.size() * 40, 40, 40);
-    m_layerScrollArrows[0] = Button(m_width - 100, 200 + 20 + m_layerSelectButtons.size() * 40, 40, 40);
+    m_deleteLayerButton = Button(m_width - 140, 200 + 20 + m_layerSelectButtons.size() * 40, 40, 40);
+    m_layerScrollArrows[0] = Button(m_width - 60, 200 + 20 + m_layerSelectButtons.size() * 40, 40, 40);
     m_layerScrollArrows[1] = Button(m_width - 20, 200 + 20 + m_layerSelectButtons.size() * 40, 40, 40);
 }
 
@@ -134,7 +131,7 @@ void ObjectCreator::drawToolButtons() {
 void ObjectCreator::drawSelectLayers() {
     int btnColor = RGB(160, 160, 160),
         highlightedColor = ColorSchemes::mixColors(btnColor, ColorSchemes::themeColors[m_theme][ColorSchemes::ACCENTCOLOR], 50);
-    for (size_t i = 0; i < m_layerSelectButtons.size(); ++i) {
+    for (size_t i = 0; i < m_layerSelectButtons.size() && i < m_layers.size(); ++i) {
         if (m_layerSelectButtons[i].it == m_selectedLayer) {
             m_layerSelectButtons[i].txtButton.drawTextButton(1, 3, highlightedColor, false);
         }
@@ -146,15 +143,17 @@ void ObjectCreator::drawSelectLayers() {
     setcolor(ColorSchemes::themeColors[m_theme][ColorSchemes::SECONDARYCOLOR]);
     int x = m_addLayerButton.getXCenter();
     int y = m_addLayerButton.getYCenter();
-    int visualHalfBtnSize = 15;
-    line(x - visualHalfBtnSize, y, x + visualHalfBtnSize, y);
-    line(x, y - visualHalfBtnSize, x, y + visualHalfBtnSize);
+    static const int HALF_BTN_SIZE = 15;
+    line(x - HALF_BTN_SIZE, y, x + HALF_BTN_SIZE, y);
+    line(x, y - HALF_BTN_SIZE, x, y + HALF_BTN_SIZE);
+    x = m_deleteLayerButton.getXCenter();
+    line(x - HALF_BTN_SIZE, y, x + HALF_BTN_SIZE, y);
     x = m_layerScrollArrows[0].getXCenter();
-    line(x - visualHalfBtnSize, y + visualHalfBtnSize / 2, x, y - visualHalfBtnSize / 2);
-    line(x + visualHalfBtnSize, y + visualHalfBtnSize / 2, x, y - visualHalfBtnSize / 2);
+    line(x - HALF_BTN_SIZE, y + HALF_BTN_SIZE / 2, x, y - HALF_BTN_SIZE / 2);
+    line(x + HALF_BTN_SIZE, y + HALF_BTN_SIZE / 2, x, y - HALF_BTN_SIZE / 2);
     x = m_layerScrollArrows[1].getXCenter();
-    line(x - visualHalfBtnSize, y - visualHalfBtnSize / 2, x, y + visualHalfBtnSize / 2);
-    line(x + visualHalfBtnSize, y - visualHalfBtnSize / 2, x, y + visualHalfBtnSize / 2);
+    line(x - HALF_BTN_SIZE, y - HALF_BTN_SIZE / 2, x, y + HALF_BTN_SIZE / 2);
+    line(x + HALF_BTN_SIZE, y - HALF_BTN_SIZE / 2, x, y + HALF_BTN_SIZE / 2);
 }
 
 void ObjectCreator::renderLayerSelectButtons() {
@@ -302,13 +301,23 @@ void ObjectCreator::draw() {
 }
 
 void ObjectCreator::centerLayerButton() {
-    //of
     //poftim un placeholder
-    size_t i = 0;
-    auto it = m_layers.begin();
-    while (i < m_layers.size() && i < m_layerSelectButtons.size()) {
-        m_layerSelectButtons[i].it = it++;
-        ++i;
+    if (m_layers.size() <= m_layerSelectButtons.size()) {
+        size_t i = 0;
+        auto it = m_layers.begin();
+        while (i < m_layers.size() && i < m_layerSelectButtons.size()) {
+            m_layerSelectButtons[i].it = it++;
+            ++i;
+        }
+    }
+    else {
+        //TODO. maybe.
+        size_t i = 0;
+        auto it = m_layers.begin();
+        while (i < m_layers.size() && i < m_layerSelectButtons.size()) {
+            m_layerSelectButtons[i].it = it++;
+            ++i;
+        }
     }
 }
 
@@ -355,12 +364,28 @@ void ObjectCreator::addLayer() {
     if (x != -1) {
         getClickCommand(x, y);
     }
-    draw();
 }
 
-void ObjectCreator::mergeLayers(MyMap<int, LayerInfo>::iterator moving, MyMap<int, LayerInfo>::iterator destination) {
+void ObjectCreator::deleteLayer() {
+    for (auto& dataNode : m_selectedLayer->value.data) {
+        FixedMesh::iterator_type it = dataNode.key;
+        m_workArea.mesh().erasePoint(it);
+    }
+    m_layers.erase(m_selectedLayer);
+    if (m_layers.size() >= 1) {
+        m_selectedLayer = m_layers.begin();
+    }
+    else {
+        m_selectedLayer = MyMap<int, LayerInfo>::iterator();
+    }
+    centerLayerButton();
+    renderLayerSelectButtons();
+}
+
+void ObjectCreator::mergeLayers(const int movingIndex, MyMap<int, LayerInfo>::iterator destination) {
     const int xCenter = (workX0 + workX1) / 2;
     const int yCenter = (workY0 + workY1) / 2;
+    auto& moving = m_layerSelectButtons[movingIndex].it;
     for (auto& dataNode : moving->value.data) {
         FixedMesh::iterator_type it = dataNode.key;
         IntegerPoint3D newPoint = it->point;
@@ -371,6 +396,15 @@ void ObjectCreator::mergeLayers(MyMap<int, LayerInfo>::iterator moving, MyMap<in
             m_layers[destination->key].data.insert(it, pntBtn);
         }
         else {
+            auto itDest = m_workArea.mesh().find(newPoint);
+            for (auto& pnt : m_workArea.mesh().adjacentPoints(it)) {
+                m_workArea.mesh().addEdge(itDest, pnt);
+            }
+            for (FixedMesh::iterator_type itBefore = m_workArea.mesh().begin(); itBefore != m_workArea.mesh().end() /*&& itBefore->point < it->point*/; ++itBefore) {
+                if (m_workArea.mesh().adjacentPoints(itBefore).contains(it)) {
+                    m_workArea.mesh().addEdge(itBefore, itDest);
+                }
+            }
             m_workArea.mesh().erasePoint(it);
         }
     }
@@ -387,15 +421,17 @@ void ObjectCreator::editLayer(const int layerIndex) {
     m_selectedLayer = m_layerSelectButtons[layerIndex].it;
     draw();
     setactivepage(getvisualpage());
-    NumericInputBox txtBox(editedLayer.getXCenter() - 35, editedLayer.getXCenter() + 90, editedLayer.getYCenter(),
-                            BLACK, highlightedColor);
+    MyArray<char, 32> prefix = Language::Text[(int)Lang::Layer_Z][m_language];
+    NumericInputBox txtBox(editedLayer.getXCenter() - editedLayer.getXLen() / 2 +
+                           textwidth(prefix.data()) + 5, editedLayer.getXCenter() + 90,
+                           editedLayer.getYCenter(), BLACK, highlightedColor);
     int result = txtBox.getIntegerValue();
     setvisualpage(1 - getactivepage());
     if (result == m_selectedLayer->key) {
         return;
     }
     if (m_layers.contains(result)) {
-        mergeLayers(m_selectedLayer, m_layers.find(result));
+        mergeLayers(layerIndex, m_layers.find(result));
         int x, y;
         txtBox.getClick(x, y);
         if (x != -1) {
@@ -485,6 +521,7 @@ void ObjectCreator::pointMover() {
 void ObjectCreator::pointConnector2D() {
     const int xCenter = (workX0 + workX1) / 2;
     const int yCenter = (workY0 + workY1) / 2;
+    const Point2D layerCenter = m_selectedLayer->value.centerPoint;
     setcolor(ColorSchemes::themeColors[m_theme][ColorSchemes::SECONDARYCOLOR]);
     FixedMesh::iterator_type firstPoint = m_hovered;
     int xFirstPoint = firstPoint->point.x;
@@ -496,7 +533,7 @@ void ObjectCreator::pointConnector2D() {
         if (!m_workArea.insideWorkArea(xDrag, yDrag)) {
             continue;
         }
-        m_assistLine = Line2D(xCenter + xFirstPoint, yCenter - yFirstPoint, xDrag, yDrag);
+        m_assistLine = Line2D(xCenter + xFirstPoint + layerCenter.x, yCenter - yFirstPoint - layerCenter.y, xDrag, yDrag);
         getHoverCommand(xDrag, yDrag);
         draw();
     }
@@ -645,6 +682,11 @@ bool ObjectCreator::getClickCommand(const int x, const int y) {
     }
     if (m_addLayerButton.hitCollision(x, y)) {
         addLayer();
+        return true;
+    }
+    if (m_deleteLayerButton.hitCollision(x, y) && m_selectedLayer && m_selectedLayer != MyMap<int, LayerInfo>::iterator()) {
+        deleteLayer();
+        return true;
     }
     if (m_generateButton.isListVisible()) {
         if (m_generateButton.listHitCollision(x, y) > -1) {
@@ -682,7 +724,7 @@ bool ObjectCreator::getClickCommand(const int x, const int y) {
             m_tool = (Tool)i;
         }
     }
-    for (size_t i = 0; i < m_layerSelectButtons.size(); ++i) {
+    for (size_t i = 0;  i < m_layers.size() && i < m_layerSelectButtons.size(); ++i) {
         if (m_layerSelectButtons[i].txtButton.hitCollision(x, y)) {
             m_selectedLayer = m_layerSelectButtons[i].it;
             return true;
@@ -780,7 +822,7 @@ bool ObjectCreator::getDoubleClickCommand() {
     if (x == -1) {
         return false;
     }
-    for (size_t i = 0; i < m_layerSelectButtons.size(); ++i) {
+    for (size_t i = 0; i < m_layerSelectButtons.size() && i < m_layers.size(); ++i) {
         if (m_layerSelectButtons[i].txtButton.hitCollision(x, y)) {
             editLayer(i);
             return true;
@@ -838,20 +880,15 @@ Mesh ObjectCreator::generateCone(const unsigned int& height, const unsigned int&
     cone.addPoint(0, 0, height / 2);
     Point3D tmp(0, radius, -((int)height / 2));
     for (size_t i = 0; i < sides; ++i) {
-        //o sa generam o singura data un corp din asta; eficienta nu e neaparat esentiala
-        //decat sa fac cu sin si cos mai bine folosesc ce am deja de la quaternioni
         tmp.rotateByAxisVector(2 * pi / sides, {0, 0, 1});
         cone.addPoint(tmp);
         cone[cone.size() - 1].round();
         cone.addEdge(cone.size() - 1, cone.size() - 2);
-        std::cout<<"cone sizes: "<<cone.size() - 1 <<" "<<cone.size() - 2 <<"\n";
         if (i > 0) {
             cone.addEdge(cone.size() - 1, 0);
-            std::cout<<"edges: "<<cone.size() - 1 <<" "<<0<<"\n";
         }
     }
     cone.addEdge(cone.size() - 1, cone.size() - sides);
-    std::cout<<"edges: "<<cone.size() - 1 <<" "<<cone.size() - sides<<"\n";
     return cone;
 }
 
@@ -935,7 +972,7 @@ bool ObjectCreator::generate(int index) {
     params[1] = 100;
     params[2] = 12;
     if (index == 3) {
-        params[0] = 200;
+        params[0] = 100;
         params[1] = 12;
         params[2] = 12;
     }
@@ -1050,6 +1087,7 @@ bool ObjectCreator::generate(int index) {
             default:;
         }
         m_workArea.mesh() = FixedMesh(tmp);
+        m_selectedLayer = MyMap<int, LayerInfo>::iterator();
         toolButtonsInit();
         init();
         renderLayerSelectButtons();

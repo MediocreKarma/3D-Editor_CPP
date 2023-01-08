@@ -262,7 +262,7 @@ class MyHashMap {
                     m_hmap[hashKey].erase(it);
                     --m_size;
                     incrementFirstOrLastBucket(hashKey);
-                    if (m_size > 2 && m_size > m_capacity * UnderCapacityMultiplier) {
+                    if (m_capacity > 2 && m_size > m_capacity * UnderCapacityMultiplier) {
                         rehash(m_capacity / ResizeMultiplier);
                     }
                     break;
