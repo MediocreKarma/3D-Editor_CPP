@@ -635,6 +635,7 @@ void Space3D::updateTransformFields() {
                     break;
                 case 2:
                     sprintf(str, "Z: %.2f", value);
+                default:;
             }
             MyArray<char, 32> txt = str;
             m_transformTextBtns[i][j].modifyText(txt);
@@ -839,7 +840,7 @@ bool Space3D::getCommand(const int& x, const int& y) {
             case 0:
                 updateTransform();
                 break;
-            case 1:
+            case 1: {
                 int getCurrentWindowNumber = getcurrentwindow();
                 Mesh aux;
                 ObjectCreator objCreator(aux, m_theme, m_language);
@@ -850,6 +851,8 @@ bool Space3D::getCommand(const int& x, const int& y) {
                 }
                 setcurrentwindow(getCurrentWindowNumber);
                 break;
+            }
+            default:;
         }
         return true;
     }
@@ -931,6 +934,7 @@ bool Space3D::getCommand(const int& x, const int& y) {
                             m_updated[m_selected] = true;
                             return true;
                         }
+                        default:;
                     }
                     return true;
                 }
@@ -1269,6 +1273,7 @@ void Space3D::moveMesh() {
                     }
                     break;
                 }
+                default:;
             }
         }
         getmouseclick(WM_MOUSEMOVE, xMove, yMove);

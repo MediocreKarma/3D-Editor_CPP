@@ -183,7 +183,7 @@ bool Menu::getCommand(const int& x, const int& y) {
         }
         while(!feof(helpf)) {
             //temporar pt ca mi da warning si nu mi ia empty lines, dar functioneaza
-            char buf[512];
+            char buf[256];
             fscanf(helpf, "%[^\n]\n", &buf);
             helpText.push_back(MyArray<char, 256>(buf));
         }

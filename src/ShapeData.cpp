@@ -749,6 +749,7 @@ void Mesh::scaleAxis(const double& scaleFactor, const size_t& axis) {
             }
             m_scaleZ *= scaleFactor;
             break;
+        default:;
     }
     translate(center);
     rotateByUnitQuat(quat);

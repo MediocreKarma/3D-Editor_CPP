@@ -55,8 +55,9 @@ class ObjectCreator {
         MyMap<int, LayerInfo>::iterator m_selectedLayer;
         Button m_addLayerButton;
         Button m_deleteLayerButton;
+        Button m_dupeLayerButton;
         Button m_minimizedSpaceButton;
-        MyArray<ImageButton, 6> m_toolButtons;
+        MyArray<Button, 6> m_toolButtons;
         Tool m_tool;
         int workX0;
         int workY0;
@@ -108,6 +109,7 @@ class ObjectCreator {
         void centerLayerButton();
         void addLayer();
         void deleteLayer();
+        void dupeLayer();
         void mergeLayers(const int movingIndex, MyMap<int, LayerInfo>::iterator destination);
         void editLayer(const int layerIndex);
         Mesh generateCube(const unsigned int& length_);
