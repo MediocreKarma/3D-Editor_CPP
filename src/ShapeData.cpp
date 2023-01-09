@@ -589,6 +589,7 @@ Point3D Mesh::centerPoint() const {
 void Mesh::fprint(FILE* fp) {
     fprintf(fp, "Mesh: %u\n", size());
     fprintf(fp, "%f %f %f %f\n", m_quat[0], m_quat[1], m_quat[2], m_quat[3]);
+    fprintf(fp, "%f %f %f\n", m_scaleX, m_scaleY, m_scaleZ);
     for (size_t i = 0; i < size(); ++i) {
         m_points[i].fprint(fp);
         fprintf(fp, "\n");
@@ -610,6 +611,9 @@ bool Mesh::fscan(FILE* fp) {
         return false;
     }
     if (fscanf(fp, "%lf %lf %lf %lf", &m_quat[0], &m_quat[1], &m_quat[2], &m_quat[3]) != 4) {
+        return false;
+    }
+    if (fscanf(fp, "%lf %lf %lf", &m_scaleX, &m_scaleY, &m_scaleZ) != 3) {
         return false;
     }
     m_points.resize(edgesCount);

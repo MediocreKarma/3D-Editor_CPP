@@ -3,7 +3,7 @@ obiecte 3D, atat simple cat si mai complicate.
 \Controale in Vizualizator:
 -Creaza un spatiu nou, salveaza-l, sau deschide spatii-exemplu din directorul "spaces" prin apasarea butonului
 "Fisier" si selectarea optiunii potrivite
--Miscarea camerei se face din tastele WASD, schimbarea FOV se face din tastele Z si X
+-Miscarea camerei se face din tastele WASD, Q, si E; schimbarea FOV se face din tastele Z si X
 -Selectarea unui obiect se face prin clic pe centrul ei (pe butonul circular)
 -Meniul corespunzator obiectului se acceseaza prin clic-dreapta pe centrul sau; cel al spatiului prin clic-dreapta
 oriunde altundeva pe ecran
