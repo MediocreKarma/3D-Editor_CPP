@@ -596,6 +596,8 @@ void ObjectCreator::dupeLayer() {
     MyMap<int, LayerInfo>::iterator dupedLayer = m_selectedLayer;
     addLayer();
     int newZ = m_selectedLayer->key;
+    MyMap<int, LayerInfo>::iterator dupedResult = m_selectedLayer;
+    dupedResult->value.centerPoint = dupedLayer->value.centerPoint;
     for (auto& node : dupedLayer->value.data) {
         IntegerPoint3D newPoint(node.key->point.x, node.key->point.y, newZ);
         m_workArea.mesh().addPoint(newPoint);
