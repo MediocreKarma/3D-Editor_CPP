@@ -36,7 +36,8 @@ class MyArray {
 
         MyArray<T, m_size>& operator = (const MyArray<T, m_size>& rhs) {
             if (this == &rhs) {
-                    return *this; // handle self assignment
+                    // handle self assignment
+                    return *this;
             }
             for (size_t i = 0; i < rhs.size(); ++i) {
                 m_data[i] = rhs[i];
@@ -170,7 +171,8 @@ class MyArray<char, m_size> {
 
         MyArray<char, m_size>& operator = (const MyArray<char, m_size>& rhs) {
             if (this == &rhs) {
-                    return *this; // handle self assignment
+                    // handle self assignment
+                    return *this;
             }
             for (size_t i = 0; i < rhs.size(); ++i) {
                 m_data[i] = rhs[i];

@@ -897,10 +897,13 @@ bool Space3D::getCommand(const int& x, const int& y) {
                     int olda = getactivepage();
                     setactivepage(2);
                     //we can't copy frame directly
-                     //but even for teapot the time for drawing seems to be negligible
+                     //but even for teapot,
+                     //the time for drawing seems to be negligible
                     callHandlerDrawer();
-                    //setting them again bc callHandlerDrawer does swapbuffering
-                    //which is great but we don't want it right now
+                    //setting them again
+                    //bc callHandlerDrawer does swapbuffering
+                    //which is great usually
+                    //but we don't want it right now
                     setactivepage(2);
                     setvisualpage(2);
                     NumericInputBox txtBox(btnRef.getXCenter() - btnRef.getXLen() / 2 + textwidth(throwaway.data()),
@@ -919,7 +922,7 @@ bool Space3D::getCommand(const int& x, const int& y) {
                     }
                     switch (i) {
                         case 0: {
-                            //sensible limits, i think
+                            //sensible limits, I think
                             if (fabs(result) > err && fabs(result) <= 10000) {
                                 m_meshes[m_selected].setTransform(0, j, result);
                                 m_updated[m_selected] = true;
@@ -1153,7 +1156,8 @@ void Space3D::scaleMesh() {
 }
 
 bool Space3D::moveMeshHelper(int xMove, int yMove, int moveAxis, bool isLocal) {
- //normalele lu XZ si YZ, deci Y si X
+ //normalele lu XZ si YZ
+ //deci Y si X
     MyArray<Point3D, 2> axisNormals{Point3D(0, 1, 0), Point3D(1, 0, 0)};
     Quaternion quat = m_meshes[m_selected].quat();
     if (isLocal) {
@@ -1165,7 +1169,9 @@ bool Space3D::moveMeshHelper(int xMove, int yMove, int moveAxis, bool isLocal) {
         Point3D aux;
         switch (moveAxis) {
             case 0: {
-                //cast ray onto XZ plane, find intersection, translate only by x
+                //cast ray onto XZ plane, find intersection
+                //extract x value
+                //then translate
                 Ray cursorRay(m_cam.position(), unprojectPoint(xMove, yMove, m_cam.quat()));
                 if (fabs(dot(axisNormals[0], cursorRay.direction)) > moveErr) {
                     aux = rayCastOnPlane(xMove, yMove, axisNormals[0], center);
@@ -1173,7 +1179,8 @@ bool Space3D::moveMeshHelper(int xMove, int yMove, int moveAxis, bool isLocal) {
                         m_meshes[m_selected].translate(aux.x - center.x, 0, 0);
                     }
                     else {
-                        //unrotate, get only the x value, rotate => rotated delta vector
+                        //unrotate, get only the x value, rotate
+                        //results in the rotated delta vector
                         aux -= center;
                         aux.rotateByUnitQuat(quat.inverse());
                         aux.y = aux.z = 0;
@@ -1184,7 +1191,8 @@ bool Space3D::moveMeshHelper(int xMove, int yMove, int moveAxis, bool isLocal) {
                 break;
             }
             case 1: {
-                //cast ray onto YZ plane, same principle
+                //cast ray onto YZ plane
+                //same principle as above
                 Ray cursorRay(m_cam.position(), unprojectPoint(xMove, yMove, m_cam.quat()));
                 if (fabs(dot(axisNormals[1], cursorRay.direction)) > moveErr) {
                     aux = rayCastOnPlane(xMove, yMove, axisNormals[1], center);
@@ -1204,8 +1212,10 @@ bool Space3D::moveMeshHelper(int xMove, int yMove, int moveAxis, bool isLocal) {
             case 2: {
                 //alege dot-u mai diferit de 0
                 //dintre dotu camNormal * XZNormal vs camNormal * YZNormal
-                //Dot product ul imi va spune, cat de perpendicular e un plan fata de camera
-                //Vrem cel mai perpendicular plan ca intersectia sa fie cat mai putin "vaga"
+                //Dot product ul imi va spune cat de perpendicular e un plan
+                //fata de camera
+                //Vrem cel mai perpendicular plan cu camera
+                //ca intersectia sa fie cat mai putin "vaga"
                 Ray cursorRay(m_cam.position(), unprojectPoint(xMove, yMove, m_cam.quat()));
                 //dot XZ
                 const double dot1 = dot(cursorRay.direction, axisNormals[0]);

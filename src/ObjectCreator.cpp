@@ -125,10 +125,12 @@ void ObjectCreator::drawToolButtonSymbol(const int xCenter, const int yCenter, c
             int y1 = yCenter + btnTrueWidth;
             line(x1 + pencilWidth, y0 + pencilWidth, x1 - pencilWidth, y0 - pencilWidth);
             line(x1 - pencilWidth, y0 - pencilWidth, x0 - pencilWidth + 3, y1 - pencilWidth - 3);
-            line(x0 - pencilWidth + 3, y1 - pencilWidth - 3, x0 + pencilWidth + 3, y1 + pencilWidth - 3); //bottom line
+            //bottom line
+            line(x0 - pencilWidth + 3, y1 - pencilWidth - 3, x0 + pencilWidth + 3, y1 + pencilWidth - 3);
             line(x0 + pencilWidth + 3, y1 + pencilWidth - 3, x1 + pencilWidth, y0 + pencilWidth);
-            line(x0 + pencilWidth + 3, y1 + pencilWidth - 3, x0 - pencilWidth - 3 + 3, y1 + pencilWidth + 3 - 3); //varf
-            line(x0 - pencilWidth - 3 + 3, y1 + pencilWidth + 3 - 3, x0 - pencilWidth + 3, y1 - pencilWidth - 3); //varf
+            //varfuri
+            line(x0 + pencilWidth + 3, y1 + pencilWidth - 3, x0 - pencilWidth - 3 + 3, y1 + pencilWidth + 3 - 3);
+            line(x0 - pencilWidth - 3 + 3, y1 + pencilWidth + 3 - 3, x0 - pencilWidth + 3, y1 - pencilWidth - 3);
         }
         default:;
     }
