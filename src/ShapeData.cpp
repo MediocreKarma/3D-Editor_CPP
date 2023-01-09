@@ -975,9 +975,6 @@ bool operator < (const IntegerPoint3D& a, const IntegerPoint3D& b) {
 FixedMesh::FixedMesh() :
     m_points(), m_pointIterators(), m_adjList() {}
 
-#include <unordered_map>
-#include <unordered_set>
-
 FixedMesh::FixedMesh(const Mesh& other) : FixedMesh() {
     const MyVector<MyVector<size_t>>& adjList = other.adjacencyList();
     Point3D centerPoint = other.centerPoint();
@@ -1035,7 +1032,6 @@ void FixedMesh::addEdge(const IntegerPoint3D& x, const IntegerPoint3D& y) {
     auto it1 = m_pointIterators.find(x);
     auto it2 = m_pointIterators.find(y);
     if (it1 == m_pointIterators.end() || it2 == m_pointIterators.end()) {
-        throw std::invalid_argument("WTF");
         return;
     }
     addEdge(it1->value, it2->value);
