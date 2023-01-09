@@ -5,7 +5,6 @@
 #include <initializer_list>
 #include <stdexcept>
 #include "MyIterators.h"
-#include <iostream>
 
 
 template<class T, size_t m_size>

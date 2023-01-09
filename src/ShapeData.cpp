@@ -707,7 +707,7 @@ void Mesh::scaleEven(const double& scaleFactor) {
 }
 
 void Mesh::scaleAxis(const double& scaleFactor, const size_t& axis) {
-    //ALL SCALE IS LOCAL!!
+    //all scale is local
     MyArray<bool, 3> axes = {false, false, false};
     axes[axis] = true;
     Point3D center = m_centerPoint;

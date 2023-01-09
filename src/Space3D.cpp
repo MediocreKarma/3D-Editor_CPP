@@ -4,7 +4,8 @@
 
 const double PI = 3.1415926535897932384626433832795028841971693993751;
 const double err = 0.0000000000000000000001;
-const double moveErr = 0.007; //limita minima de perpendicularitate pentru moveMesh
+//limita minima de perpendicularitate pentru moveMesh
+const double moveErr = 0.007;
 
 Space3D::Space3D() :
     x0(), y0(), x1(), y1(), m_theme(), m_language(), m_selected(-1), m_spinballSelected(false), m_fadedDrag(false),  m_objRotateDrag(false), m_meshes(), m_draggedMesh(), m_sections(), m_draggedSection(),
@@ -895,9 +896,9 @@ bool Space3D::getCommand(const int& x, const int& y) {
                     int oldv = getvisualpage();
                     int olda = getactivepage();
                     setactivepage(2);
-                    callHandlerDrawer(); //cause we can't copy frame directly
-                                         //but even for teapot the time seems to be negligible so...
-
+                    //we can't copy frame directly
+                     //but even for teapot the time for drawing seems to be negligible
+                    callHandlerDrawer();
                     //setting them again bc callHandlerDrawer does swapbuffering
                     //which is great but we don't want it right now
                     setactivepage(2);
@@ -917,7 +918,8 @@ bool Space3D::getCommand(const int& x, const int& y) {
                         return true;
                     }
                     switch (i) {
-                        case 0: { //sensible limits, i think
+                        case 0: {
+                            //sensible limits, i think
                             if (fabs(result) > err && fabs(result) <= 10000) {
                                 m_meshes[m_selected].setTransform(0, j, result);
                                 m_updated[m_selected] = true;
@@ -1151,7 +1153,8 @@ void Space3D::scaleMesh() {
 }
 
 bool Space3D::moveMeshHelper(int xMove, int yMove, int moveAxis, bool isLocal) {
-    MyArray<Point3D, 2> axisNormals{Point3D(0, 1, 0), Point3D(1, 0, 0)}; //normalele lu XZ si YZ, deci Y si X
+ //normalele lu XZ si YZ, deci Y si X
+    MyArray<Point3D, 2> axisNormals{Point3D(0, 1, 0), Point3D(1, 0, 0)};
     Quaternion quat = m_meshes[m_selected].quat();
     if (isLocal) {
         axisNormals[0].rotateByUnitQuat(quat);
@@ -1161,14 +1164,16 @@ bool Space3D::moveMeshHelper(int xMove, int yMove, int moveAxis, bool isLocal) {
         Point3D center = m_meshes[m_selected].centerPoint();
         Point3D aux;
         switch (moveAxis) {
-            case 0: { //cast ray onto XZ plane, find intersection, translate only by x
+            case 0: {
+                //cast ray onto XZ plane, find intersection, translate only by x
                 Ray cursorRay(m_cam.position(), unprojectPoint(xMove, yMove, m_cam.quat()));
                 if (fabs(dot(axisNormals[0], cursorRay.direction)) > moveErr) {
                     aux = rayCastOnPlane(xMove, yMove, axisNormals[0], center);
                     if (!isLocal) {
                         m_meshes[m_selected].translate(aux.x - center.x, 0, 0);
                     }
-                    else { //unrotate, get only the x, rotate => rotated delta vector
+                    else {
+                        //unrotate, get only the x value, rotate => rotated delta vector
                         aux -= center;
                         aux.rotateByUnitQuat(quat.inverse());
                         aux.y = aux.z = 0;
@@ -1178,7 +1183,8 @@ bool Space3D::moveMeshHelper(int xMove, int yMove, int moveAxis, bool isLocal) {
                 }
                 break;
             }
-            case 1: { //cast ray onto YZ plane, same principle
+            case 1: {
+                //cast ray onto YZ plane, same principle
                 Ray cursorRay(m_cam.position(), unprojectPoint(xMove, yMove, m_cam.quat()));
                 if (fabs(dot(axisNormals[1], cursorRay.direction)) > moveErr) {
                     aux = rayCastOnPlane(xMove, yMove, axisNormals[1], center);
@@ -1196,12 +1202,15 @@ bool Space3D::moveMeshHelper(int xMove, int yMove, int moveAxis, bool isLocal) {
                 break;
             }
             case 2: {
-                //alege dot-u mai diferit de 0 dintre dotu camNormal * XZNormal vs camNormal * YZNormal
+                //alege dot-u mai diferit de 0
+                //dintre dotu camNormal * XZNormal vs camNormal * YZNormal
                 //Dot product ul imi va spune, cat de perpendicular e un plan fata de camera
                 //Vrem cel mai perpendicular plan ca intersectia sa fie cat mai putin "vaga"
                 Ray cursorRay(m_cam.position(), unprojectPoint(xMove, yMove, m_cam.quat()));
-                const double dot1 = dot(cursorRay.direction, axisNormals[0]); //XZ
-                const double dot2 = dot(cursorRay.direction, axisNormals[1]); //YZ
+                //dot XZ
+                const double dot1 = dot(cursorRay.direction, axisNormals[0]);
+                //dot YZ
+                const double dot2 = dot(cursorRay.direction, axisNormals[1]);
                 bool chosenPlane = (fabs(dot1) > fabs(dot2) ? 0 : 1);
                 if (fabs(dot(axisNormals[chosenPlane], cursorRay.direction)) > moveErr) {
                     aux = rayCastOnPlane(xMove, yMove, axisNormals[chosenPlane], center);

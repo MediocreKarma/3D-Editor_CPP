@@ -2,7 +2,6 @@
 
 FileHandler::FileHandler(int language) :
     m_width(600), m_height(300), txtBox(100, 500, 150, BLACK, WHITE, 256),
-    //recycling
     m_xButton(575, 20, 30, 30, "media\\xButton.jpg"), m_language(language) {}
 
 void FileHandler::setLanguage(int language) {

@@ -2,7 +2,6 @@
 #define SHAPEDATA_H
 
 #include <cmath>
-#include <iostream>
 #include "MyVector.h"
 #include <graphics.h>
 #include <winbgim.h>

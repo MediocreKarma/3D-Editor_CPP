@@ -1,5 +1,4 @@
 #include "ObjectCreator.h"
-#include <iostream>
 
 const double pi = 3.1415926535897;
 
@@ -8,7 +7,7 @@ ObjectCreator::ObjectCreator(const Mesh& mesh, const int& theme, int language) :
     m_minimizedSpaceButton(), m_toolButtons(),
     m_tool(Tool::MovePoint), workX0(32), workY0(32), workX1(800), workY1(800), m_workArea(theme, mesh, this),
     m_hovered(), m_assistLine(), m_assistLineDotted(false), m_layerScrollArrows(),
-    m_layerTools(), m_closeFlag(false), m_discardButton(), m_saveButton(), m_generateButton(), m_pointDataButton() {
+    m_closeFlag(false), m_discardButton(), m_saveButton(), m_generateButton(), m_pointDataButton() {
     toolButtonsInit();
     resetLine();
     m_workArea.setCorners(workX0, workY0, workX1, workY1);
@@ -359,7 +358,8 @@ void ObjectCreator::drawPointData() {
     }
     else {
         headerText = Language::Text[(int)Lang::Edit_Point][m_language];
-        MyArray<char, 32> langText = "Editeaza punct:";//the wider one
+        //the wider text
+        MyArray<char, 32> langText = "Editeaza punct:";
         m_pointDataButton = Button(730, 75, textwidth(langText.data()) + 10, 90);
     }
     m_pointDataButton.drawLabel(ColorSchemes::themeColors[m_theme][ColorSchemes::PRIMARYCOLOR],
@@ -382,7 +382,8 @@ bool ObjectCreator::changePointData(const int x, const int y) {
     const int yCenter = (workY0 + workY1) / 2;
     IntegerPoint3D aux = m_hovered->point;
     MyArray<int, 3> coords = {aux.x, aux.y, aux.z};
-    MyArray<char, 32> zText = "Z: "; //widest one: if we accommodate for this one it'll be enough
+    //the wider text
+    MyArray<char, 32> zText = "Z: ";
     int x0 = m_pointDataButton.getXCenter() - m_pointDataButton.getXLen() / 2 + 5;
     int y0 = m_pointDataButton.getYCenter() - m_pointDataButton.getYLen() / 2 + 5;
     int x1 = m_pointDataButton.getXCenter() + m_pointDataButton.getXLen() / 2 - 5;
@@ -1198,7 +1199,6 @@ Mesh ObjectCreator::generateCylinder(const unsigned int& height, const unsigned 
 Mesh ObjectCreator::generateSphere(const unsigned int& radius, const unsigned int& segments, const unsigned int& rings) {
     //chose UV sphere for clear layer separation -> easier editing in ObjCreator
     //higher density near poles isn't our problem, we aren't even dealing with UVs
-    //mi ai zis prea tarziu de fete ca sa mai facem si asta:))))
     Mesh sphere = Mesh();
     sphere.addPoint(0, 0, radius);
     size_t verticalPredIndex = 0;

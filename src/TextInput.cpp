@@ -98,13 +98,6 @@ MyArray<char, TextInputBox::MAX_TEXT_SIZE> TextInputBox::getText(const MyArray<c
             }
         }
         display(m_displayBegin, m_displayEnd);
-
-        //am bagat continuturile lu checkwindowclose aici
-        //ca n am stiut cum altfel sa bag si isclickintextbox
-        //mai sus am lasat la fel
-        //ca daca n ai nimic scris n are rost sa te joci cu cursoru
-        //trebe facuta o functie getClick care returneaza 0 sau 1 sau 2, cred
-
         while (true) {
             while (!kbhit()) {
                 if (ismouseclick(WM_LBUTTONDOWN)) {

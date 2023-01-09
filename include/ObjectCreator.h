@@ -68,7 +68,6 @@ class ObjectCreator {
         Line2D m_assistLine;
         bool m_assistLineDotted;
         MyArray<Button, 2> m_layerScrollArrows;
-        MyArray<ImageButton, 1> m_layerTools; //yet to be used
         int m_closeFlag; //close w discard vs close w save
         TextButton m_discardButton, m_saveButton;
         DropdownButton<4> m_generateButton;
