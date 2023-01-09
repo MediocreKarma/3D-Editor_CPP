@@ -10,11 +10,11 @@ class Quaternion
 {
     public:
         Quaternion();
-        Quaternion(const double& real, const TVector3& complex);
+        Quaternion(const double real, const TVector3& complex);
         Quaternion(const TVector4& data);
         Quaternion(const Quaternion& other);
-        Quaternion(const double& real, const double& i, const double& j, const double& k);
-        Quaternion(const double& yaw, const double& pitch, const double& roll);
+        Quaternion(const double real, const double i, const double j, const double k);
+        Quaternion(const double yaw, const double pitch, const double roll);
         Quaternion& operator=(const Quaternion& rhs);
 
         MyArray<double, 3> toEuler() const;
@@ -26,11 +26,11 @@ class Quaternion
         void operator-=(const Quaternion& q);
         Quaternion multiply(const Quaternion& q) const;
         void operator*=(const Quaternion& q);
-        void operator*=(const double& scalar);
+        void operator*=(const double scalar);
         Quaternion operator*(const Quaternion& q) const;
-        void setReal(const double& real);
+        void setReal(const double real);
         void setComplex(const TVector3& complex);
-        void setCoord(const size_t index, const double& value);
+        void setCoord(const size_t index, const double value);
         double norm() const noexcept;
         void normalize();
         void convertToUnitQ();

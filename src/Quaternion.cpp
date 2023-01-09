@@ -10,7 +10,7 @@ Quaternion::Quaternion() :
         m_data[0] = 1;
     }
 
-Quaternion::Quaternion(const double& real, const TVector3& complex) :
+Quaternion::Quaternion(const double real, const TVector3& complex) :
     m_data({real, complex[0], complex[1], complex[2]}){}
 
 Quaternion::Quaternion(const TVector4& data) :
@@ -19,10 +19,10 @@ Quaternion::Quaternion(const TVector4& data) :
 Quaternion::Quaternion(const Quaternion& other) :
     m_data(other.m_data) {}
 
-Quaternion::Quaternion(const double& real, const double& i, const double& j, const double& k) :
+Quaternion::Quaternion(const double real, const double i, const double j, const double k) :
     m_data({real, i, j, k}) {}
 
-Quaternion::Quaternion(const double& roll, const double& pitch, const double& yaw) : m_data() {
+Quaternion::Quaternion(const double roll, const double pitch, const double yaw) : m_data() {
     double c1, c2, c3, s1, s2, s3;
     c1 = cos(roll / 2);
     c2 = cos(pitch / 2);
@@ -91,7 +91,7 @@ Quaternion Quaternion::operator*(const Quaternion& q) const {
     return aux;
 }
 
-void Quaternion::operator*=(const double& scalar) {
+void Quaternion::operator*=(const double scalar) {
     for(size_t i = 0; i < 4; i++) {
         m_data[i] *= scalar;
     }
@@ -110,7 +110,7 @@ void Quaternion::normalize() {
     }
 }
 
-void Quaternion::setReal(const double& real) {
+void Quaternion::setReal(const double real) {
     m_data[0] = real;
 }
 
@@ -120,7 +120,7 @@ void Quaternion::setComplex(const TVector3& complex) {
     m_data[3] = complex[2];
 }
 
-void Quaternion::setCoord(const size_t index, const double& value) {
+void Quaternion::setCoord(const size_t index, const double value) {
     m_data[index] = value;
 }
 

@@ -208,7 +208,7 @@ class MyArray<char, m_size> {
             return m_size;
         }
 
-        void fill(const char& fillValue) {
+        void fill(const char fillValue) {
             for (size_t i = 0; i < m_size; ++i) {
                 m_data[i] = fillValue;
             }
@@ -239,7 +239,7 @@ class MyArray<char, m_size> {
             return m_data[index];
         }
 
-        const char& operator [] (const size_t index) const {
+        char operator [] (const size_t index) const {
             return m_data[index];
         }
 

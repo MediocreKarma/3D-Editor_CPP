@@ -62,7 +62,7 @@ void Menu::setBorder(const int x1_, const int y1_, const int x2_, const int y2_)
     y2 = y2_;
 }
 
-void Menu::saveSpace3D(Space3D& space, const char& saveType) {
+void Menu::saveSpace3D(Space3D& space, const char saveType) {
     if (space.isLinkedWithFile() && saveType != 2) {
         FILE* fp = fopen(space.getLinkedFileName().data(), "w");
         space.fprint(fp);

@@ -16,7 +16,7 @@
 struct Point2D {
     Point2D();
     Point2D(const int x_, const int y_);
-    Point2D(const double& x_, const double& y_);
+    Point2D(const double x_, const double y_);
     Point2D(const Point2D& pct);
     int getX() const;
     int getY() const;
@@ -81,32 +81,32 @@ struct IntegerPoint3D;
 
 struct Point3D {
     Point3D();
-    Point3D(const double& x_, const double& y_, const double& z_);
+    Point3D(const double x_, const double y_, const double z_);
     Point3D(const Point3D& pct);
     Point3D(const MyArray<double, 3>& arr);
     Point3D(const IntegerPoint3D& other);
     double getX() const;
     double getY() const;
     double getZ() const;
-    void setX(const double& x_);
-    void setY(const double& y_);
-    void setZ(const double& z_);
+    void setX(const double x_);
+    void setY(const double y_);
+    void setZ(const double z_);
     void setPoint(const Point3D& pct);
     void round();
     MyArray<double, 3> toArray() const;
-    void rotateOX(const Point3D& center, const double& alpha);
-    void rotateOY(const Point3D& center, const double& alpha);
-    void rotateOZ(const Point3D& center, const double& alpha);
-    void rotateByAxisVector(const double& angle, const MyArray<double, 3>& axis);
+    void rotateOX(const Point3D& center, const double alpha);
+    void rotateOY(const Point3D& center, const double alpha);
+    void rotateOZ(const Point3D& center, const double alpha);
+    void rotateByAxisVector(const double angle, const MyArray<double, 3>& axis);
     void rotateByUnitQuat(const Quaternion& quat);
-    Point3D rotatedByAxisVector(const double& angle, const MyArray<double, 3>& axis);
+    Point3D rotatedByAxisVector(const double angle, const MyArray<double, 3>& axis);
     Point3D rotatedByUnitQuat(const Quaternion& quat);
-    void translate(const double& xTranslate, const double& yTranslate, const double& zTranslate);
+    void translate(const double xTranslate, const double yTranslate, const double zTranslate);
     Point3D& operator += (const Point3D& other);
     Point3D& operator -= (const Point3D& other);
     Point3D operator + (const Point3D& other) const;
     Point3D operator - (const Point3D& other) const;
-    Point3D operator * (const double& scalar) const;
+    Point3D operator * (const double scalar) const;
     bool operator == (const Point3D& other) const;
     void fprint(FILE* fp);
     bool fscan(FILE* fp);
@@ -177,7 +177,7 @@ class Mesh {
         size_t size() const;
         void erase(const size_t index);
         void addPoint(const Point3D& point);
-        void addPoint(const double& x, const double& y, const double& z);
+        void addPoint(const double x, const double y, const double z);
         void addEdge(const size_t index1, const size_t index2);
         Point3D& operator [] (const size_t index);
         const Point3D& operator [] (const size_t index) const;
@@ -187,18 +187,18 @@ class Mesh {
         const MyVector<MyVector<size_t>>& adjacencyList() const;
         void addIndexConnections(const size_t index, const MyVector<size_t>& adjList);
         void deleteIndexConnection(const size_t index1, const size_t index2);
-        void translate(const double& xTranslate, const double& yTranslate, const double& zTranslate);
+        void translate(const double xTranslate, const double yTranslate, const double zTranslate);
         void translate(const Point3D& pntTranslate);
         Point3D centerPoint() const;
         void updateCenterPoint();
         void fprint(FILE* fp);
         bool fscan(FILE* fp);
-        void rotate(const double& angleX, const double& angleY, const double& angleZ);
-        void rotateOnAxis(const Point3D& center, const Point3D& axis, const double& angle);
+        void rotate(const double angleX, const double angleY, const double angleZ);
+        void rotateOnAxis(const Point3D& center, const Point3D& axis, const double angle);
         void rotateByUnitQuat(const Quaternion& quat);
         void rotateDisplayAngle();
-        void scaleEven(const double& scaleFactor);
-        void scaleAxis(const double& scaleFactor, const size_t axis);
+        void scaleEven(const double scaleFactor);
+        void scaleAxis(const double scaleFactor, const size_t axis);
         void mirror(const size_t axis);
         double angleX() const;
         double angleY() const;
@@ -215,7 +215,7 @@ class Mesh {
         MeshTransforms transforms() const;
         void resetTransforms();
         void applyTransforms(const MeshTransforms& transforms);
-        void setTransform(size_t transform, size_t axis, const double& value);
+        void setTransform(size_t transform, size_t axis, const double value);
 
     private:
         MyVector<Point3D> m_points;

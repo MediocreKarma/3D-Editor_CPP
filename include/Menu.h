@@ -36,7 +36,7 @@ class Menu {
         void drawMenu();
         void initSpace();
         void swapPages();
-        void saveSpace3D(Space3D& space, const char& saveType);
+        void saveSpace3D(Space3D& space, const char saveType);
         void openSpace3D(Space3D& space);
 };
 

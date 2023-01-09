@@ -115,10 +115,10 @@ class ObjectCreator {
         void dupeLayer();
         void mergeLayers(const int movingIndex, MyMap<int, LayerInfo>::iterator destination);
         void editLayer(const int layerIndex);
-        Mesh generateCube(const unsigned int& length_);
-        Mesh generateCylinder(const unsigned int& height, const unsigned int& radius, const unsigned int& sides);
-        Mesh generateCone(const unsigned int& height, const unsigned int& radius, const unsigned int& sides);
-        Mesh generateSphere(const unsigned int& radius, const unsigned int& segments, const unsigned int& rings);
+        Mesh generateCube(const unsigned int length_);
+        Mesh generateCylinder(const unsigned int height, const unsigned int radius, const unsigned int sides);
+        Mesh generateCone(const unsigned int height, const unsigned int radius, const unsigned int sides);
+        Mesh generateSphere(const unsigned int radius, const unsigned int segments, const unsigned int rings);
         bool generate(int index);
 };
 

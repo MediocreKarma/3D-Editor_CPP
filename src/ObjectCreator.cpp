@@ -1140,7 +1140,7 @@ int ObjectCreator::getCloseFlag() const {
     return m_closeFlag;
 }
 
-Mesh ObjectCreator::generateCube(const unsigned int& length_) {
+Mesh ObjectCreator::generateCube(const unsigned int length_) {
     int length = length_/2;
     Mesh cube;
     cube.addPoint(-length, -length, -length);
@@ -1161,7 +1161,7 @@ Mesh ObjectCreator::generateCube(const unsigned int& length_) {
     return cube;
 }
 
-Mesh ObjectCreator::generateCone(const unsigned int& height, const unsigned int& radius, const unsigned int& sides) {
+Mesh ObjectCreator::generateCone(const unsigned int height, const unsigned int radius, const unsigned int sides) {
     Mesh cone = Mesh();
     cone.addPoint(0, 0, height / 2);
     Point3D tmp(0, radius, -((int)height / 2));
@@ -1178,7 +1178,7 @@ Mesh ObjectCreator::generateCone(const unsigned int& height, const unsigned int&
     return cone;
 }
 
-Mesh ObjectCreator::generateCylinder(const unsigned int& height, const unsigned int& radius, const unsigned int& sides) {
+Mesh ObjectCreator::generateCylinder(const unsigned int height, const unsigned int radius, const unsigned int sides) {
     Mesh cylinder = Mesh();
     Point3D tmp(0, radius, -((int)height / 2));
     for (size_t i = 0; i < sides; ++i) {
@@ -1200,7 +1200,7 @@ Mesh ObjectCreator::generateCylinder(const unsigned int& height, const unsigned 
     return cylinder;
 }
 
-Mesh ObjectCreator::generateSphere(const unsigned int& radius, const unsigned int& segments, const unsigned int& rings) {
+Mesh ObjectCreator::generateSphere(const unsigned int radius, const unsigned int segments, const unsigned int rings) {
     //chose UV sphere for clear layer separation -> easier editing in ObjCreator
     //higher density near poles isn't our problem, we aren't even dealing with UVs
     Mesh sphere = Mesh();

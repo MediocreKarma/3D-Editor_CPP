@@ -9,7 +9,7 @@ Point2D::Point2D() :
 Point2D::Point2D(const int x_, const int y_) :
     x(x_), y(y_) {}
 
-Point2D::Point2D(const double& x_, const double& y_) :
+Point2D::Point2D(const double x_, const double y_) :
     x(round(x_)), y(round(y_)) {}
 
 Point2D::Point2D(const Point2D& other) :
@@ -192,7 +192,7 @@ const Point2D& Section::operator [] (const size_t index) const {
 Point3D::Point3D() :
     x(), y(), z() {}
 
-Point3D::Point3D(const double& x_, const double& y_, const double& z_) :
+Point3D::Point3D(const double x_, const double y_, const double z_) :
     x(x_), y(y_), z(z_) {}
 
 Point3D::Point3D(const Point3D& other) :
@@ -216,15 +216,15 @@ double Point3D::getZ() const {
     return z;
 }
 
-void Point3D::setX(const double& x_) {
+void Point3D::setX(const double x_) {
     x = x_;
 }
 
-void Point3D::setY(const double& y_) {
+void Point3D::setY(const double y_) {
     y = y_;
 }
 
-void Point3D::setZ(const double& z_) {
+void Point3D::setZ(const double z_) {
     z = z_;
 }
 
@@ -244,7 +244,7 @@ MyArray<double, 3> Point3D::toArray() const {
     return MyArray<double,3>({x, y, z});
 }
 
-void Point3D::rotateByAxisVector(const double& angle, const MyArray<double, 3>& axis) {
+void Point3D::rotateByAxisVector(const double angle, const MyArray<double, 3>& axis) {
     if (fabs(angle) < err) {
         return;
     }
@@ -258,7 +258,7 @@ void Point3D::rotateByAxisVector(const double& angle, const MyArray<double, 3>& 
     *this = Point3D(rotatedPoint.complex());
 }
 
-Point3D Point3D::rotatedByAxisVector(const double& angle, const MyArray<double, 3>& axis) {
+Point3D Point3D::rotatedByAxisVector(const double angle, const MyArray<double, 3>& axis) {
     if (fabs(angle) < err) {
         return *this;
     }
@@ -320,7 +320,7 @@ Point3D Point3D::operator - (const Point3D& other) const {
     return pct;
 }
 
-Point3D Point3D::operator * (const double& scalar) const {
+Point3D Point3D::operator * (const double scalar) const {
     double cx, cy, cz;
     cx = x * scalar;
     cy = y * scalar;
@@ -328,7 +328,7 @@ Point3D Point3D::operator * (const double& scalar) const {
     return Point3D(cx, cy, cz);
 }
 
-void Point3D::translate(const double& xTranslate, const double& yTranslate, const double& zTranslate) {
+void Point3D::translate(const double xTranslate, const double yTranslate, const double zTranslate) {
     x += xTranslate;
     y += yTranslate;
     z += zTranslate;
@@ -548,7 +548,7 @@ void Mesh::addIndexConnections(const size_t index, const MyVector<size_t>& listA
     }
 }
 
-void Mesh::addPoint(const double& x, const double& y, const double& z) {
+void Mesh::addPoint(const double x, const double y, const double z) {
     m_points.push_back(Point3D(x, y, z));
     m_adjList.push_back(MyVector<size_t>());
 }
@@ -568,7 +568,7 @@ void Mesh::addEdge(const size_t index1, const size_t index2) {
     m_adjList[index2].push_back(index1);
 }
 
-void Mesh::translate(const double& xTranslate, const double& yTranslate, const double& zTranslate) {
+void Mesh::translate(const double xTranslate, const double yTranslate, const double zTranslate) {
     for (auto& pnt : m_points) {
         pnt.translate(xTranslate, yTranslate, zTranslate);
     }
@@ -663,7 +663,7 @@ void Mesh::rotateDisplayAngle() {
     m_angleZ = eulerAngles[2];
 }
 
-void Mesh::rotate(const double& angleX_, const double& angleY_, const double& angleZ_) {
+void Mesh::rotate(const double angleX_, const double angleY_, const double angleZ_) {
     const double e = 0.0000000000001;
     if (fabs(angleX_) > e) {
         rotateOnAxis(centerPoint(), Point3D(1, 0, 0), angleX_);
@@ -676,7 +676,7 @@ void Mesh::rotate(const double& angleX_, const double& angleY_, const double& an
     }
 }
 
-void Mesh::rotateOnAxis(const Point3D& center, const Point3D& axis, const double& angle) {
+void Mesh::rotateOnAxis(const Point3D& center, const Point3D& axis, const double angle) {
     translate(-center.getX(), -center.getY(), -center.getZ());
 
     Quaternion rotationQuat(angle, axis.toArray());
@@ -693,7 +693,7 @@ void Mesh::rotateOnAxis(const Point3D& center, const Point3D& axis, const double
 }
 
 
-void Mesh::scaleEven(const double& scaleFactor) {
+void Mesh::scaleEven(const double scaleFactor) {
     Point3D center = m_centerPoint;
     translate(-center.x, -center.y, -center.z);
     double translateAmt = scaleFactor - 1;
@@ -710,7 +710,7 @@ void Mesh::scaleEven(const double& scaleFactor) {
     m_scaleZ *= scaleFactor;
 }
 
-void Mesh::scaleAxis(const double& scaleFactor, const size_t axis) {
+void Mesh::scaleAxis(const double scaleFactor, const size_t axis) {
     //all scale is local
     MyArray<bool, 3> axes = {false, false, false};
     axes[axis] = true;
@@ -875,7 +875,7 @@ void Mesh::applyTransforms(const MeshTransforms& transforms) {
     translate(Point3D(transforms[2]));
 }
 
-void Mesh::setTransform(size_t transform, size_t axis, const double& value) {
+void Mesh::setTransform(size_t transform, size_t axis, const double value) {
     switch (transform) {
         case 0: {
             double currentValue = 1;

@@ -4,7 +4,7 @@ static const double PI = 3.141592653589793238462;
 Camera::Camera(const int maxRadius) :
     m_point(0, maxRadius, 0), m_EZ(1), m_quat() {}
 
-Camera::Camera(const Point3D& point, const double& EZ_) :
+Camera::Camera(const Point3D& point, const double EZ_) :
     m_point(point), m_EZ(EZ_), m_quat() {}
 
 Camera::Camera(const Point3D& point, const Quaternion& quat) :
@@ -14,17 +14,17 @@ void Camera::movePosition(const Point3D& newPosition) {
     m_point = newPosition;
 }
 
-void Camera::modifyPosition(const double& posX, const double& posY, const double& posZ) {
+void Camera::modifyPosition(const double posX, const double posY, const double posZ) {
     m_point.setX(m_point.getX() + posX);
     m_point.setY(m_point.getY() + posY);
     m_point.setZ(m_point.getZ() + posZ);
 }
 
-void Camera::setEZ (const double& value) {
+void Camera::setEZ (const double value) {
     m_EZ = value;
 }
 
-void Camera::rotateOnAxis(const size_t axis, const double& angle) {
+void Camera::rotateOnAxis(const size_t axis, const double angle) {
     MyArray<double, 3> canonicalVector;
     canonicalVector.fill(0);
     canonicalVector[axis] = 1;

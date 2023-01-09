@@ -20,8 +20,8 @@ class Space3D
 {
     public:
         Space3D();
-        Space3D(const double& maxRadius, const int theme, int language, Menu* menuHolder);
-        Space3D(const double& maxRadius, const int theme, int language, ObjectCreator* objCreatorHolder);
+        Space3D(const double maxRadius, const int theme, int language, Menu* menuHolder);
+        Space3D(const double maxRadius, const int theme, int language, ObjectCreator* objCreatorHolder);
         Space3D(const Space3D& other);
         Space3D& operator = (const Space3D& other);
         void addMesh(const Mesh& mesh);
@@ -33,7 +33,7 @@ class Space3D
         bool insideWorkArea(const Point2D& point) const;
         bool getCommand(const int xClick, const int yClick);
         bool getKeyCommand();
-        bool checkKeyCommand(const char& x);
+        bool checkKeyCommand(const char x);
         bool getRightClickCommand(const int x, const int y);
         bool fscan(FILE* fp);
         void fprint(FILE* fp);
@@ -107,7 +107,7 @@ class Space3D
         void dragAndDrop(const int xDrag, const int yDrag, Mesh& mesh,  const Quaternion& camQuat, const Quaternion& camInverse);
         double findRotation(const int xDrag, const int yDrag, const DonutButton& angleDonut, CircularButton& button);
         bool checkAxisRotation(const int x, const int y);
-        bool checkCamMovement(const char& c);
+        bool checkCamMovement(const char c);
         bool checkGizmo(int x, int y);
         bool checkObjectRotation(int x, int y);
         Point2D moveInsideWorkArea(const Point2D& P, const Point2D& Q, const int xBorder, const int yBorder);
@@ -126,9 +126,9 @@ class Space3D
         Point3D rotateByCamera(const Point3D& pct) const;
         Point3D normalisePoint(const Point3D& pct,  const Quaternion& camQuat, const Quaternion& camInverse) const;
         Section projectSection(const Mesh& mesh);
-        void rotateOX(Mesh& lines, const double& alpha);
-        void rotateOY(Mesh& lines, const double& alpha);
-        void rotateOZ(Mesh& lines, const double& alpha);
+        void rotateOX(Mesh& lines, const double alpha);
+        void rotateOY(Mesh& lines, const double alpha);
+        void rotateOZ(Mesh& lines, const double alpha);
         void selectMesh(const size_t index);
         void highlightMesh();
         bool isDragAndDrop(const int xDrag, const int yDrag) const;

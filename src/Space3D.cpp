@@ -13,14 +13,14 @@ Space3D::Space3D() :
     m_arrowSpinLeft(), m_arrowSpinRight(), m_meshContextMenu(), m_meshMenuVisible(false), m_spaceContextMenu(), m_spaceMenuVisible(false), m_gizmoButtons(), m_localTransforms(false), m_panelBtn(),
     m_transformLabels(), m_transformTextBtns(), m_linkedFile{0}, m_menuHolder(nullptr), m_objCreatorHolder(nullptr) {}
 
-Space3D::Space3D(const double& maxRadius, const int theme, int language, Menu* menuHolder) :
+Space3D::Space3D(const double maxRadius, const int theme, int language, Menu* menuHolder) :
     x0(), y0(), x1(), y1(), m_theme(theme), m_language(language), m_selected(-1), m_spinballSelected(false), m_fadedDrag(false),  m_objRotateDrag(false), m_meshes(), m_draggedMesh(), m_sections(), m_draggedSection(),
     m_updated(), m_cam(maxRadius), m_buttonOX(), m_buttonOY(), m_buttonOZ(), m_donutOX(), m_donutOY(), m_donutOZ(), m_spinballButton(), m_arrowLeft(), m_arrowRight(), m_arrowUp(), m_arrowDown(),
     m_arrowSpinLeft(), m_arrowSpinRight(), m_meshContextMenu(), m_meshMenuVisible(false), m_spaceContextMenu(), m_spaceMenuVisible(false), m_gizmoButtons(), m_localTransforms(false), m_panelBtn(),
     m_transformLabels(), m_transformTextBtns(),
     m_linkedFile{0}, m_menuHolder(menuHolder), m_objCreatorHolder(nullptr) {}
 
-Space3D::Space3D(const double& maxRadius, const int theme, int language, ObjectCreator* objCreatorHolder) :
+Space3D::Space3D(const double maxRadius, const int theme, int language, ObjectCreator* objCreatorHolder) :
     x0(), y0(), x1(), y1(), m_theme(theme), m_language(language), m_selected(-1), m_spinballSelected(false), m_fadedDrag(false), m_objRotateDrag(false), m_meshes(), m_draggedMesh(), m_sections(), m_draggedSection(),
     m_updated(), m_cam(maxRadius), m_buttonOX(), m_buttonOY(), m_buttonOZ(), m_donutOX(), m_donutOY(), m_donutOZ(), m_spinballButton(), m_arrowLeft(), m_arrowRight(), m_arrowUp(), m_arrowDown(),
     m_arrowSpinLeft(), m_arrowSpinRight(), m_meshContextMenu(), m_meshMenuVisible(false), m_spaceContextMenu(), m_spaceMenuVisible(false), m_gizmoButtons(), m_localTransforms(false), m_panelBtn(),
@@ -327,7 +327,7 @@ void Space3D::drawAngleButtons() {
     }
 }
 
-bool Space3D::checkCamMovement(const char& c) {
+bool Space3D::checkCamMovement(const char c) {
     const int distance = 25;
     Point3D auxPoint;
     switch (c) {
@@ -763,7 +763,7 @@ bool Space3D::getKeyCommand() {
     return checkKeyCommand(x);
 }
 
-bool Space3D::checkKeyCommand(const char& x) {
+bool Space3D::checkKeyCommand(const char x) {
     if (m_selected != -1 && x == 'f') {
         scaleMesh();
         return true;

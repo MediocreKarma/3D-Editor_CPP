@@ -4,14 +4,14 @@ TextInputBox::TextInputBox(const int areaBegin, const int areaEnd, const int hei
                 m_areaBegin(areaBegin), m_areaEnd(areaEnd), m_displayBegin(0), m_displayEnd(0), m_height(height), m_index(0), m_textColor(textColor), m_fillColor(fillColor), m_maxSize(maxSize),
                 m_pressedEnter(false), m_mouseclick{-1, -1}, m_text(nullptr), m_accepted(acceptedInput) {}
 
-bool TextInputBox::isAccepted(const char& ch) const {
+bool TextInputBox::isAccepted(const char ch) const {
     if (m_accepted[0] == 0) {
         return true;
     }
     if (ch == 0 || ch == '\r' || ch == '\b') {
         return true;
     }
-    for (const char& x : m_accepted) {
+    for (const char x : m_accepted) {
         if (x == ch) {
             return true;
         }
@@ -171,7 +171,7 @@ void TextInputBox::backspaceIndex(size_t& len) {
     --m_index;
 }
 
-void TextInputBox::insertIndex(size_t& len, const char& key) {
+void TextInputBox::insertIndex(size_t& len, const char key) {
     for (int j = len; j > (int)m_index; --j) {
         m_text[j] = m_text[j - 1];
     }

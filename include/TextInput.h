@@ -35,7 +35,7 @@ class TextInputBox
         bool checkClickInTextbox();
         void clearText();
         void backspaceIndex(size_t& len);
-        void insertIndex(size_t& len, const char& key);
+        void insertIndex(size_t& len, const char key);
         MyArray<char, MAX_TEXT_SIZE> displayText(const size_t from, const size_t to);
         void displayCursor(const MyArray<char, MAX_TEXT_SIZE>& outText, const size_t from);
         void decrementBeginEnd(size_t& m_displayBegin, size_t& end);
@@ -43,7 +43,7 @@ class TextInputBox
         void changeIndexByClick(const int x, size_t& m_displayBegin, size_t& end);
         void display(const size_t from, const size_t to);
         bool isClickInTextbox(const int x, const int y);
-        bool isAccepted(const char& ch) const;
+        bool isAccepted(const char ch) const;
 };
 
 class NumericInputBox {
