@@ -15,7 +15,7 @@ choosing the appropriate option
 
 \Controls in Object Creator:
 -Double click layer to change its height
--Use Tool Buttons on the top left to change current Tool (New Point, Move, Delete Point, Add Line, Delete Line)
+-Use Tool Buttons on the top left to change current Tool (New Point, Move, Edit Point, Delete Point, Add Line, Delete Line)
 -Click on layer button to enter Layer View mode, where you can add new points to layer
 -Move point on Layer by dragging on a point button in Layer View, move Layer View by dragging anywhere else
 -Switch back to 3D view by pressing the Minimized Space button (top right)

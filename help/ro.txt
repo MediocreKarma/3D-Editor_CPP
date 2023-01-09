@@ -17,8 +17,8 @@ dintre cele 3 butoane-cerc, corespunzatoare celor 3 axe
 \Controale in Creatorul de obiecte:
 -Apasarea pe un strat activeaza modul 2D, unde pot fi vizualizate componentele unui singur strat
 -Dublu-click pe strat pentru a-i schimba inaltimea
--Apasarea unuia dintre butoanele de unelte din stanga-sus schimba unealta curenta (Punct Nou, Misca, Adauga
-Linie, Sterge Punct, Sterge Linie)
+-Apasarea unuia dintre butoanele de unelte din stanga-sus schimba unealta curenta (Punct Nou, Misca, Editeaza Punct,
+Adauga Linie, Sterge Punct, Sterge Linie)
 -Miscarea unui punct se face prin a trage de el in modul 2D, tragerea oriunde altundeva misca intregul plan 2D
 -Trecerea inapoi la modul 3D se face prin apasarea butonului din dreapta-sus
 -Generarea unui obiect predefinit se face din dropdown-ul Generare din stanga-sus

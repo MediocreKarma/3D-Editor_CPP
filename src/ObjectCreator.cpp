@@ -240,7 +240,7 @@ void ObjectCreator::drawSelectLayers() {
             m_layerSelectButtons[i].txtButton.drawTextButton(1, 3, btnColor, false);
         }
     }
-    setcolor(ColorSchemes::themeColors[m_theme][ColorSchemes::SECONDARYCOLOR]);
+    setcolor(BLACK);
     setlinestyle(SOLID_LINE, 0, 2);
     setbkcolor(LIGHTGRAY);
     setfillstyle(SOLID_FILL, LIGHTGRAY);
