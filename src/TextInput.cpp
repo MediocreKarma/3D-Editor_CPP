@@ -273,6 +273,9 @@ void NumericInputBox::backspaceIndex() {
         return;
     }
     --m_len;
+    if (m_numberTxt[m_index - 1] == '.') {
+        m_hasPoint = false;
+    }
     for (int j = m_index - 1; j < m_len; ++j) {
         m_numberTxt[j] = m_numberTxt[j + 1];
     }
