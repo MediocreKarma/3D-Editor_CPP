@@ -29,13 +29,9 @@ Menu::Menu(const int& theme, int language, const int& appWidth, const int& appHe
     cube.updateCenterPoint();
     cube.translate(500, 0, 0);
     m_space.addMesh(cube);
-    cube.translate(0, 600, 0);
+    cube.translate(-500, 0, 0);
     m_space.addMesh(cube);
-    cube.translate(0, 600, 0);
-    m_space.addMesh(cube);
-    cube.translate(0, 600, 0);
-    m_space.addMesh(cube);
-    cube.translate(0, 600, 0);
+    cube.translate(-500, 0, 0);
     m_space.addMesh(cube);
 }
 

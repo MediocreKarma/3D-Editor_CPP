@@ -16,11 +16,13 @@ class ObjectCreator {
         enum class Tool {
             NewPoint = 0, MovePoint, EditPoint, DeletePoint, ConnectPoint, CutLine
         };
+
         ObjectCreator(const int& theme = 0, int language = 0);
         ObjectCreator(const Mesh& editedMesh, const int& theme = 0,
                       int language = 0);
         ObjectCreator(const ObjectCreator& other);
         ObjectCreator& operator = (const ObjectCreator& other);
+
         Mesh run();
         void draw();
         const int& getCloseFlag() const;

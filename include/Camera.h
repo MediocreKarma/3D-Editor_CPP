@@ -9,6 +9,7 @@ class Camera {
         Camera(const int& maxRadius = 5000);
         Camera(const Point3D& point, const double& EZ = 1);
         Camera(const Point3D& point, const Quaternion& quat);
+
         Point3D position() const;
         double angleX() const;
         double angleY() const;

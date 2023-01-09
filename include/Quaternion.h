@@ -16,6 +16,7 @@ class Quaternion
         Quaternion(const double& real, const double& i, const double& j, const double& k);
         Quaternion(const double& yaw, const double& pitch, const double& roll);
         Quaternion& operator=(const Quaternion& rhs);
+
         MyArray<double, 3> toEuler() const;
         double real() const;
         TVector3 complex() const;
