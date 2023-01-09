@@ -46,25 +46,25 @@ class MyRandomAccessIterator {
             return tmp;
         }
 
-        iterator operator + (const int& offset) const noexcept {
+        iterator operator + (const int offset) const noexcept {
             return iterator(m_ptr + offset);
         }
 
-        iterator& operator += (const int& offset) noexcept {
+        iterator& operator += (const int offset) noexcept {
             m_ptr += offset;
             return *this;
         }
 
-        iterator operator - (const int& offset) const noexcept {
+        iterator operator - (const int offset) const noexcept {
             return iterator(m_ptr - offset);
         }
 
-        iterator& operator -= (const int& offset) noexcept {
+        iterator& operator -= (const int offset) noexcept {
             m_ptr -= offset;
             return *this;
         }
 
-        reference operator [] (const int& index) {
+        reference operator [] (const int index) {
             return *(m_ptr + index);
         }
 

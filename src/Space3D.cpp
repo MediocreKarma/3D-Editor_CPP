@@ -13,14 +13,14 @@ Space3D::Space3D() :
     m_arrowSpinLeft(), m_arrowSpinRight(), m_meshContextMenu(), m_meshMenuVisible(false), m_spaceContextMenu(), m_spaceMenuVisible(false), m_gizmoButtons(), m_localTransforms(false), m_panelBtn(),
     m_transformLabels(), m_transformTextBtns(), m_linkedFile{0}, m_menuHolder(nullptr), m_objCreatorHolder(nullptr) {}
 
-Space3D::Space3D(const double& maxRadius, const int& theme, int language, Menu* menuHolder) :
+Space3D::Space3D(const double& maxRadius, const int theme, int language, Menu* menuHolder) :
     x0(), y0(), x1(), y1(), m_theme(theme), m_language(language), m_selected(-1), m_spinballSelected(false), m_fadedDrag(false),  m_objRotateDrag(false), m_meshes(), m_draggedMesh(), m_sections(), m_draggedSection(),
     m_updated(), m_cam(maxRadius), m_buttonOX(), m_buttonOY(), m_buttonOZ(), m_donutOX(), m_donutOY(), m_donutOZ(), m_spinballButton(), m_arrowLeft(), m_arrowRight(), m_arrowUp(), m_arrowDown(),
     m_arrowSpinLeft(), m_arrowSpinRight(), m_meshContextMenu(), m_meshMenuVisible(false), m_spaceContextMenu(), m_spaceMenuVisible(false), m_gizmoButtons(), m_localTransforms(false), m_panelBtn(),
     m_transformLabels(), m_transformTextBtns(),
     m_linkedFile{0}, m_menuHolder(menuHolder), m_objCreatorHolder(nullptr) {}
 
-Space3D::Space3D(const double& maxRadius, const int& theme, int language, ObjectCreator* objCreatorHolder) :
+Space3D::Space3D(const double& maxRadius, const int theme, int language, ObjectCreator* objCreatorHolder) :
     x0(), y0(), x1(), y1(), m_theme(theme), m_language(language), m_selected(-1), m_spinballSelected(false), m_fadedDrag(false), m_objRotateDrag(false), m_meshes(), m_draggedMesh(), m_sections(), m_draggedSection(),
     m_updated(), m_cam(maxRadius), m_buttonOX(), m_buttonOY(), m_buttonOZ(), m_donutOX(), m_donutOY(), m_donutOZ(), m_spinballButton(), m_arrowLeft(), m_arrowRight(), m_arrowUp(), m_arrowDown(),
     m_arrowSpinLeft(), m_arrowSpinRight(), m_meshContextMenu(), m_meshMenuVisible(false), m_spaceContextMenu(), m_spaceMenuVisible(false), m_gizmoButtons(), m_localTransforms(false), m_panelBtn(),
@@ -55,7 +55,7 @@ Space3D& Space3D::operator = (const Space3D& sp) {
     return *this;
 }
 
-void Space3D::setCorners(const int& x0_, const int& y0_, const int& x1_, const int& y1_) {
+void Space3D::setCorners(const int x0_, const int y0_, const int x1_, const int y1_) {
     x0 = x0_;
     y0 = y0_;
     x1 = x1_;
@@ -136,13 +136,13 @@ void Space3D::addMesh(const Mesh& mesh) {
     m_updated.push_back(true);
 }
 
-void Space3D::removeMesh(const size_t& index) {
+void Space3D::removeMesh(const size_t index) {
     m_meshes.erase(m_meshes.begin() + index);
     m_sections.erase(m_sections.begin() + index);
     m_updated.erase(m_updated.begin() + index);
 }
 
-void Space3D::setTheme(const int& theme) {
+void Space3D::setTheme(const int theme) {
     m_theme = theme;
 }
 
@@ -524,7 +524,7 @@ bool Space3D::checkObjectRotation(int x, int y) {
     return false;
 }
 
-bool Space3D::checkAxisRotation(const int& x, const int& y) {
+bool Space3D::checkAxisRotation(const int x, const int y) {
     const double Grad_1 = 0.0078539816339745 / 1.5;
     clearmouseclick(WM_LBUTTONUP);
     if (m_arrowDown.hitCollision(x, y)) {
@@ -562,7 +562,7 @@ bool Space3D::checkAxisRotation(const int& x, const int& y) {
     return false;
 }
 
-double Space3D::findRotation(const int& xDrag, const int& yDrag, const DonutButton& angleDonut, CircularButton& button) {
+double Space3D::findRotation(const int xDrag, const int yDrag, const DonutButton& angleDonut, CircularButton& button) {
     int xCircle = angleDonut.getX();
     int yCircle = angleDonut.getY();
     int xDiff = xDrag - angleDonut.getX();
@@ -717,7 +717,7 @@ Section Space3D::projectSection(const Mesh& mesh) {
     return Section(projectedPoints, sectionCenterPoint, mesh.adjacencyList());
 }
 
-Point2D Space3D::moveInsideWorkArea(const Point2D& P, const Point2D& Q, const int& xBorder, const int& yBorder) {
+Point2D Space3D::moveInsideWorkArea(const Point2D& P, const Point2D& Q, const int xBorder, const int yBorder) {
     int xP = P.getX();
     int yP = P.getY();
     int xQ = Q.getX();
@@ -744,7 +744,7 @@ void Space3D::render() {
     }
 }
 
-bool Space3D::insideWorkArea(const int& x, const int& y) const {
+bool Space3D::insideWorkArea(const int x, const int y) const {
     return x0 <= x && x <= x1 && y0 <= y && y <= y1;
 }
 
@@ -796,7 +796,7 @@ bool Space3D::checkKeyCommand(const char& x) {
     return checkCamMovement(x);
 }
 
-bool Space3D::getCommand(const int& x, const int& y) {
+bool Space3D::getCommand(const int x, const int y) {
     if (m_selected != -1 && m_meshMenuVisible && m_meshContextMenu.listHitCollision(x, y) != -1) {
         m_meshMenuVisible = false;
         int rMenuIndex = m_meshContextMenu.listHitCollision(x, y);
@@ -961,7 +961,7 @@ bool Space3D::getCommand(const int& x, const int& y) {
     return false;
 }
 
-bool Space3D::getRightClickCommand(const int& x, const int& y) {
+bool Space3D::getRightClickCommand(const int x, const int y) {
     if (m_selected != -1 && m_spinballButton.hitCollision(x, y)) {
         m_meshes[m_selected].resetRotation();
         m_updated[m_selected] = true;
@@ -1325,7 +1325,7 @@ Point3D Space3D::rayCastOnPlane(int x, int y, const Point3D& planeNormal, const 
     return projectedPoint;
 }
 
-void Space3D::dragAndDrop(const int& xDrag, const int& yDrag, Mesh& mesh, const Quaternion& camQuat, const Quaternion& camInverse) {
+void Space3D::dragAndDrop(const int xDrag, const int yDrag, Mesh& mesh, const Quaternion& camQuat, const Quaternion& camInverse) {
     const double xCenter = (x0 + x1) / 2;
     const double yCenter = (y0 + y1) / 2;
     const int yLen = y1 - y0;
@@ -1355,7 +1355,7 @@ void Space3D::dragAndDrop(const int& xDrag, const int& yDrag, Mesh& mesh, const 
     mesh.translate(tx - centerPoint.getX(), ty - centerPoint.getY(), tz - centerPoint.getZ());
 }
 
-bool Space3D::isDragAndDrop(const int& xDrag, const int& yDrag) const {
+bool Space3D::isDragAndDrop(const int xDrag, const int yDrag) const {
     return x0 + 8 <= xDrag && xDrag <= x1 - 8 && y0 + 8 <= yDrag && yDrag <= y1 - 8;
 }
 
@@ -1372,7 +1372,7 @@ void Space3D::highlightMesh() {
     }
 }
 
-void Space3D::selectMesh(const size_t& index) {
+void Space3D::selectMesh(const size_t index) {
     m_selected = index;
     const int x = m_spinballButton.getXCenter();
     const int y = m_spinballButton.getYCenter();
@@ -1406,28 +1406,28 @@ bool Space3D::isLinkedWithFile() {
     return m_linkedFile[0];
 }
 
-Mesh& Space3D::meshAt(const size_t& index) {
+Mesh& Space3D::meshAt(const size_t index) {
     return m_meshes[index];
 }
 
-const int& Space3D::selected() const{
+int Space3D::selected() const{
     return m_selected;
 }
 
-void Space3D::setMeshAt(const size_t& index, const Mesh& mesh) {
+void Space3D::setMeshAt(const size_t index, const Mesh& mesh) {
     m_meshes[index] = mesh;
     m_updated[index] = true;
 }
 
-const Mesh& Space3D::meshAt(const size_t& index) const {
+const Mesh& Space3D::meshAt(const size_t index) const {
     return m_meshes[index];
 }
 
-Section& Space3D::sectionAt(const size_t& index) {
+Section& Space3D::sectionAt(const size_t index) {
     return m_sections[index];
 }
 
-const Section& Space3D::sectionAt(const size_t& index) const {
+const Section& Space3D::sectionAt(const size_t index) const {
     return m_sections[index];
 }
 

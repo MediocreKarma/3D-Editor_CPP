@@ -11,7 +11,7 @@ class TextInputBox
     public:
         static const int MAX_TEXT_SIZE = 256;
 
-        TextInputBox(const int& areaBegin, const int& areaEnd, const int& height, const int& textColor, const int& fillColor, const int& m_maxSize, const char* acceptedInput = nullptr);
+        TextInputBox(const int areaBegin, const int areaEnd, const int height, const int textColor, const int fillColor, const int m_maxSize, const char* acceptedInput = nullptr);
         MyArray<char, MAX_TEXT_SIZE> getText(const MyArray<char, 256>& startText = nullptr);
         void getClick(int& x, int& y) const;
         bool pressedEnter();
@@ -36,13 +36,13 @@ class TextInputBox
         void clearText();
         void backspaceIndex(size_t& len);
         void insertIndex(size_t& len, const char& key);
-        MyArray<char, MAX_TEXT_SIZE> displayText(const size_t& from, const size_t& to);
-        void displayCursor(const MyArray<char, MAX_TEXT_SIZE>& outText, const size_t& from);
+        MyArray<char, MAX_TEXT_SIZE> displayText(const size_t from, const size_t to);
+        void displayCursor(const MyArray<char, MAX_TEXT_SIZE>& outText, const size_t from);
         void decrementBeginEnd(size_t& m_displayBegin, size_t& end);
-        void incrementBeginEnd(size_t& m_displayBegin, size_t& end, const size_t& lenText = 0);
-        void changeIndexByClick(const int& x, size_t& m_displayBegin, size_t& end);
-        void display(const size_t& from, const size_t& to);
-        bool isClickInTextbox(const int& x, const int& y);
+        void incrementBeginEnd(size_t& m_displayBegin, size_t& end, const size_t lenText = 0);
+        void changeIndexByClick(const int x, size_t& m_displayBegin, size_t& end);
+        void display(const size_t from, const size_t to);
+        bool isClickInTextbox(const int x, const int y);
         bool isAccepted(const char& ch) const;
 };
 

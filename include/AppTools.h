@@ -142,11 +142,11 @@ namespace Language {
 class Label {
     public:
         Label();
-        Label(const int& xCenter, const int& yCenter, const int& xLen, const int& yLen);
+        Label(const int xCenter, const int yCenter, const int xLen, const int yLen);
 
-        void drawLabel(const int& fillColor, const int& outlineColor = BLACK) const;
-        void border(const int& outlineColor) const;
-        void clear(const int& barColor) const;
+        void drawLabel(const int fillColor, const int outlineColor = BLACK) const;
+        void border(const int outlineColor) const;
+        void clear(const int barColor) const;
         int getXCenter() const;
         int getYCenter() const;
         int getXLen() const;
@@ -162,12 +162,12 @@ class Label {
 class CircularLabel {
     public:
         CircularLabel();
-        CircularLabel(const int& xCenter, const int& yCenter, const int& radius);
+        CircularLabel(const int xCenter, const int yCenter, const int radius);
 
-        void drawLabel(const int& fillColor, const int& outlineColor = BLACK);
-        void border(const int& outlineColor) const;
-        void clear(const int& barColor) const;
-        void move(const int& x, const int& y);
+        void drawLabel(const int fillColor, const int outlineColor = BLACK);
+        void border(const int outlineColor) const;
+        void clear(const int barColor) const;
+        void move(const int x, const int y);
         int getX() const;
         int getY() const;
         int getRadius() const;
@@ -181,17 +181,17 @@ class CircularLabel {
 class CircularButton : public CircularLabel {
     public:
         CircularButton();
-        CircularButton(const int& xCenter, const int& yCenter, const int& radius);
+        CircularButton(const int xCenter, const int yCenter, const int radius);
 
-        bool hitCollision(const int& x, const int& y) const;
+        bool hitCollision(const int x, const int y) const;
 };
 
 class DonutButton : public CircularButton {
     public:
         DonutButton();
-        DonutButton(const int& xCenter, const int& yCenter, const int& radius, const int& donutLen);
+        DonutButton(const int xCenter, const int yCenter, const int radius, const int donutLen);
 
-        bool hitCollision(const int& x, const int& y) const;
+        bool hitCollision(const int x, const int y) const;
 
     private:
         CircularButton m_outerRing;
@@ -201,26 +201,26 @@ class DonutButton : public CircularButton {
 class TextLabel : public Label {
     public:
         TextLabel();
-        TextLabel(const int& xCenter, const int& yCenter, const int& xLen, const int& yLen, const char* text);
+        TextLabel(const int xCenter, const int yCenter, const int xLen, const int yLen, const char* text);
 
-        void drawTextLabel(const int& txtFont, const int& txtSize, const int& fillColor);
+        void drawTextLabel(const int txtFont, const int txtSize, const int fillColor);
     private:
         MyArray<char, 128> m_text;
-        void drawText(const int& /*txtFont*/, const int& /*txtSize*/, const int& fillColor);
+        void drawText(const int /*txtFont*/, const int /*txtSize*/, const int fillColor);
 };
 
 class Button : public Label {
     public:
         Button();
-        Button(const int& xCenter, const int& yCenter, const int& xLen, const int& yLen);
+        Button(const int xCenter, const int yCenter, const int xLen, const int yLen);
 
-        bool hitCollision(const int& x, const int& y) const;
+        bool hitCollision(const int x, const int y) const;
 };
 
 class ImageButton : public Button {
     public:
         ImageButton();
-        ImageButton(const int& xCenter, const int& yCenter, const int& xLen, const int& yLen, const char* filename);
+        ImageButton(const int xCenter, const int yCenter, const int xLen, const int yLen, const char* filename);
 
         void drawImageButton();
 
@@ -231,9 +231,9 @@ class ImageButton : public Button {
 class TextButton : public Button {
     public:
         TextButton();
-        TextButton(const int& xCenter, const int& yCenter, const int& xLen, const int& yLen, const char* p);
+        TextButton(const int xCenter, const int yCenter, const int xLen, const int yLen, const char* p);
 
-        void drawTextButton(const int& txtFont, const int& txtSize, const int& fillColor, const bool& centerText = true);
+        void drawTextButton(const int txtFont, const int txtSize, const int fillColor, const bool& centerText = true);
         const char* getText();
         void modifyText(const MyArray<char, 32>& newText);
         void move(int x, int y);
@@ -242,7 +242,7 @@ class TextButton : public Button {
         MyArray<char, 32> m_text;
 
     private:
-        void drawText(const int& /*txtFont*/, const int& /*txtSize*/, const int& fillColor, const bool& centerText = true);
+        void drawText(const int /*txtFont*/, const int /*txtSize*/, const int fillColor, const bool& centerText = true);
 };
 
 template<size_t lenList>
@@ -251,9 +251,9 @@ class DropdownButton : public TextButton {
         DropdownButton() :
             TextButton(), m_index(), m_listWidth(), m_listHeight(), m_listVisibility(false), m_list() {}
 
-        DropdownButton(const int& xCenter_, const int& yCenter_,
-                       const int& xLen_, const int& yLen_,
-                       const char* p, const int& listWidth, const int& listHeight) :
+        DropdownButton(const int xCenter_, const int yCenter_,
+                       const int xLen_, const int yLen_,
+                       const char* p, const int listWidth, const int listHeight) :
             TextButton(xCenter_, yCenter_, xLen_, yLen_, p),
             m_index(0),
             m_listWidth(listWidth),
@@ -278,14 +278,14 @@ class DropdownButton : public TextButton {
                                         m_listWidth, option_yLen, p);
         }
 
-        void showList(const int& font, const int& fontSize, const int& fillColor, const bool& centerText = true) {
+        void showList(const int font, const int fontSize, const int fillColor, const bool& centerText = true) {
             for (size_t i = 0; i < lenList; ++i) {
                 m_list[i].drawTextButton(font, fontSize, fillColor, centerText);
             }
             m_listVisibility = 1;
         }
 
-        void hideList(const int& barColor) {
+        void hideList(const int barColor) {
             m_listVisibility = 0;
             if (barColor == -1) {
                 return;
@@ -294,7 +294,7 @@ class DropdownButton : public TextButton {
             bar(xCenter - xLen / 2 - 1, yCenter + yLen / 2 + 1, xCenter + xLen / 2 + 1, yCenter + yLen / 2 + m_listHeight + 1);
         }
 
-        void toggleVisibillity(const int& barColor, const int& font, const int& fontSize, const int& fillColor) {
+        void toggleVisibillity(const int barColor, const int font, const int fontSize, const int fillColor) {
             if (!isListVisible()) {
                 showList(font, fontSize, fillColor);
             }
@@ -329,13 +329,13 @@ class DropdownButton : public TextButton {
             m_listVisibility = vis;
         }
 
-        void changeMain(const int& index, const int& font, const int& fontSize, const int& fillColor) {
+        void changeMain(const int index, const int font, const int fontSize, const int fillColor) {
             const char* p = m_list[index].getText();
             changeText(p);
             drawTextButton(font, fontSize, fillColor);
         }
 
-        int listHitCollision(const int& x, const int& y) {
+        int listHitCollision(const int x, const int y) {
             if (xCenter - xLen / 2 <= x &&
                 x <= xCenter - xLen / 2 + m_listWidth &&
                 yCenter + yLen / 2 <= y &&
@@ -345,7 +345,7 @@ class DropdownButton : public TextButton {
             return -1;
         }
 
-        TextButton& operator [] (const size_t& index) {
+        TextButton& operator [] (const size_t index) {
             return m_list[index];
         }
 

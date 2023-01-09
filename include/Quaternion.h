@@ -21,7 +21,7 @@ class Quaternion
         double real() const;
         TVector3 complex() const;
         TVector4 data() const;
-        double& operator[](const size_t& index);
+        double& operator[](const size_t index);
         void operator+=(const Quaternion& q);
         void operator-=(const Quaternion& q);
         Quaternion multiply(const Quaternion& q) const;
@@ -30,7 +30,7 @@ class Quaternion
         Quaternion operator*(const Quaternion& q) const;
         void setReal(const double& real);
         void setComplex(const TVector3& complex);
-        void setCoord(const size_t& index, const double& value);
+        void setCoord(const size_t index, const double& value);
         double norm() const noexcept;
         void normalize();
         void convertToUnitQ();

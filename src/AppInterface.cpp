@@ -1,9 +1,9 @@
 #include "AppInterface.h"
 
-AppInterface::AppInterface(const int& appWidth, const int& appHeight, const int& theme, const int& languagePackage) :
+AppInterface::AppInterface(const int appWidth, const int appHeight, const int theme, const int languagePackage) :
     m_menu(), m_appWidth(appWidth), m_appHeight(appHeight), m_theme(theme), m_languagePackage(languagePackage) {}
 
-void AppInterface::setSettings(const int& appWidth, const int& appHeight, const int& theme, const int& languagePackage) {
+void AppInterface::setSettings(const int appWidth, const int appHeight, const int theme, const int languagePackage) {
     m_appWidth = appWidth;
     m_appHeight = appHeight;
     m_theme = theme;

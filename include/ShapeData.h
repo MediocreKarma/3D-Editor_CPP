@@ -15,13 +15,13 @@
 
 struct Point2D {
     Point2D();
-    Point2D(const int& x_, const int& y_);
+    Point2D(const int x_, const int y_);
     Point2D(const double& x_, const double& y_);
     Point2D(const Point2D& pct);
     int getX() const;
     int getY() const;
-    void setX(const int& x_);
-    void setY(const int& y_);
+    void setX(const int x_);
+    void setY(const int y_);
     bool operator == (const Point2D& other);
     Point2D& operator = (const Point2D& other);
     Point2D& operator += (const Point2D& other);
@@ -29,7 +29,7 @@ struct Point2D {
     Point2D operator + (const Point2D& p);
     Point2D operator - (const Point2D& p);
     void translate(const Point2D& other);
-    void translate(const int& x_, const int& y_);
+    void translate(const int x_, const int y_);
     friend bool linesIntersect(const Point2D& A, const Point2D& B, const Point2D& C, const Point2D& D);
 
     int x;
@@ -40,7 +40,7 @@ class Line2D {
     public:
         Line2D();
         Line2D(const Point2D& P_, const Point2D& Q_);
-        Line2D(const int& x0, const int& y0, const int& x1, const int& y1);
+        Line2D(const int x0, const int y0, const int x1, const int y1);
         Point2D getP() const;
         Point2D getQ() const;
         void draw();
@@ -60,14 +60,14 @@ class Section {
         size_t size() const;
         Point2D centerPoint() const;
         void addPoint(const Point2D& line);
-        void addPoint(const int& x, const int& y);
-        void addEdge(const size_t& index1, const size_t& index2);
+        void addPoint(const int x, const int y);
+        void addEdge(const size_t index1, const size_t index2);
         Section& operator = (const Section& other);
-        Point2D& operator [] (const size_t& index);
-        const Point2D& operator [] (const size_t& index) const;
-        void draw(const int& theme, const int& fillColor, const int& borderColor = BLACK);
-        void drawButton(const int& fillColor, const int& borderColor = BLACK);
-        bool grabButtonCollision(const int& x, const int& y) const;
+        Point2D& operator [] (const size_t index);
+        const Point2D& operator [] (const size_t index) const;
+        void draw(const int theme, const int fillColor, const int borderColor = BLACK);
+        void drawButton(const int fillColor, const int borderColor = BLACK);
+        bool grabButtonCollision(const int x, const int y) const;
 
     private:
         MyVector<Point2D> m_points;
@@ -140,7 +140,7 @@ class Line3D {
         Line3D(const Point3D& P_, const Point3D& Q_);
         Line3D(const Line3D& other);
         Line3D& operator = (const Line3D& other);
-        void translate(const int& xTranslate, const int& yTranslate, const int& zTranslate);
+        void translate(const int xTranslate, const int yTranslate, const int zTranslate);
         Point3D getP() const;
         Point3D getQ() const;
         double length() const;
@@ -175,18 +175,18 @@ class Mesh {
         Mesh(FixedMesh& other);
 
         size_t size() const;
-        void erase(const size_t& index);
+        void erase(const size_t index);
         void addPoint(const Point3D& point);
         void addPoint(const double& x, const double& y, const double& z);
-        void addEdge(const size_t& index1, const size_t& index2);
-        Point3D& operator [] (const size_t& index);
-        const Point3D& operator [] (const size_t& index) const;
+        void addEdge(const size_t index1, const size_t index2);
+        Point3D& operator [] (const size_t index);
+        const Point3D& operator [] (const size_t index) const;
         Mesh& operator = (const Mesh& other);
-        MyVector<size_t> adjListAt(const size_t& index) const;
+        MyVector<size_t> adjListAt(const size_t index) const;
         MyVector<MyVector<size_t>>& adjacencyListReference();
         const MyVector<MyVector<size_t>>& adjacencyList() const;
-        void addIndexConnections(const size_t& index, const MyVector<size_t>& adjList);
-        void deleteIndexConnection(const size_t& index1, const size_t& index2);
+        void addIndexConnections(const size_t index, const MyVector<size_t>& adjList);
+        void deleteIndexConnection(const size_t index1, const size_t index2);
         void translate(const double& xTranslate, const double& yTranslate, const double& zTranslate);
         void translate(const Point3D& pntTranslate);
         Point3D centerPoint() const;
@@ -198,8 +198,8 @@ class Mesh {
         void rotateByUnitQuat(const Quaternion& quat);
         void rotateDisplayAngle();
         void scaleEven(const double& scaleFactor);
-        void scaleAxis(const double& scaleFactor, const size_t& axis);
-        void mirror(const size_t& axis);
+        void scaleAxis(const double& scaleFactor, const size_t axis);
+        void mirror(const size_t axis);
         double angleX() const;
         double angleY() const;
         double angleZ() const;
@@ -231,7 +231,7 @@ struct IntegerPoint3D {
 
     IntegerPoint3D();
     IntegerPoint3D(const Point3D& point);
-    IntegerPoint3D(const int& x, const int& y, const int& z);
+    IntegerPoint3D(const int x, const int y, const int z);
     IntegerPoint3D(const IntegerPoint3D& other);
     IntegerPoint3D& operator = (const Point3D& point3d);
     IntegerPoint3D& operator = (const IntegerPoint3D& iPoint3d);
@@ -273,9 +273,9 @@ class FixedMesh {
         void addEdge(const IntegerPoint3D& x, const IntegerPoint3D& y);
         void addEdge(iterator_type it1, iterator_type it2);
         void addPoint(const IntegerPoint3D& x);
-        void addPoint(const int& x, const int& y, const int& z);
+        void addPoint(const int x, const int y, const int z);
         void erasePoint(const IntegerPoint3D& x);
-        void erasePoint(const int& x, const int& y, const int& z);
+        void erasePoint(const int x, const int y, const int z);
         void erasePoint(iterator_type it);
         void eraseConnection(const IntegerPoint3D& x, const IntegerPoint3D& y);
         void eraseConnection(iterator_type it1, iterator_type it2);

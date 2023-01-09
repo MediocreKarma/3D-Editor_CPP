@@ -20,35 +20,35 @@ class Space3D
 {
     public:
         Space3D();
-        Space3D(const double& maxRadius, const int& theme, int language, Menu* menuHolder);
-        Space3D(const double& maxRadius, const int& theme, int language, ObjectCreator* objCreatorHolder);
+        Space3D(const double& maxRadius, const int theme, int language, Menu* menuHolder);
+        Space3D(const double& maxRadius, const int theme, int language, ObjectCreator* objCreatorHolder);
         Space3D(const Space3D& other);
         Space3D& operator = (const Space3D& other);
         void addMesh(const Mesh& mesh);
-        void removeMesh(const size_t& index);
+        void removeMesh(const size_t index);
         void run();
         void draw();
         void render();
-        bool insideWorkArea(const int& x, const int& y) const;
+        bool insideWorkArea(const int x, const int y) const;
         bool insideWorkArea(const Point2D& point) const;
-        bool getCommand(const int& xClick, const int& yClick);
+        bool getCommand(const int xClick, const int yClick);
         bool getKeyCommand();
         bool checkKeyCommand(const char& x);
-        bool getRightClickCommand(const int& x, const int& y);
+        bool getRightClickCommand(const int x, const int y);
         bool fscan(FILE* fp);
         void fprint(FILE* fp);
         MyArray<char, 512> getLinkedFileName();
         void setLinkedFileName(const MyArray<char, 512>& name);
         bool isLinkedWithFile();
-        void setCorners(const int& x0_, const int& y0_, const int& x1_, const int& y1_);
-        Mesh& meshAt(const size_t& index);
-        const Mesh& meshAt(const size_t& index) const;
-        const int& selected() const;
-        void setMeshAt(const size_t& index, const Mesh& mesh);
-        Section& sectionAt(const size_t& index);
-        const Section& sectionAt(const size_t& index) const;
+        void setCorners(const int x0_, const int y0_, const int x1_, const int y1_);
+        Mesh& meshAt(const size_t index);
+        const Mesh& meshAt(const size_t index) const;
+        int selected() const;
+        void setMeshAt(const size_t index, const Mesh& mesh);
+        Section& sectionAt(const size_t index);
+        const Section& sectionAt(const size_t index) const;
         void update();
-        void setTheme(const int& theme);
+        void setTheme(const int theme);
         void setLanguage(int language);
 
     private:
@@ -104,13 +104,13 @@ class Space3D
         bool moveMeshHelper(int x, int y, int axis, bool isLocal = 0);
         void moveMesh();
         void dragMesh();
-        void dragAndDrop(const int& xDrag, const int& yDrag, Mesh& mesh,  const Quaternion& camQuat, const Quaternion& camInverse);
-        double findRotation(const int& xDrag, const int& yDrag, const DonutButton& angleDonut, CircularButton& button);
-        bool checkAxisRotation(const int& x, const int& y);
+        void dragAndDrop(const int xDrag, const int yDrag, Mesh& mesh,  const Quaternion& camQuat, const Quaternion& camInverse);
+        double findRotation(const int xDrag, const int yDrag, const DonutButton& angleDonut, CircularButton& button);
+        bool checkAxisRotation(const int x, const int y);
         bool checkCamMovement(const char& c);
         bool checkGizmo(int x, int y);
         bool checkObjectRotation(int x, int y);
-        Point2D moveInsideWorkArea(const Point2D& P, const Point2D& Q, const int& xBorder, const int& yBorder);
+        Point2D moveInsideWorkArea(const Point2D& P, const Point2D& Q, const int xBorder, const int yBorder);
         double gizmoLength() const;
         void updateGizmoButtons();
         void drawGizmo();
@@ -129,9 +129,9 @@ class Space3D
         void rotateOX(Mesh& lines, const double& alpha);
         void rotateOY(Mesh& lines, const double& alpha);
         void rotateOZ(Mesh& lines, const double& alpha);
-        void selectMesh(const size_t& index);
+        void selectMesh(const size_t index);
         void highlightMesh();
-        bool isDragAndDrop(const int& xDrag, const int& yDrag) const;
+        bool isDragAndDrop(const int xDrag, const int yDrag) const;
         void updateTransformFields();
 
         friend void drawGizmoArrow(const Point2D& p1, const Point2D& p2, int color);

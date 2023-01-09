@@ -340,7 +340,7 @@ class MyHashMap {
             return m_hasher(key) & (m_capacity - 1);
         }
 
-        void rehash(const size_t& maxCapacity) {
+        void rehash(const size_t maxCapacity) {
             m_capacity = maxCapacity;
             MyVector<MyList<hash_node>> new_hmap(m_capacity);
             m_firstUsedBucket = m_capacity - 1;
@@ -380,7 +380,7 @@ class MyHashMap {
             updateFirstOrLast(hashKey);
         }
 
-        void updateFirstOrLast(const size_t& hashKey) noexcept {
+        void updateFirstOrLast(const size_t hashKey) noexcept {
             if (m_size == 1) {
                 m_lastUsedBucket = hashKey;
                 m_firstUsedBucket = hashKey;
@@ -394,7 +394,7 @@ class MyHashMap {
             }
         }
 
-        void incrementFirstOrLastBucket(const size_t& hashKey) noexcept {
+        void incrementFirstOrLastBucket(const size_t hashKey) noexcept {
             if (!m_hmap[hashKey].empty()) {
                 return;
             }

@@ -107,11 +107,11 @@ class MyArray {
             return *this;
         }
 
-        T& operator [] (const size_t& index) {
+        T& operator [] (const size_t index) {
             return m_data[index];
         }
 
-        const T& operator [] (const size_t& index) const {
+        const T& operator [] (const size_t index) const {
             return m_data[index];
         }
 
@@ -235,11 +235,11 @@ class MyArray<char, m_size> {
             return *this;
         }
 
-        char& operator [] (const size_t& index) {
+        char& operator [] (const size_t index) {
             return m_data[index];
         }
 
-        const char& operator [] (const size_t& index) const {
+        const char& operator [] (const size_t index) const {
             return m_data[index];
         }
 

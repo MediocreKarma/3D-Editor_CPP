@@ -17,15 +17,15 @@ class ObjectCreator {
             NewPoint = 0, MovePoint, EditPoint, DeletePoint, ConnectPoint, CutLine
         };
 
-        ObjectCreator(const int& theme = 0, int language = 0);
-        ObjectCreator(const Mesh& editedMesh, const int& theme = 0,
+        ObjectCreator(const int theme = 0, int language = 0);
+        ObjectCreator(const Mesh& editedMesh, const int theme = 0,
                       int language = 0);
         ObjectCreator(const ObjectCreator& other);
         ObjectCreator& operator = (const ObjectCreator& other);
 
         Mesh run();
         void draw();
-        const int& getCloseFlag() const;
+        int getCloseFlag() const;
 
     private:
         int m_width;
@@ -78,7 +78,7 @@ class ObjectCreator {
 
         void init();
         void resetLine();
-        int getLayerByHeight(const int& height);
+        int getLayerByHeight(const int height);
         void drawMinimizedSpaceCube();
         void drawToolButtonSymbol(const int xCenter, const int yCenter, const int btnWidth, const int toolIndex);
         void layerViewMover(int x, int y);
@@ -87,9 +87,9 @@ class ObjectCreator {
         void pointConnector3D();
         void pointDeleter();
         void pointDeleter3D();
-        void pointAdder(const int& x, const int& y);
-        void lineCutter2D(const int& x, const int& y);
-        void lineCutter3D(const int& x, const int& y);
+        void pointAdder(const int x, const int y);
+        void lineCutter2D(const int x, const int y);
+        void lineCutter3D(const int x, const int y);
         void drawSelectLayers();
         void updateButtons();
         void drawButtons();
@@ -103,7 +103,7 @@ class ObjectCreator {
         bool getClickCommand(const int x, const int y);
         bool getClickCommand();
         bool getHoverCommand();
-        bool getHoverCommand(const int& x, const int& y);
+        bool getHoverCommand(const int x, const int y);
         bool getDoubleClickCommand();
         void toolOperationOnPoint();
         void renderLayerSelectButtons();

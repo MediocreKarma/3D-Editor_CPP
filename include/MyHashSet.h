@@ -211,7 +211,7 @@ class MyHashSet {
             return m_hasher(key) & (m_capacity - 1);
         }
 
-        void rehash(const size_t& maxCapacity) {
+        void rehash(const size_t maxCapacity) {
             m_capacity = maxCapacity;
             MyVector<MyList<T>> new_hmap(m_capacity);
             m_size = 0;
@@ -249,7 +249,7 @@ class MyHashSet {
             updateFirstOrLast(hashKey);
         }
 
-        void updateFirstOrLast(const size_t& hashKey) noexcept {
+        void updateFirstOrLast(const size_t hashKey) noexcept {
             if (m_size == 1) {
                 m_lastUsedBucket = hashKey;
                 m_firstUsedBucket = hashKey;
@@ -263,7 +263,7 @@ class MyHashSet {
             }
         }
 
-        void incrementFirstOrLastBucket(const size_t& hashKey) noexcept {
+        void incrementFirstOrLastBucket(const size_t hashKey) noexcept {
             if (!m_hset[hashKey].empty()) {
                 return;
             }

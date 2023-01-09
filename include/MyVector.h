@@ -40,14 +40,14 @@ class MyVector {
             }
         }
 
-        MyVector(const size_t& vecSize, const T& value) noexcept : m_vec(nullptr), m_size(0), m_capacity(0) {
+        MyVector(const size_t vecSize, const T& value) noexcept : m_vec(nullptr), m_size(0), m_capacity(0) {
             resize(vecSize);
             for (size_t i = 0; i < size(); ++i) {
                 m_vec[i] = value;
             }
         }
 
-        MyVector(const size_t& vecSize) noexcept : m_vec(nullptr), m_size(0), m_capacity(0) {
+        MyVector(const size_t vecSize) noexcept : m_vec(nullptr), m_size(0), m_capacity(0) {
             resize(vecSize);
         }
 
@@ -117,7 +117,7 @@ class MyVector {
             return const_iterator(m_vec + m_size);
         }
 
-        void reserve(const size_t& reservedCapacity) noexcept {
+        void reserve(const size_t reservedCapacity) noexcept {
             if (reservedCapacity < m_capacity) {
                 return;
             }
@@ -131,7 +131,7 @@ class MyVector {
             setCapacity(m_capacity * mult);
         }
 
-        void resize(const size_t& newSize) noexcept {
+        void resize(const size_t newSize) noexcept {
             setCapacity(newSize);
             m_size = newSize;
         }
@@ -223,11 +223,11 @@ class MyVector {
             return m_vec[size() - 1];
         }
 
-        T& operator [] (const size_t& index) {
+        T& operator [] (const size_t index) {
             return m_vec[index];
         }
 
-        const T& operator [] (const size_t& index) const {
+        const T& operator [] (const size_t index) const {
             return m_vec[index];
         }
 
@@ -249,7 +249,7 @@ class MyVector {
         T* m_vec;
         size_t m_size, m_capacity;
 
-        void setCapacity(const size_t& newCapacity) noexcept {
+        void setCapacity(const size_t newCapacity) noexcept {
             if (newCapacity == 0) {
                 delete[] m_vec;
                 m_vec = nullptr;
@@ -280,7 +280,7 @@ class MyVector {
             m_vec = newVec;
         }
 
-        bool outOfBounds(const size_t& index) const noexcept {
+        bool outOfBounds(const size_t index) const noexcept {
             return m_size <= index;
         }
 

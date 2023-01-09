@@ -2,7 +2,7 @@
 
 const double pi = 3.1415926535897;
 
-ObjectCreator::ObjectCreator(const Mesh& mesh, const int& theme, int language) :
+ObjectCreator::ObjectCreator(const Mesh& mesh, const int theme, int language) :
     m_width(1000), m_height(800), m_theme(theme), m_language(language), m_layers(), m_layerSelectButtons(), m_selectedLayer(), m_addLayerButton(), m_deleteLayerButton(), m_dupeLayerButton(),
     m_minimizedSpaceButton(), m_toolButtons(),
     m_tool(Tool::MovePoint), workX0(32), workY0(32), workX1(800), workY1(800), m_workArea(theme, mesh, this),
@@ -705,7 +705,7 @@ void ObjectCreator::editLayer(const int layerIndex) {
     draw();
 }
 
-void ObjectCreator::pointAdder(const int& x, const int& y) {
+void ObjectCreator::pointAdder(const int x, const int y) {
     if (!m_workArea.insideWorkArea(x, y)) {
         return;
     }
@@ -829,7 +829,7 @@ void ObjectCreator::pointConnector3D() {
     }
 }
 
-void ObjectCreator::lineCutter3D(const int& x, const int& y){
+void ObjectCreator::lineCutter3D(const int x, const int y){
     clearmouseclick(WM_LBUTTONUP);
     int xDrag, yDrag;
     while (!ismouseclick(WM_LBUTTONUP)) {
@@ -852,7 +852,7 @@ void ObjectCreator::lineCutter3D(const int& x, const int& y){
     }
 }
 
-void ObjectCreator::lineCutter2D(const int& x, const int& y) {
+void ObjectCreator::lineCutter2D(const int x, const int y) {
     clearmouseclick(WM_LBUTTONUP);
     int xDrag, yDrag;
     while (!ismouseclick(WM_LBUTTONUP)) {
@@ -1065,7 +1065,7 @@ bool ObjectCreator::getClickCommand(const int x, const int y) {
     return false;
 }
 
-bool ObjectCreator::getHoverCommand(const int& xHov, const int& yHov) {
+bool ObjectCreator::getHoverCommand(const int xHov, const int yHov) {
     if (m_tool != Tool::EditPoint) {
         if (!m_selectedLayer) {
             for (FixedMesh::iterator_type it = m_workArea.mesh().begin(); it != m_workArea.mesh().end(); ++it) {
@@ -1136,7 +1136,7 @@ Mesh ObjectCreator::run() {
     return m_workArea.mesh().meshConversion();
 }
 
-const int& ObjectCreator::getCloseFlag() const {
+int ObjectCreator::getCloseFlag() const {
     return m_closeFlag;
 }
 

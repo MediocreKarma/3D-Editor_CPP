@@ -1,7 +1,7 @@
 #include "Menu.h"
 #include "SettingsMenuInterface.h"
 
-Menu::Menu(const int& theme, int language, const int& appWidth, const int& appHeight) :
+Menu::Menu(const int theme, int language, const int appWidth, const int appHeight) :
     x1(), y1(), x2(), y2(), m_appWidth(appWidth), m_appHeight(appHeight), m_theme(theme), m_language(language), m_fileButton(40, 13, 80, 26, Language::Text[(int)Lang::File][m_language].data(), 120, 80),
     m_settingsButton(130, 13, 100, 26, Language::Text[(int)Lang::Settings][m_language].data()), m_helpButton(210, 13, 60, 26, Language::Text[(int)Lang::Help][m_language].data(), 80, 80),
     m_space(-2500, m_theme, m_language, this), m_fileGetter(language), m_settingsMenuFlag(false) {
@@ -35,7 +35,7 @@ Menu::Menu(const int& theme, int language, const int& appWidth, const int& appHe
     m_space.addMesh(cube);
 }
 
-void Menu::setSettings(const int& theme, int language, const int& appWidth, const int& appHeight) {
+void Menu::setSettings(const int theme, int language, const int appWidth, const int appHeight) {
     m_theme = theme;
     m_language = language;
     m_fileGetter.setLanguage(language);
@@ -55,7 +55,7 @@ void Menu::setSettings(const int& theme, int language, const int& appWidth, cons
     m_space.render();
 }
 
-void Menu::setBorder(const int& x1_, const int& y1_, const int& x2_, const int& y2_) {
+void Menu::setBorder(const int x1_, const int y1_, const int x2_, const int y2_) {
     x1 = x1_;
     y1 = y1_;
     x2 = x2_;
@@ -136,7 +136,7 @@ void Menu::draw() {
     drawMenu();
     swapbuffers();
 }
-bool Menu::getCommand(const int& x, const int& y) {
+bool Menu::getCommand(const int x, const int y) {
     if (x == -1) {
         return m_space.getKeyCommand();
     }
@@ -227,7 +227,7 @@ bool Menu::getCommand(const int& x, const int& y) {
     return false;
 }
 
-bool Menu::getRightClickCommand(const int& x, const int& y) {
+bool Menu::getRightClickCommand(const int x, const int y) {
     if (x == -1) {
         return false;
     }

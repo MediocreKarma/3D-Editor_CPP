@@ -11,12 +11,12 @@
 class Menu {
     public:
 
-        Menu(const int& theme = 0, int language = 0, const int& appWidth = 1280, const int& appHeight = 720);
-        void setSettings(const int& theme = 0, int language = 0, const int& appWidth = 1280, const int& appHeight = 720);
+        Menu(const int theme = 0, int language = 0, const int appWidth = 1280, const int appHeight = 720);
+        void setSettings(const int theme = 0, int language = 0, const int appWidth = 1280, const int appHeight = 720);
         void draw();
-        bool getCommand(const int& xClick, const int& yClick);
-        bool getRightClickCommand(const int& x, const int& y);
-        void setBorder(const int& x1, const int& y1, const int& x2, const int& y2);
+        bool getCommand(const int xClick, const int yClick);
+        bool getRightClickCommand(const int x, const int y);
+        void setBorder(const int x1, const int y1, const int x2, const int y2);
         bool returnToSettingsFlag();
 
     private:

@@ -68,7 +68,7 @@ void Quaternion::operator-=(const Quaternion& q) {
     m_data[3] -= q.m_data[3];
 }
 
-double& Quaternion::operator[](const size_t& index) {
+double& Quaternion::operator[](const size_t index) {
     return m_data[index];
 }
 
@@ -120,7 +120,7 @@ void Quaternion::setComplex(const TVector3& complex) {
     m_data[3] = complex[2];
 }
 
-void Quaternion::setCoord(const size_t& index, const double& value) {
+void Quaternion::setCoord(const size_t index, const double& value) {
     m_data[index] = value;
 }
 

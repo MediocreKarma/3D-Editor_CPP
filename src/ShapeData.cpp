@@ -6,7 +6,7 @@ const double err = 0.0000000000000000000001;
 Point2D::Point2D() :
     x(), y() {}
 
-Point2D::Point2D(const int& x_, const int& y_) :
+Point2D::Point2D(const int x_, const int y_) :
     x(x_), y(y_) {}
 
 Point2D::Point2D(const double& x_, const double& y_) :
@@ -23,11 +23,11 @@ int Point2D::getY() const {
     return y;
 }
 
-void Point2D::setX(const int& x_){
+void Point2D::setX(const int x_){
     x = x_;
 }
 
-void Point2D::setY(const int& y_){
+void Point2D::setY(const int y_){
     y = y_;
 }
 
@@ -66,7 +66,7 @@ void Point2D::translate (const Point2D& other) {
     y += other.y;
 }
 
-void Point2D::translate (const int& x_, const int& y_) {
+void Point2D::translate (const int x_, const int y_) {
     x += x_;
     y += y_;
 }
@@ -77,7 +77,7 @@ Line2D::Line2D() :
 Line2D::Line2D(const Point2D& P_, const Point2D& Q_) :
     P(P_), Q(Q_) {}
 
-Line2D::Line2D(const int& x0, const int& y0, const int& x1, const int& y1) :
+Line2D::Line2D(const int x0, const int y0, const int x1, const int y1) :
     P(x0, y0), Q(x1, y1) {}
 
 Point2D Line2D::getP() const {
@@ -132,7 +132,7 @@ Point2D Section::centerPoint() const {
     return m_centerPoint;
 }
 
-void Section::addEdge(const size_t& index1, const size_t& index2) {
+void Section::addEdge(const size_t index1, const size_t index2) {
     for (size_t i = 0; i < m_adjList[index1].size(); ++i) {
         if (m_adjList[index1][i] == index2) {
             return;
@@ -142,7 +142,7 @@ void Section::addEdge(const size_t& index1, const size_t& index2) {
     m_adjList[index2].push_back(index1);
 }
 
-void Section::draw(const int& primaryThemeColor, const int& fillColor, const int& borderColor) {
+void Section::draw(const int primaryThemeColor, const int fillColor, const int borderColor) {
     setcolor(primaryThemeColor);
     for (size_t i = 0; i < size(); ++i) {
         int x0 = m_points[i].getX();
@@ -164,11 +164,11 @@ void Section::draw(const int& primaryThemeColor, const int& fillColor, const int
     drawButton(fillColor, borderColor);
 }
 
-bool Section::grabButtonCollision(const int& x, const int& y) const {
+bool Section::grabButtonCollision(const int x, const int y) const {
     return m_grabPoint.hitCollision(x, y);
 }
 
-void Section::drawButton(const int& fillColor, const int& borderColor) {
+void Section::drawButton(const int fillColor, const int borderColor) {
     m_grabPoint.drawLabel(fillColor, borderColor);
 }
 
@@ -181,11 +181,11 @@ Section& Section::operator = (const Section& other) {
     return *this;
 }
 
-Point2D& Section::operator [] (const size_t& index) {
+Point2D& Section::operator [] (const size_t index) {
     return m_points[index];
 }
 
-const Point2D& Section::operator [] (const size_t& index) const {
+const Point2D& Section::operator [] (const size_t index) const {
     return m_points[index];
 }
 
@@ -399,7 +399,7 @@ void Line3D::setQ(const Point3D& Q_) {
     Q.setPoint(Q_);
 }
 
-void Line3D::translate(const int& xTranslate, const int& yTranslate, const int& zTranslate) {
+void Line3D::translate(const int xTranslate, const int yTranslate, const int zTranslate) {
     P.translate(xTranslate, yTranslate, zTranslate);
     Q.translate(xTranslate, yTranslate, zTranslate);
 }
@@ -466,11 +466,11 @@ double Mesh::scaleZ() const {
     return m_scaleZ;
 }
 
-Point3D& Mesh::operator [] (const size_t& index) {
+Point3D& Mesh::operator [] (const size_t index) {
     return m_points[index];
 }
 
-const Point3D& Mesh::operator [] (const size_t& index) const {
+const Point3D& Mesh::operator [] (const size_t index) const {
     return m_points[index];
 }
 
@@ -485,7 +485,7 @@ Mesh& Mesh::operator = (const Mesh& other) {
     return *this;
 }
 
-MyVector<size_t> Mesh::adjListAt(const size_t& index) const {
+MyVector<size_t> Mesh::adjListAt(const size_t index) const {
     return m_adjList[index];
 }
 
@@ -497,7 +497,7 @@ const MyVector<MyVector<size_t>>& Mesh::adjacencyList() const {
     return m_adjList;
 }
 
-void Mesh::erase(const size_t& index) {
+void Mesh::erase(const size_t index) {
     m_points.erase(m_points.begin() + index);
     m_adjList.erase(m_adjList.begin() + index);
     for (size_t i = 0; i < m_adjList.size(); ++i) {
@@ -517,7 +517,7 @@ void Mesh::erase(const size_t& index) {
     }
 }
 
-void Mesh::deleteIndexConnection(const size_t& index1, const size_t& index2) {
+void Mesh::deleteIndexConnection(const size_t index1, const size_t index2) {
     for (size_t i = 0; i < m_adjList[index1].size(); ++i) {
         if (m_adjList[index1][i] == index2) {
             m_adjList[index1].erase(m_adjList[index1].begin() + i);
@@ -532,7 +532,7 @@ void Mesh::deleteIndexConnection(const size_t& index1, const size_t& index2) {
     }
 }
 
-void Mesh::addIndexConnections(const size_t& index, const MyVector<size_t>& listAtIndex) {
+void Mesh::addIndexConnections(const size_t index, const MyVector<size_t>& listAtIndex) {
     for (size_t i = 0; i < listAtIndex.size(); ++i) {
         bool alreadyConnected = false;
         for (size_t j = 0; j < m_adjList[index].size(); ++j) {
@@ -558,7 +558,7 @@ void Mesh::addPoint(const Point3D& point) {
     m_adjList.push_back(MyVector<size_t>());
 }
 
-void Mesh::addEdge(const size_t& index1, const size_t& index2) {
+void Mesh::addEdge(const size_t index1, const size_t index2) {
     for (size_t i = 0; i < m_adjList[index1].size(); ++i) {
         if (m_adjList[index1][i] == index2) {
             return;
@@ -710,7 +710,7 @@ void Mesh::scaleEven(const double& scaleFactor) {
     m_scaleZ *= scaleFactor;
 }
 
-void Mesh::scaleAxis(const double& scaleFactor, const size_t& axis) {
+void Mesh::scaleAxis(const double& scaleFactor, const size_t axis) {
     //all scale is local
     MyArray<bool, 3> axes = {false, false, false};
     axes[axis] = true;
@@ -743,7 +743,7 @@ void Mesh::scaleAxis(const double& scaleFactor, const size_t& axis) {
     rotateByUnitQuat(quat);
 }
 
-void Mesh::mirror(const size_t& axis) {
+void Mesh::mirror(const size_t axis) {
     scaleAxis(-1, axis);
 }
 
@@ -932,7 +932,7 @@ IntegerPoint3D::IntegerPoint3D(const Point3D& point3d) : IntegerPoint3D() {
     *this = point3d;
 }
 
-IntegerPoint3D::IntegerPoint3D(const int& x_, const int& y_, const int& z_) :
+IntegerPoint3D::IntegerPoint3D(const int x_, const int y_, const int z_) :
     x(x_), y(y_), z(z_) {}
 
 IntegerPoint3D::IntegerPoint3D(const IntegerPoint3D& other) :
@@ -1055,11 +1055,11 @@ void FixedMesh::addPoint(const IntegerPoint3D& x) {
     m_pointIterators.insert(x, m_points.begin());
 }
 
-void FixedMesh::addPoint(const int& x, const int& y, const int& z) {
+void FixedMesh::addPoint(const int x, const int y, const int z) {
     addPoint(IntegerPoint3D(x, y, z));
 }
 
-void FixedMesh::erasePoint(const int& x, const int& y, const int& z) {
+void FixedMesh::erasePoint(const int x, const int y, const int z) {
     erasePoint(IntegerPoint3D(x, y, z));
 }
 

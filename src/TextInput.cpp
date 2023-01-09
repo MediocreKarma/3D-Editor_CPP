@@ -1,6 +1,6 @@
 #include "TextInput.h"
 
-TextInputBox::TextInputBox(const int& areaBegin, const int& areaEnd, const int& height, const int& textColor, const int& fillColor, const int& maxSize, const char* acceptedInput) :
+TextInputBox::TextInputBox(const int areaBegin, const int areaEnd, const int height, const int textColor, const int fillColor, const int maxSize, const char* acceptedInput) :
                 m_areaBegin(areaBegin), m_areaEnd(areaEnd), m_displayBegin(0), m_displayEnd(0), m_height(height), m_index(0), m_textColor(textColor), m_fillColor(fillColor), m_maxSize(maxSize),
                 m_pressedEnter(false), m_mouseclick{-1, -1}, m_text(nullptr), m_accepted(acceptedInput) {}
 
@@ -41,7 +41,7 @@ void TextInputBox::drawText() {
     outtextxy(m_areaBegin, m_height - textheight(outText.data()) / 2, outText.data());
 }
 
-bool TextInputBox::isClickInTextbox(const int& x, const int& y) {
+bool TextInputBox::isClickInTextbox(const int x, const int y) {
     return x >= m_areaBegin - 5 && x <= m_areaEnd + 5 && y >= m_height - 10 && y <= m_height + 10;
 }
 
@@ -122,7 +122,7 @@ MyArray<char, TextInputBox::MAX_TEXT_SIZE> TextInputBox::getText(const MyArray<c
     return m_text;
 }
 
-void TextInputBox::changeIndexByClick(const int& x, size_t& begin, size_t& end) {
+void TextInputBox::changeIndexByClick(const int x, size_t& begin, size_t& end) {
     if (x <= m_areaBegin) {
         m_index = begin;
     }
@@ -138,7 +138,7 @@ void TextInputBox::changeIndexByClick(const int& x, size_t& begin, size_t& end) 
     display(begin, end);
 }
 
-void TextInputBox::incrementBeginEnd(size_t& begin, size_t& end, const size_t& lenText) {
+void TextInputBox::incrementBeginEnd(size_t& begin, size_t& end, const size_t lenText) {
     while (end < m_index) {
         ++end;
     }
@@ -180,14 +180,14 @@ void TextInputBox::insertIndex(size_t& len, const char& key) {
     ++m_index;
 }
 
-void TextInputBox::displayCursor(const MyArray<char, MAX_TEXT_SIZE>& outText, const size_t& from) {
+void TextInputBox::displayCursor(const MyArray<char, MAX_TEXT_SIZE>& outText, const size_t from) {
     MyArray<char, MAX_TEXT_SIZE> textBeforeCursor = outText;
     textBeforeCursor[m_index - from] = 0;
     int len = textwidth(textBeforeCursor.data());
     line(m_areaBegin + len, m_height - 8, m_areaBegin + len, m_height + 8);
 }
 
-MyArray<char, TextInputBox::MAX_TEXT_SIZE> TextInputBox::displayText(const size_t& from, const size_t& to) {
+MyArray<char, TextInputBox::MAX_TEXT_SIZE> TextInputBox::displayText(const size_t from, const size_t to) {
     MyArray<char, MAX_TEXT_SIZE> outText = {0};
     for (size_t index = 0; index + from < to && m_text[index + from]; ++index) {
         outText[index] = m_text[index + from];
@@ -195,7 +195,7 @@ MyArray<char, TextInputBox::MAX_TEXT_SIZE> TextInputBox::displayText(const size_
     return outText;
 }
 
-void TextInputBox::display(const size_t& from, const size_t& to) {
+void TextInputBox::display(const size_t from, const size_t to) {
     clearText();
     MyArray<char, MAX_TEXT_SIZE> outText = displayText(from, to);
     setbkcolor(m_fillColor);

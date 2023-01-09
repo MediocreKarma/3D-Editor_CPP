@@ -1,7 +1,7 @@
 #include "Camera.h"
 static const double PI = 3.141592653589793238462;
 
-Camera::Camera(const int& maxRadius) :
+Camera::Camera(const int maxRadius) :
     m_point(0, maxRadius, 0), m_EZ(1), m_quat() {}
 
 Camera::Camera(const Point3D& point, const double& EZ_) :
@@ -24,7 +24,7 @@ void Camera::setEZ (const double& value) {
     m_EZ = value;
 }
 
-void Camera::rotateOnAxis(const size_t& axis, const double& angle) {
+void Camera::rotateOnAxis(const size_t axis, const double& angle) {
     MyArray<double, 3> canonicalVector;
     canonicalVector.fill(0);
     canonicalVector[axis] = 1;

@@ -24,10 +24,10 @@ int ColorSchemes::mixColors(int color1, int color2, uint8_t percentage) {
 Label::Label() :
     xCenter(), yCenter(), xLen(), yLen() {}
 
-Label::Label(const int& xCenter_, const int& yCenter_, const int& xLen_, const int& yLen_) :
+Label::Label(const int xCenter_, const int yCenter_, const int xLen_, const int yLen_) :
     xCenter(xCenter_), yCenter(yCenter_), xLen(xLen_), yLen(yLen_) {}
 
-void Label::drawLabel(const int& fillColor, const int& outlineColor) const {
+void Label::drawLabel(const int fillColor, const int outlineColor) const {
     fillsettingstype oldSettings;
     getfillsettings(&oldSettings);
     border(outlineColor);
@@ -39,7 +39,7 @@ void Label::drawLabel(const int& fillColor, const int& outlineColor) const {
     setfillstyle(oldSettings.pattern, oldSettings.color);
 }
 
-void Label::border(const int& outlineColor) const {
+void Label::border(const int outlineColor) const {
     if (outlineColor == -1)
         return;
     setcolor(outlineColor);
@@ -47,7 +47,7 @@ void Label::border(const int& outlineColor) const {
         xCenter + xLen / 2, yCenter + yLen / 2);
 }
 
-void Label::clear(const int& barColor) const {
+void Label::clear(const int barColor) const {
     setfillstyle(SOLID_FILL, barColor);
     bar(xCenter - xLen / 2, yCenter - yLen / 2,
         xCenter + xLen / 2, yCenter + yLen / 2);
@@ -71,10 +71,10 @@ int Label::getYLen() const {
 CircularLabel::CircularLabel() :
     xCenter(), yCenter(), radius() {}
 
-CircularLabel::CircularLabel(const int& xCenter_, const int& yCenter_, const int& radius_) :
+CircularLabel::CircularLabel(const int xCenter_, const int yCenter_, const int radius_) :
     xCenter(xCenter_), yCenter(yCenter_), radius(radius_) {}
 
-void CircularLabel::drawLabel(const int& fillColor, const int& outlineColor) {
+void CircularLabel::drawLabel(const int fillColor, const int outlineColor) {
     border(outlineColor);
     if (fillColor == -1) {
         return;
@@ -83,7 +83,7 @@ void CircularLabel::drawLabel(const int& fillColor, const int& outlineColor) {
     fillellipse(xCenter, yCenter, radius, radius);
 }
 
-void CircularLabel::border(const int& outlineColor) const {
+void CircularLabel::border(const int outlineColor) const {
     if (outlineColor == -1) {
         return;
     }
@@ -91,12 +91,12 @@ void CircularLabel::border(const int& outlineColor) const {
     circle(xCenter, yCenter, radius);
 }
 
-void CircularLabel::clear(const int& barColor) const {
+void CircularLabel::clear(const int barColor) const {
     setfillstyle(SOLID_FILL, barColor);
     ellipse(xCenter, yCenter, 0, 360, radius, radius);
 }
 
-void CircularLabel::move(const int& x, const int& y) {
+void CircularLabel::move(const int x, const int y) {
     xCenter = x;
     yCenter = y;
 }
@@ -116,10 +116,10 @@ int CircularLabel::getRadius() const {
 CircularButton::CircularButton() :
     CircularLabel() {}
 
-CircularButton::CircularButton(const int& xCenter_, const int& yCenter_, const int& radius_) :
+CircularButton::CircularButton(const int xCenter_, const int yCenter_, const int radius_) :
     CircularLabel(xCenter_, yCenter_, radius_) {}
 
-bool CircularButton::hitCollision(const int& x, const int& y) const {
+bool CircularButton::hitCollision(const int x, const int y) const {
     int xDist = x - xCenter;
     int yDist = y - yCenter;
     return xDist * xDist + yDist * yDist <= radius * radius;
@@ -128,20 +128,20 @@ bool CircularButton::hitCollision(const int& x, const int& y) const {
 DonutButton::DonutButton() :
     CircularButton(), m_outerRing(), m_innerRing() {}
 
-DonutButton::DonutButton(const int& xCenter_, const int& yCenter_, const int& radius_, const int& donutLen) :
+DonutButton::DonutButton(const int xCenter_, const int yCenter_, const int radius_, const int donutLen) :
     CircularButton(xCenter_, yCenter_, radius_), m_outerRing(xCenter_, yCenter_, radius_ + donutLen / 2), m_innerRing(xCenter_, yCenter_, radius_ - donutLen / 2) {}
 
-bool DonutButton::hitCollision(const int& x, const int& y) const {
+bool DonutButton::hitCollision(const int x, const int y) const {
     return m_outerRing.hitCollision(x, y) && !m_innerRing.hitCollision(x, y);
 }
 
 TextLabel::TextLabel() :
     Label(), m_text() {}
 
-TextLabel::TextLabel(const int& xCenter_, const int& yCenter_, const int& xLen_, const int& yLen_, const char* text) :
+TextLabel::TextLabel(const int xCenter_, const int yCenter_, const int xLen_, const int yLen_, const char* text) :
     Label(xCenter_, yCenter_, xLen_, yLen_), m_text(text){}
 
-void TextLabel::drawText(const int& /*txtFont*/, const int& /*txtSize*/, const int& bkColor) {
+void TextLabel::drawText(const int /*txtFont*/, const int /*txtSize*/, const int bkColor) {
     //settextstyle(txtFont, 0, txtSize);
     int oldBkColor = getbkcolor();
     setbkcolor(bkColor);
@@ -149,17 +149,17 @@ void TextLabel::drawText(const int& /*txtFont*/, const int& /*txtSize*/, const i
     setbkcolor(oldBkColor);
 }
 
-void TextLabel::drawTextLabel(const int& txtFont, const int& txtSize, const int& fillColor) {
+void TextLabel::drawTextLabel(const int txtFont, const int txtSize, const int fillColor) {
     drawLabel(fillColor);
     drawText(txtFont, txtSize, fillColor);
 }
 
 Button::Button() = default;
 
-Button::Button(const int& xCenter_, const int& yCenter_, const int& xLen_, const int& yLen_) :
+Button::Button(const int xCenter_, const int yCenter_, const int xLen_, const int yLen_) :
     Label(xCenter_, yCenter_, xLen_, yLen_) {}
 
-bool Button::hitCollision(const int& x, const int& y) const {
+bool Button::hitCollision(const int x, const int y) const {
     return xCenter - xLen / 2 <= x && x <= xCenter + xLen / 2 &&
         yCenter - yLen / 2 <= y && y <= yCenter + yLen / 2;
 }
@@ -167,7 +167,7 @@ bool Button::hitCollision(const int& x, const int& y) const {
 ImageButton::ImageButton() :
     Button(), filename() {}
 
-ImageButton::ImageButton(const int& xCenter_, const int& yCenter_, const int& xLen_, const int& yLen_, const char* filename_) :
+ImageButton::ImageButton(const int xCenter_, const int yCenter_, const int xLen_, const int yLen_, const char* filename_) :
     Button(xCenter_, yCenter_, xLen_, yLen_), filename(filename_) {}
 
 void ImageButton::drawImageButton() {
@@ -177,10 +177,10 @@ void ImageButton::drawImageButton() {
 TextButton::TextButton() :
     Button(), m_text() {}
 
-TextButton::TextButton(const int& xCenter_, const int& yCenter_, const int& xLen_, const int& yLen_, const char* p) :
+TextButton::TextButton(const int xCenter_, const int yCenter_, const int xLen_, const int yLen_, const char* p) :
     Button(xCenter_, yCenter_, xLen_, yLen_), m_text(p) {}
 
-void TextButton::drawText(const int& /*txtFont*/, const int& /*txtSize*/, const int& bkColor, const bool& centerText) {
+void TextButton::drawText(const int /*txtFont*/, const int /*txtSize*/, const int bkColor, const bool& centerText) {
     //settextstyle(txtFont, 0, txtSize);
     int oldBkColor = getbkcolor();
     setbkcolor(bkColor);
@@ -193,7 +193,7 @@ void TextButton::drawText(const int& /*txtFont*/, const int& /*txtSize*/, const 
     setbkcolor(oldBkColor);
 }
 
-void TextButton::drawTextButton(const int& txtFont, const int& txtSize, const int& fillColor, const bool& centerText) {
+void TextButton::drawTextButton(const int txtFont, const int txtSize, const int fillColor, const bool& centerText) {
     drawLabel(fillColor);
     drawText(txtFont, txtSize, fillColor, centerText);
 }
