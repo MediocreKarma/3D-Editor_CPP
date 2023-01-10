@@ -2,6 +2,9 @@
 
 EDITOR 3D is a program written in C++ using the winbgi version of the graphics.h library, capable of creating, editing and visualizing 3D shapes, both simple and more complicated ones.
 
+![visualizer](https://user-images.githubusercontent.com/87321707/211558347-2999467c-9af6-4801-8152-777536d4d4d1.png)
+![object_creator](https://user-images.githubusercontent.com/87321707/211558096-86272fe8-1957-4cce-b1b7-b2d4872825ff.png)
+
 ## Features
 
 * perspective camera fully capable of movement in space, rotation, and FOV change
@@ -17,7 +20,7 @@ EDITOR 3D is a program written in C++ using the winbgi version of the graphics.h
 ## Controls:
 #### Visualizer:
 * Create a new 3D Space, save it, or open sample spaces from the "spaces" folder by pressing the File button and choosing the appropriate option
-* Move camera with WASD, Q, and E keys, change FOV with Z and X keys
+* Move camera with WASD, Q, and E keys, change FOV with Z and X keys, rotate with arrows at the edges of the screen
 * Select Mesh by clicking on its center (circular button)
 * Show Mesh context menu by right clicking on any Mesh, or Space context menu by right clicking anywhere else
 * Scale either through the Mesh context menu or by pressing F
@@ -34,6 +37,7 @@ EDITOR 3D is a program written in C++ using the winbgi version of the graphics.h
 * Move point on Layer by dragging on a point button in Layer View, move Layer View by dragging anywhere else
 * Switch back to 3D view by pressing the Minimized Space button (top right)
 * Generate a predefined Mesh using the Generate dropdown (top left)
+* Add, delete, or duplicate layers using the tools at the bottom of the layer list
 
 
 ## Credits
